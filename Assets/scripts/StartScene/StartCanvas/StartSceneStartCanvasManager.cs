@@ -39,7 +39,7 @@ namespace StartScene
                     Debug.Log($"StartSceneStartCanvasManager≥¢ ‘«–ªªµΩ{{{name}}} ß∞‹");
                 }
 #else
-                _pannelChange.ChangeToPannel(name)
+                _pannelChange.ChangeToPannel(name);
 #endif
             }
 
