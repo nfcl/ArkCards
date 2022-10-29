@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -87,11 +86,9 @@ public class PannelChange
             foreach(CanvasGroup item in _source.Values)
             {
                 item.alpha = 0;
-                item.interactable = false;
                 item.blocksRaycasts = false;
             }
             _source[name].alpha = 1;
-            _source[name].interactable = true;
             _source[name].blocksRaycasts = true;
             return true;
         }
