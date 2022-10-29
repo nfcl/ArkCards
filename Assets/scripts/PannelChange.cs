@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,12 +10,15 @@ using UnityEngine;
 /// </summary>
 public class PannelChange
 {
+    private Dictionary<string, CanvasGroup> _source;
+
     /// <summary>
     /// 无参构造
     /// </summary>
     public PannelChange()
     {
 
+        _source = new Dictionary<string, CanvasGroup>();
     }
 
     /// <summary>
@@ -23,7 +27,15 @@ public class PannelChange
     /// <param name="source">要增加管理的Pannel</param>
     public PannelChange(List<KeyValuePair<string,CanvasGroup>> source)
     {
+        _source = new Dictionary<string, CanvasGroup>();
 
+        foreach(KeyValuePair<string,CanvasGroup> item in source)
+        {
+            if (false == _source.ContainsKey(item.Key))
+            {
+                _source.Add(item.Key, item.Value);
+            }
+        }
     }
 
     /// <summary>
@@ -34,7 +46,15 @@ public class PannelChange
     /// <returns>返回是否增加成功(管理的Pannel中是否不存在对应名称的)</returns>
     public bool AddPannel(string name, CanvasGroup source)
     {
-        return false;   //防止检测不到返回值报错
+        if (false == _source.ContainsKey(name))
+        {
+            _source.Add(name, source);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -44,7 +64,15 @@ public class PannelChange
     /// <returns>返回是否移除成功(管理的Pannel中是否存在对应名称的)</returns>
     public bool RemovePannel(string name)
     {
-        return false;   //防止检测不到返回值报错
+        if(true == _source.ContainsKey(name))
+        {
+            _source.Remove(name);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -54,6 +82,22 @@ public class PannelChange
     /// <returns>返回是否显示成功(管理的Pannel中是否存在对应名称的)</returns>
     public bool ChangeToPannel(string name)
     {
-        return false;   //防止检测不到返回值报错
+        if (true == _source.ContainsKey(name))
+        {
+            foreach(CanvasGroup item in _source.Values)
+            {
+                item.alpha = 0;
+                item.interactable = false;
+                item.blocksRaycasts = false;
+            }
+            _source[name].alpha = 1;
+            _source[name].interactable = true;
+            _source[name].blocksRaycasts = true;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
