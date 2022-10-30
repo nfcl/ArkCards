@@ -27,11 +27,8 @@ namespace GameScene
         {
             _mapNodeDrawControl = new Map.MapNodeDraw(GameObject.Find("Map/Tilemap").GetComponent<UnityEngine.Tilemaps.Tilemap>());
             _mapNodeDrawControl.AddTile("Grass", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Grass"));
-            _mapNodeDrawControl.Draw("Grass", (0, 0));
-            _mapNodeDrawControl.Draw("Grass", (1, 0));
-            _mapNodeDrawControl.Draw("Grass", (0, 2));
-            _mapNodeDrawControl.Draw("Grass", (3, 0));
-            _mapNodeDrawControl.Draw("Grass", (0, 4));
+            _mapNodeDrawControl.AddTile("Sand", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Sand"));
+            _mapNodeDrawControl.AddTile("Water", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Water"));
         }
 
         /// <summary>
