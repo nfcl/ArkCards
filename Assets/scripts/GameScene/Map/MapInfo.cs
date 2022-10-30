@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameScene
 {
@@ -29,7 +28,9 @@ namespace GameScene
 
             public MapInfo()
             {
+                //置null
                 _source = null;
+                //置-1
                 _seed = -1;
             }
 
@@ -45,14 +46,24 @@ namespace GameScene
             /// 创建新的地图
             /// </summary>
             /// <param name="size">要创建的地图大小</param>
-            /// <param name="seed">要创建的地图初始种子,值为-1时为随机</param>
-            public void CreateNewMap((int width, int height) size,int seed = -1)
+            public void CreateNewMap((int width, int height) size)
             {
-                if (-1 == seed)
-                {
-                    seed = Random.Range(int.MinValue, int.MaxValue);
-                }
+                //设置种子
+                _seed = Random.Range(0, int.MaxValue);
+                //设置地图大小
+                _source = new MapNode[size.width, size.height];
+            }
 
+            /// <summary>
+            /// 创建新的地图
+            /// </summary>
+            /// <param name="size">要创建的地图大小</param>
+            /// <param name="seed">要创建的地图初始种子,值为-1时为随机</param>
+            public void CreateNewMap((int width, int height) size, int seed)
+            {
+                //设置种子
+                _seed = seed;
+                //设置地图大小
                 _source = new MapNode[size.width, size.height];
             }
 
@@ -64,6 +75,7 @@ namespace GameScene
             /// <returns>返回对应节点</returns>
             public MapNode GetNode(int x, int y)
             {
+                //返回对应位置的节点
                 return _source[x, y];
             }
         }
