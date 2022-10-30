@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace GameScene
 {
     namespace Operator
@@ -12,7 +8,16 @@ namespace GameScene
         /// </summary>
         public class SingleOperator
         {
+            /// <summary>
+            /// 干员名称
+            /// </summary>
+            private string _name;
+            /// <summary>
+            /// 干员状态
+            /// </summary>
+            private OperatorState _state;
 
+            public string Name { get => _name; }
         }
     }
 }
