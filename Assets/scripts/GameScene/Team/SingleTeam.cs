@@ -1,6 +1,5 @@
-using System.Collections;
+using GameScene.Operator;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace GameScene
 {
@@ -12,7 +11,16 @@ namespace GameScene
         /// </summary>
         public class SingleTeam
         {
+            /// <summary>
+            /// 小队名称
+            /// </summary>
+            private string _teamName;
+            /// <summary>
+            /// <para/>小队成员
+            /// </summary>
+            private List<SingleOperator> _members;
 
+            public string TeamName { get { return _teamName; } }
         }
     }
 }
