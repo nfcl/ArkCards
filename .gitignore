@@ -366,5 +366,5 @@ FodyWeavers.xsd
 /ProjectSettings
 /Temp
 *.conf
-/Resources
-/Scenes
+/Assets/Resources
+/Assets/Scenes
