@@ -7,10 +7,10 @@ namespace GameScene
 {
     public class GameSceneManager : MonoBehaviour
     {
-        private Map.MapNodeDraw _mapNodeDrawControl;
-        private Map.MapInfo _mapInfo;
-        private Operator.OperatorCollection _operators;
-        private Team.TeamCollection _teams;
+        private Map.MapNodeDraw                 _mapNodeDrawControl;    //地图绘制
+        private Map.MapInfo                     _mapInfo;               //地图信息
+        private Operator.OperatorCollection     _operators;             //干员信息
+        private Team.TeamCollection             _teams;                 //小队信息
 
         public void Start()
         {

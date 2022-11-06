@@ -52,19 +52,23 @@ namespace GameScene
                 _seed = Random.Range(0, int.MaxValue);
                 //设置地图大小
                 _source = new MapNode[size.width, size.height];
+                //创建地图
+                //TODO
             }
 
             /// <summary>
-            /// 创建新的地图
+            /// 根据给定种子创建新的地图
             /// </summary>
             /// <param name="size">要创建的地图大小</param>
-            /// <param name="seed">要创建的地图初始种子,值为-1时为随机</param>
+            /// <param name="seed">初始种子</param>
             public void CreateNewMap((int width, int height) size, int seed)
             {
                 //设置种子
                 _seed = seed;
                 //设置地图大小
                 _source = new MapNode[size.width, size.height];
+                //创建地图
+                //TODO
             }
 
             /// <summary>
