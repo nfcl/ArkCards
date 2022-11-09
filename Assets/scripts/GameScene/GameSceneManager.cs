@@ -1,29 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameScene
 {
     public class GameSceneManager : MonoBehaviour
     {
-        /// <summary>
-        /// 地图绘制
-        /// </summary>
-        private Map.MapNodeDraw                 _mapNodeDrawControl;
-        /// <summary>
-        /// 地图点击监听
-        /// </summary>
-        private Map.TileMapClick                _mapClickListener;
-        /// <summary>
-        /// 地图信息
-        /// </summary>
-        private Map.MapInfo                     _mapInfo;
-        /// <summary>
-        /// 干员信息
-        /// </summary>
-        private Operator.OperatorCollection     _operators;
-        /// <summary>
-        /// 小队信息
-        /// </summary>
-        private Team.TeamCollection             _teams;                 
+        private Operator.OperatorCollection     _operators;             //干员信息
+        private Team.TeamCollection             _teams;                 //小队信息
 
         public void Start()
         {
@@ -40,15 +25,7 @@ namespace GameScene
         /// </summary>
         public void MapInit()
         {
-         
-            _mapClickListener = GameObject.Find("").GetComponent<Map.TileMapClick>();
 
-            _mapNodeDrawControl = new Map.MapNodeDraw(GameObject.Find("Map/Tilemap").GetComponent<UnityEngine.Tilemaps.Tilemap>());
-            _mapNodeDrawControl.AddTile("Grass", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Grass"));
-            _mapNodeDrawControl.AddTile("Sand", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Sand"));
-            _mapNodeDrawControl.AddTile("Water", Resources.Load<UnityEngine.Tilemaps.Tile>("GameScene/MapNodes/TileMap/Water"));
-
-            _mapInfo = new Map.MapInfo();
         }
 
         /// <summary>
