@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace GameScene.Map
@@ -13,7 +14,7 @@ namespace GameScene.Map
         private TileMapClickDelegate _delegate;
         /// <summary>
         /// <para/>瓦片地图的grid用于坐标转换
-        /// </summary>
+        /// </summary> 
         [SerializeField]
         private Grid _grid;
         /// <summary>
@@ -26,11 +27,34 @@ namespace GameScene.Map
         /// </summary>
         private Vector3Int _tilemapPos;
 
+        /// <summary>
+        /// 添加新的委托监听
+        /// </summary>
+        /// <param name="newEvent">新的委托</param>
         public void AddClickEvent(TileMapClickDelegate newEvent)
         {
             _delegate += newEvent;
         }
 
+        /// <summary>
+        /// 清空所有委托
+        /// </summary>
+        public void ClearClickEvent()
+        {
+            Delegate[] buf = _delegate.GetInvocationList();
+
+            foreach (Delegate item in buf)
+            {
+                _delegate -= item as TileMapClickDelegate;
+            }
+
+            buf = null;
+        }
+
+        /// <summary>
+        /// 鼠标点击事件监听
+        /// </summary>
+        /// <param name="eventData">点击信息</param>
         public void OnPointerClick(PointerEventData eventData)
         {
             _tilemapPos = _grid.WorldToCell(_mainCamer.ScreenToWorldPoint(eventData.position));
