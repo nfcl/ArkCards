@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{17CC8E3C-C675-1EB5-8C1B-0A4B95FDF2D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -57,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\scripts\PannelChange.cs" />
-    <Compile Include="Assets\scripts\GameScene\Map\MapNodeState.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\MapNodeKind.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\MapNodeDraw.cs" />
     <Compile Include="Assets\scripts\GameScene\Operator\OperatorState.cs" />
     <Compile Include="Assets\scripts\GameScene\GameSceneManager.cs" />

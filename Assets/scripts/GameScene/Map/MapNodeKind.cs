@@ -5,7 +5,7 @@
         /// <summary>
         /// 地图节点类型
         /// </summary>
-        public enum MapNodeState 
+        public enum MapNodeKind 
         {
             Grass,      //草地
             Water,      //水
