@@ -75,6 +75,7 @@
     <Compile Include="Assets\scripts\GameScene\Map\HexGrid.cs" />
     <Compile Include="Assets\scripts\GameScene\Operator\SingleOperator.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexMapEditor.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\EdgeVertices .cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\VertexColors.shader" />

@@ -27,7 +27,9 @@ namespace GameScene.Map
         /// 节点UI的RectTransform
         /// </summary>
         public RectTransform uiRect;
-
+        /// <summary>
+        /// 节点高度属性
+        /// </summary>
         public int Elevation
         {
             get
@@ -41,11 +43,23 @@ namespace GameScene.Map
                 //设置节点位置
                 Vector3 position = transform.localPosition;
                 position.y = value * HexMetrics.elevationStep;
+                //对y轴进行噪声扰动
+                position.y += (HexMetrics.SampleNoise(position).y * 2f - 1f) * HexMetrics.elevationPerturbStrength;
                 transform.localPosition = position;
                 //设置节点UI位置
                 Vector3 uiPosition = uiRect.localPosition;
-                uiPosition.z = elevation * -HexMetrics.elevationStep;
+                uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
+            }
+        }
+        /// <summary>
+        /// 节点位置
+        /// </summary>
+        public Vector3 Position
+        {
+            get
+            {
+                return transform.localPosition;
             }
         }
 

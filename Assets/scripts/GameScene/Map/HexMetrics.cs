@@ -12,11 +12,45 @@ namespace GameScene.Map
         /// <summary>
         /// 六边形内切圆半径
         /// </summary>
-        public const float innerRadius = outerRadius * Tool.Math.sqrt3 / 2; 
+        public const float innerRadius = outerRadius * Tool.Math.sqrt3 / 2;
+        /// <summary>
+        /// 尖顶朝上的六边形六个角坐标相对于中心位置
+        /// </summary>
+        private static Vector3[] corners_spire = new Vector3[]
+        {
+            new Vector3(0f          , 0f, outerRadius           ),
+            new Vector3(innerRadius , 0f, outerRadius * 0.5f    ),
+            new Vector3(innerRadius , 0f, outerRadius * -0.5f   ),
+            new Vector3(0f          , 0f, -outerRadius          ),
+            new Vector3(-innerRadius, 0f, outerRadius * -0.5f   ),
+            new Vector3(-innerRadius, 0f, outerRadius *0.5f     ),
+            new Vector3(0f          , 0f, outerRadius           )
+        };
+        /// <summary>
+        /// 平顶朝上的六边形六个角坐标相对于中心位置
+        /// </summary>
+        private static Vector3[] corners_flattened = new Vector3[]
+        {
+            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+            new Vector3(outerRadius         ,0,0                ),
+            new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
+            new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
+            new Vector3(-outerRadius        ,0,0                ),
+            new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
+            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        };
+        /// <summary>
+        /// 单个区块的水平长度
+        /// </summary>
+        public const int chunkSizeX = 5;
+        /// <summary>
+        /// 单个区块的垂直长度
+        /// </summary>
+        public const int chunkSizeZ = 5;
         /// <summary>
         /// 纯色区域比例
         /// </summary>
-        public const float solidFactor = 0.75f;
+        public const float solidFactor = 0.8f;
         /// <summary>
         /// 混合色区域比例
         /// </summary>
@@ -24,7 +58,7 @@ namespace GameScene.Map
         /// <summary>
         /// 相邻节点高度每单位实际y轴差距
         /// </summary>
-        public const float elevationStep = 5f;
+        public const float elevationStep = 3f;
         /// <summary>
         /// 每个斜面的平台个数
         /// </summary>
@@ -42,31 +76,21 @@ namespace GameScene.Map
         /// </summary>
         public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
         /// <summary>
-        /// 尖顶朝上的六边形六个角坐标相对于中心位置
+        /// 噪声图
         /// </summary>
-        static Vector3[] corners_spire = new Vector3[]
-        {
-            new Vector3(0f          , 0f, outerRadius           ),
-            new Vector3(innerRadius , 0f, outerRadius * 0.5f    ),
-            new Vector3(innerRadius , 0f, outerRadius * -0.5f   ),
-            new Vector3(0f          , 0f, -outerRadius          ),
-            new Vector3(-innerRadius, 0f, outerRadius * -0.5f   ),
-            new Vector3(-innerRadius, 0f, outerRadius *0.5f     ),
-            new Vector3(0f          , 0f, outerRadius           )
-        };
+        public static Texture2D noiseSource = Resources.Load<Texture2D>("GameScene/MapNodes/sprite/noise");
         /// <summary>
-        /// 平顶朝上的六边形六个角坐标相对于中心位置
+        /// 噪声扰动强度
         /// </summary>
-        static Vector3[] corners_flattened = new Vector3[]
-        {
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-            new Vector3(outerRadius         ,0,0                ),
-            new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
-            new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
-            new Vector3(-outerRadius        ,0,0                ),
-            new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-        };
+        public const float cellPerturbStrength = 4f;
+        /// <summary>
+        /// 噪声缩放
+        /// </summary>
+        public const float noiseScale = 0.003f;
+        /// <summary>
+        /// 垂直方向噪声扰动强度
+        /// </summary>
+        public const float elevationPerturbStrength = 1.5f;
 
         /// <summary>
         /// 根据给定方向给出方向向量
@@ -158,6 +182,15 @@ namespace GameScene.Map
             {//差距过大 悬崖
                 return HexEdgeType.Cliff;
             }
+        }
+        /// <summary>
+        /// 噪声采样
+        /// </summary>
+        /// <param name="position">三维位置</param>
+        /// <returns></returns>
+        public static Vector4 SampleNoise(Vector3 position)
+        {
+            return noiseSource.GetPixelBilinear(position.x * noiseScale, position.z * noiseScale);
         }
     }
 }

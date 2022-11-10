@@ -51,7 +51,7 @@ namespace GameScene.Map
             position.y = 0f;
             position.z = z * (HexMetrics.outerRadius * 1.5f);
             //新建节点
-            HexCell cell = cells[i] = Instantiate<HexCell>(cellPrefab);
+            HexCell cell = cells[i] = Instantiate(cellPrefab);
             cell.transform.SetParent(transform, false);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
@@ -86,11 +86,12 @@ namespace GameScene.Map
                 }
             }
             //新建节点标签
-            Text label = Instantiate<Text>(cellLabelPrefab);
+            Text label = Instantiate(cellLabelPrefab);
             label.rectTransform.SetParent(gridCanvas.transform, false);
             label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
             cell.uiRect = label.rectTransform;
+            cell.Elevation = 0;
         }
 
         public void Refresh()
