@@ -41,13 +41,9 @@ public class HexMesh : MonoBehaviour
 
         meshCollider.sharedMesh = hexMesh;
     }
-
     /// <summary>
-    /// 根据三个位置添加三角形
+    /// 添加一个三角形到网格
     /// </summary>
-    /// <param name="v1">位置1</param>
-    /// <param name="v2">位置2</param>
-    /// <param name="v3">位置3</param>
     private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
     {
         int vertexIndex = vertices.Count;
@@ -58,33 +54,137 @@ public class HexMesh : MonoBehaviour
         triangles.Add(vertexIndex + 1);
         triangles.Add(vertexIndex + 2);
     }
-
     /// <summary>
-    /// 增加新的三角形顶点颜色
+    /// 添加一个三个顶点颜色相同的三角形顶点颜色
     /// </summary>
-    /// <param name="color">指定的顶点颜色</param>
-    void AddTriangleColor(Color color)
+    void AddTriangleColor(Color c)
     {
-        colors.Add(color);
-        colors.Add(color);
-        colors.Add(color);
+        colors.Add(c);
+        colors.Add(c);
+        colors.Add(c);
+    }
+    /// <summary>
+    /// 添加一个三个顶点颜色不同的三角形的三个顶点颜色
+    /// </summary>
+    void AddTriangleColor(Color c1, Color c2, Color c3)
+    {
+        colors.Add(c1);
+        colors.Add(c2);
+        colors.Add(c3);
+    }
+    /// <summary>
+    /// 添加一个四边形到网格
+    /// </summary>
+    void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
+    {
+        int vertexIndex = vertices.Count;
+        vertices.Add(v1);
+        vertices.Add(v2);
+        vertices.Add(v3);
+        vertices.Add(v4);
+        triangles.Add(vertexIndex);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 3);
+    }
+    /// <summary>
+    /// 添加一个四边形的四个顶点颜色
+    /// </summary>
+    void AddQuadColor(Color c1, Color c2, Color c3, Color c4)
+    {
+        colors.Add(c1);
+        colors.Add(c2);
+        colors.Add(c3);
+        colors.Add(c4);
+    }
+    void AddQuadColor(Color c1, Color c2)
+    {
+        colors.Add(c1);
+        colors.Add(c1);
+        colors.Add(c2);
+        colors.Add(c2);
+    }
+    /// <summary>
+    /// 根据中心点添加六个三角面
+    /// </summary>
+    /// <param name="cell">节点</param>
+    void Triangulate(HexCell cell)
+    {
+        //遍历六个方向添加三角面
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            Triangulate(d, cell);
+        }
     }
 
     /// <summary>
-    /// 根据中心点计算六边形的六个三角形顶点
+    /// 根据中心点和方向添加三角面
     /// </summary>
-    /// <param name="cell"></param>
-    void Triangulate(HexCell cell)
+    /// <param name="direction">方向</param>
+    /// <param name="cell">中心节点</param>
+    void Triangulate(HexDirection direction, HexCell cell)
     {
+        //计算中心点位置
         Vector3 center = cell.transform.localPosition;
-        for (int i = 0; i < 6; i++)
+        //计算纯色区域的三角形底边的两个顶点
+        Vector3 v1 = center + HexMetrics.GetFirstSolidCorner(direction);
+        Vector3 v2 = center + HexMetrics.GetSecondSolidCorner(direction);
+        //添加纯色区域的三角形面
+        AddTriangle(center, v1, v2);
+        AddTriangleColor(cell.color);
+        //添加对应方向的连接矩形
+        if (direction <= HexDirection.SE)
+        {
+            TriangulateConnection(direction, cell, v1, v2);
+        }
+    }
+    /// <summary>
+    /// 添加节点对应方向的连接矩形
+    /// </summary>
+    /// <param name="direction">对应方向</param>
+    /// <param name="cell">节点</param>
+    /// <param name="v1">纯色区域底边顶点1</param>
+    /// <param name="v2">纯色区域底边顶点2</param>
+    void TriangulateConnection(HexDirection direction, HexCell cell, Vector3 v1, Vector3 v2)
+    {
+        //获得对应方向的邻居
+        HexCell neighbor = cell.GetNeighbor(direction);
+        //如果没有邻居返回
+        if (neighbor == null) return;
+        //计算纯色区域底边到混合区域底边垂线方向向量
+        Vector3 bridge = HexMetrics.GetBridge(direction);
+        //计算纯色区域底边到混合区域底边垂线的两个垂心
+        Vector3 v3 = v1 + bridge;
+        Vector3 v4 = v2 + bridge;
+        //添加混合区域矩形顶点
+        AddQuad(v1, v2, v3, v4);
+        //添加混合区域矩形顶点颜色
+        AddQuadColor(cell.color, neighbor.color);
+        //获得顺时针方向的下一个邻居
+        HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
+        //如果存在下一个邻居则添加三个节点相交中心混合区域到网格
+        //混合区域三个顶点颜色实为三个节点的颜色
+        //限制方向防止产生重复的混合区域三角形
+        if (direction <= HexDirection.E && nextNeighbor != null)
         {
             AddTriangle(
-                center,
-                center + HexMetrics.corners_spire[i],
-                center + HexMetrics.corners_spire[i + 1]
+                //纯色底边顶点
+                v2,
+                //混合矩形底边顶点
+                v4, 
+                //下一个混合矩形的同侧底边顶点
+                v2 + HexMetrics.GetBridge(direction.Next())
             );
-            AddTriangleColor(cell.color);
+            AddTriangleColor(
+                //节点颜色
+                cell.color, 
+                //邻居颜色
+                neighbor.color, 
+                //下一个邻居颜色
+                nextNeighbor.color
+            );
         }
     }
 

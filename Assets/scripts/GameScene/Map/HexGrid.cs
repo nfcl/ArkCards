@@ -17,14 +17,6 @@ namespace GameScene.Map
         /// </summary>
         public int height = 6;
         /// <summary>
-        /// 默认颜色
-        /// </summary>
-        public Color defaultColor = Color.white;
-        /// <summary>
-        /// 点击颜色
-        /// </summary>
-        public Color touchedColor = Color.magenta;
-        /// <summary>
         /// 节点预设体
         /// </summary>
         public HexCell cellPrefab;
@@ -63,7 +55,36 @@ namespace GameScene.Map
             cell.transform.SetParent(transform, false);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-            cell.color = defaultColor;
+            cell.color = Color.white;
+            //设置相邻关系
+            if (x > 0)
+            {
+                //设置自己左侧（W）的邻居
+                cell.SetNeighbor(HexDirection.W, cells[i - 1]);
+            }
+            if (z > 0)
+            {//非第一行
+                if ((z & 1) == 0)
+                {//偶数行
+                    //设置自己的右下侧（SE）的邻居
+                    cell.SetNeighbor(HexDirection.SE, cells[i - width]); 
+                    if (x > 0)
+                    {//非第一列
+                        //设置自己的左下侧（SW）的邻居
+                        cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                    }
+                }
+                else
+                {//奇数行
+                    //设置自己的左下侧（SW）的邻居
+                    cell.SetNeighbor(HexDirection.SW, cells[i - width]);
+                    if (x < width - 1)
+                    {//非最后一个
+                        //设置自己的右下侧（SE）的邻居
+                        cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                    }
+                }
+            }
             //新建节点标签
             Text label = Instantiate<Text>(cellLabelPrefab);
             label.rectTransform.SetParent(gridCanvas.transform, false);
@@ -75,8 +96,6 @@ namespace GameScene.Map
         {
             //节点网格重新绘制
             hexMesh.Triangulate(cells);
-            //启动鼠标点击监听协程
-            StartCoroutine(HandleInput());
         }
 
         void Awake()
@@ -98,43 +117,18 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// HandleInput方法的Ray缓存
-        /// </summary>
-        private Ray HandleInput_inputRay;
-        /// <summary>
-        /// HandleInput方法的RaycastHit缓存
-        /// </summary>
-        private RaycastHit HandleInput_hit;
-        /// <summary>
-        /// 鼠标点击监听协程
-        /// </summary>
-        IEnumerator HandleInput()
-        {
-            while (true)
-            {
-                yield return new WaitUntil(() => Input.GetMouseButton(0));
-                HandleInput_inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(HandleInput_inputRay, out HandleInput_hit))
-                {
-                    TouchCell(HandleInput_hit.point);
-                }
-            }
-        }
-
-        /// <summary>
         /// 点击地图节点
         /// </summary>
         /// <param name="position"></param>
-        public void TouchCell(Vector3 position)
+        public void ColorCell(Vector3 position, Color color)
         {
             //换算坐标系到六边形三维坐标
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             //更改对应节点颜色并更新网格
             int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-            cells[index].color = touchedColor;
+            cells[index].color = color;
             hexMesh.Triangulate(cells);
         }
-
     }
 }
