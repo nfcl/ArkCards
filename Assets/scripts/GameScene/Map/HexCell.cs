@@ -13,7 +13,7 @@ namespace GameScene.Map
         /// <summary>
         /// 节点颜色
         /// </summary>
-        public Color color; 
+        private Color color;
         /// <summary>
         /// 节点的邻居
         /// </summary>
@@ -22,7 +22,7 @@ namespace GameScene.Map
         /// <summary>
         /// 节点高度
         /// </summary>
-        private int elevation;
+        private int elevation = int.MinValue;
         /// <summary>
         /// 节点UI的RectTransform
         /// </summary>
@@ -38,6 +38,11 @@ namespace GameScene.Map
             }
             set
             {
+                //相同高度不需要刷新
+                if (elevation == value)
+                {
+                    return;
+                }
                 //设置高度
                 elevation = value;
                 //设置节点位置
@@ -50,6 +55,8 @@ namespace GameScene.Map
                 Vector3 uiPosition = uiRect.localPosition;
                 uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
+                //更改后进行刷新
+                Refresh();
             }
         }
         /// <summary>
@@ -63,11 +70,51 @@ namespace GameScene.Map
             }
         }
 
+        public Color Color
+        {
+            get
+            {
+                return color;
+            }
+            set
+            {
+                if (color == value)
+                {
+                    return;
+                }
+                color = value;
+                Refresh();
+            }
+        }
+
+        /// <summary>
+        /// 所属区块
+        /// </summary>
+        public HexGridChunk chunk;
+
         public void Awake()
         {
             neighbors = new HexCell[6];
         }
+        /// <summary>
+        /// 区块刷新
+        /// </summary>
+        void Refresh()
+        {
+            if (chunk is null) return;
+            //刷新所属区块
+            chunk.Refresh();
+            //如果相邻节点有不是同一个区块的则要同时刷新其所属区块
+            for (int i = 0; i < neighbors.Length; i++)
+            {
 
+                HexCell neighbor = neighbors[i];
+                //无邻居或邻居所属区块与自己所属区块相同则不需要刷新
+                if (neighbor is null || neighbor.chunk == chunk) continue;
+
+                neighbor.chunk.Refresh();
+            }
+        }
         /// <summary>
         /// 根据方向获得相邻的节点
         /// </summary>

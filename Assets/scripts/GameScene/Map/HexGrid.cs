@@ -9,13 +9,25 @@ namespace GameScene.Map
     public class HexGrid : MonoBehaviour
     {
         /// <summary>
-        /// 地图宽的节点数(x轴)
+        /// 地图区块宽
         /// </summary>
-        public int width = 10;
+        public int chunkCountX = 4;
         /// <summary>
-        /// 地图高的节点数(z轴)
+        /// 地图区块高
         /// </summary>
-        public int height = 6;
+        public int chunkCountZ = 3; 
+        /// <summary>
+        /// 地图宽的节点数
+        /// </summary>
+        private int cellCountX;
+        /// <summary>
+        /// 地图高的节点数
+        /// </summary>
+        private int cellCountZ;
+        /// <summary>
+        /// 地图区块预设体
+        /// </summary>
+        public HexGridChunk chunkPrefab;
         /// <summary>
         /// 节点预设体
         /// </summary>
@@ -29,14 +41,43 @@ namespace GameScene.Map
         /// </summary>
         public Text cellLabelPrefab;
         /// <summary>
-        /// 画布用于存放节点UI
+        /// 地图区块集
         /// </summary>
-        private Canvas gridCanvas;
-        /// <summary>
-        /// 节点网格
-        /// </summary>
-        private HexMesh hexMesh;
+        private HexGridChunk[] chunks;
 
+        /// <summary>
+        /// 创建地图区块
+        /// </summary>
+        private void CreateChunks()
+        {
+            chunks = new HexGridChunk[chunkCountX * chunkCountZ];
+
+            for (int z = 0, i = 0; z < chunkCountZ; z++)
+            {
+                for (int x = 0; x < chunkCountX; x++)
+                {
+                    HexGridChunk chunk = chunks[i++] = Instantiate(chunkPrefab);
+                    chunk.transform.SetParent(transform);
+                }
+            }
+        }
+        /// <summary>
+        /// 创建地图节点
+        /// </summary>
+        void CreateCells()
+        {
+
+            cells = new HexCell[cellCountZ * cellCountX];
+
+            for (int z = 0, i = 0; z < cellCountZ; z++)
+            {
+                for (int x = 0; x < cellCountX; x++)
+                {
+
+                    CreateCell(x, z, i++);
+                }
+            }
+        }
         /// <summary>
         /// 创建新的节点
         /// </summary>
@@ -52,10 +93,9 @@ namespace GameScene.Map
             position.z = z * (HexMetrics.outerRadius * 1.5f);
             //新建节点
             HexCell cell = cells[i] = Instantiate(cellPrefab);
-            cell.transform.SetParent(transform, false);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-            cell.color = Color.white;
+            cell.Color = Color.white;
             //设置相邻关系
             if (x > 0)
             {
@@ -67,60 +107,59 @@ namespace GameScene.Map
                 if ((z & 1) == 0)
                 {//偶数行
                     //设置自己的右下侧（SE）的邻居
-                    cell.SetNeighbor(HexDirection.SE, cells[i - width]); 
+                    cell.SetNeighbor(HexDirection.SE, cells[i - cellCountX]); 
                     if (x > 0)
                     {//非第一列
                         //设置自己的左下侧（SW）的邻居
-                        cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                        cell.SetNeighbor(HexDirection.SW, cells[i - cellCountX - 1]);
                     }
                 }
                 else
                 {//奇数行
                     //设置自己的左下侧（SW）的邻居
-                    cell.SetNeighbor(HexDirection.SW, cells[i - width]);
-                    if (x < width - 1)
+                    cell.SetNeighbor(HexDirection.SW, cells[i - cellCountX]);
+                    if (x < cellCountX - 1)
                     {//非最后一个
                         //设置自己的右下侧（SE）的邻居
-                        cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                        cell.SetNeighbor(HexDirection.SE, cells[i - cellCountX + 1]);
                     }
                 }
             }
             //新建节点标签
             Text label = Instantiate(cellLabelPrefab);
-            label.rectTransform.SetParent(gridCanvas.transform, false);
             label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
             cell.uiRect = label.rectTransform;
             cell.Elevation = 0;
-        }
 
-        public void Refresh()
-        {
-            hexMesh.Triangulate(cells);
+            AddCellToChunk(x, z, cell);
         }
-
-        void Start()
+        /// <summary>
+        /// 添加节点到指定区块
+        /// </summary>
+        /// <param name="x">节点x坐标</param>
+        /// <param name="z">节点z坐标</param>
+        /// <param name="cell">要添加的节点</param>
+        void AddCellToChunk(int x, int z, HexCell cell)
         {
-            //节点网格重新绘制
-            Refresh();
+            int chunkX = x / HexMetrics.chunkSizeX;
+            int chunkZ = z / HexMetrics.chunkSizeZ;
+            HexGridChunk chunk = chunks[chunkX + chunkZ * chunkCountX];
+
+            int localX = x - chunkX * HexMetrics.chunkSizeX;
+            int localZ = z - chunkZ * HexMetrics.chunkSizeZ;
+            chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
         }
 
         void Awake()
         {
-            //获得画布
-            gridCanvas = GetComponentInChildren<Canvas>();
-            //获得网格管理器
-            hexMesh = GetComponentInChildren<HexMesh>();
-            //设置节点数组大小
-            cells = new HexCell[height * width];
-            //创建节点
-            for (int z = 0, i = 0; z < height; ++z)
-            {
-                for (int x = 0; x < width; ++x, ++i)
-                {
-                    CreateCell(x, z, i);
-                }
-            }
+            //计算地图总结点长宽
+            cellCountX = chunkCountX * HexMetrics.chunkSizeX;
+            cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
+            //创建地图区块
+            CreateChunks();
+            //创建地图节点
+            CreateCells();
         }
 
         /// <summary>
@@ -132,7 +171,7 @@ namespace GameScene.Map
             //换算坐标系到六边形三维坐标
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+            int index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
             return cells[index];
         }
     }
