@@ -158,6 +158,8 @@ public class HexMesh : MonoBehaviour
         //计算纯色区域底边到混合区域底边垂线的两个垂心
         Vector3 v3 = v1 + bridge;
         Vector3 v4 = v2 + bridge;
+        //设置混色矩形底边顶点高度为邻居的高度
+        v3.y = v4.y = neighbor.Elevation * HexMetrics.elevationStep;
         //添加混合区域矩形顶点
         AddQuad(v1, v2, v3, v4);
         //添加混合区域矩形顶点颜色
@@ -169,13 +171,17 @@ public class HexMesh : MonoBehaviour
         //限制方向防止产生重复的混合区域三角形
         if (direction <= HexDirection.E && nextNeighbor != null)
         {
+            //计算下一个混合矩形的同侧底边顶点
+            Vector3 v5 = v2 + HexMetrics.GetBridge(direction.Next());
+            //设置高度为下一个邻居的高度
+            v5.y = nextNeighbor.Elevation * HexMetrics.elevationStep;
             AddTriangle(
                 //纯色底边顶点
                 v2,
                 //混合矩形底边顶点
-                v4, 
+                v4,
                 //下一个混合矩形的同侧底边顶点
-                v2 + HexMetrics.GetBridge(direction.Next())
+                v5
             );
             AddTriangleColor(
                 //节点颜色

@@ -14,9 +14,13 @@ public class HexMapEditor : MonoBehaviour
     /// </summary>
     public HexGrid hexGrid;
     /// <summary>
-    /// 当前选择的颜色
+    /// 当前选择的节点颜色
     /// </summary>
     private Color activeColor;
+    /// <summary>
+    /// 当前选择的节点高度
+    /// </summary>
+    private int activeElevation;
 
     public ColorPannel colorPannel;
 
@@ -40,7 +44,7 @@ public class HexMapEditor : MonoBehaviour
             HandleInput_inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(HandleInput_inputRay, out HandleInput_hit))
             {
-                hexGrid.ColorCell(HandleInput_hit.point, activeColor);
+                EditCell(hexGrid.GetCell(HandleInput_hit.point));
             }
         }
     }
@@ -51,6 +55,21 @@ public class HexMapEditor : MonoBehaviour
     public void SelectColor(int index)
     {
         activeColor = colors[index];
+    }
+    /// <summary>
+    /// 选择设置的节点高度
+    /// </summary>
+    /// <param name="elevation">高度</param>
+    public void SetElevation(float elevation)
+    {
+        activeElevation = (int)elevation;
+    }
+
+    private void EditCell(HexCell cell)
+    {
+        cell.color = activeColor;
+        cell.Elevation = activeElevation;
+        hexGrid.Refresh();
     }
 
     public void Start()

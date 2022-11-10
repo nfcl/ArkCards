@@ -90,12 +90,18 @@ namespace GameScene.Map
             label.rectTransform.SetParent(gridCanvas.transform, false);
             label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
+            cell.uiRect = label.rectTransform;
+        }
+
+        public void Refresh()
+        {
+            hexMesh.Triangulate(cells);
         }
 
         void Start()
         {
             //节点网格重新绘制
-            hexMesh.Triangulate(cells);
+            Refresh();
         }
 
         void Awake()
@@ -120,15 +126,13 @@ namespace GameScene.Map
         /// 点击地图节点
         /// </summary>
         /// <param name="position"></param>
-        public void ColorCell(Vector3 position, Color color)
+        public HexCell GetCell(Vector3 position)
         {
             //换算坐标系到六边形三维坐标
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-            //更改对应节点颜色并更新网格
             int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-            cells[index].color = color;
-            hexMesh.Triangulate(cells);
+            return cells[index];
         }
     }
 }

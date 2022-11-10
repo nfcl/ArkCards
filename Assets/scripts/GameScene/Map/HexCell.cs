@@ -19,6 +19,35 @@ namespace GameScene.Map
         /// </summary>
         [SerializeField]
         private HexCell[] neighbors;
+        /// <summary>
+        /// 节点高度
+        /// </summary>
+        private int elevation;
+        /// <summary>
+        /// 节点UI的RectTransform
+        /// </summary>
+        public RectTransform uiRect;
+
+        public int Elevation
+        {
+            get
+            {
+                return elevation;
+            }
+            set
+            {
+                //设置高度
+                elevation = value;
+                //设置节点位置
+                Vector3 position = transform.localPosition;
+                position.y = value * HexMetrics.elevationStep;
+                transform.localPosition = position;
+                //设置节点UI位置
+                Vector3 uiPosition = uiRect.localPosition;
+                uiPosition.z = elevation * -HexMetrics.elevationStep;
+                uiRect.localPosition = uiPosition;
+            }
+        }
 
         public void Awake()
         {

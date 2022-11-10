@@ -22,6 +22,10 @@ namespace GameScene.Map
         /// </summary>
         public const float blendFactor = 1f - solidFactor;
         /// <summary>
+        /// 相邻节点高度每单位实际y轴差距
+        /// </summary>
+        public const float elevationStep = 5f;
+        /// <summary>
         /// 尖顶朝上的六边形六个角坐标相对于中心位置
         /// </summary>
         static Vector3[] corners_spire = new Vector3[]
