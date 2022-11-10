@@ -75,5 +75,13 @@ namespace GameScene.Map
             //设置邻居的邻居
             cell.neighbors[(int)direction.Opposite()] = this;
         }
+        /// <summary>
+        /// 获得和对应方向邻居的边缘连接类型
+        /// </summary>
+        /// <param name="direction">对应方向</param>
+        public HexEdgeType GetEdgeType(HexDirection direction)
+        {
+            return HexMetrics.GetEdgeType(elevation, neighbors[(int)direction].elevation);
+        }
     }
 }
