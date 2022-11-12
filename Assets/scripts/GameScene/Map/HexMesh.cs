@@ -5,10 +5,25 @@ using GameScene.Map;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexMesh : MonoBehaviour
 {
+    /// <summary>
+    /// 网格
+    /// </summary>
     private Mesh hexMesh;
+    /// <summary>
+    /// 节点集
+    /// </summary>
     private static List<Vector3> vertices = new List<Vector3>();
+    /// <summary>
+    /// 节点颜色集
+    /// </summary>
     private static List<Color> colors = new List<Color>();
+    /// <summary>
+    /// 三角面集
+    /// </summary>
     private static List<int> triangles = new List<int>();
+    /// <summary>
+    /// 网格碰撞器
+    /// </summary>
     private MeshCollider meshCollider;
 
     /// <summary>
@@ -73,7 +88,8 @@ public class HexMesh : MonoBehaviour
         triangles.Add(vertexIndex + 3);
     }
     /// <summary>
-    /// 添加一个四边形的四个顶点颜色
+    /// <para/>添加一个四边形的四个顶点颜色
+    /// <para/>4个顶点颜色各不相同
     /// </summary>
     private void AddQuadColor(Color c1, Color c2, Color c3, Color c4)
     {
@@ -82,6 +98,10 @@ public class HexMesh : MonoBehaviour
         colors.Add(c3);
         colors.Add(c4);
     }
+    /// <summary>
+    /// <para/>添加一个四边形的四个顶点颜色
+    /// <para/>4个顶点颜色两两成对
+    /// </summary>
     private void AddQuadColor(Color c1, Color c2)
     {
         colors.Add(c1);
@@ -122,7 +142,7 @@ public class HexMesh : MonoBehaviour
     /// <summary>
     /// 根据中心点添加六个三角面
     /// </summary>
-    /// <param name="cell">节点</param>
+    /// <param name="cell">中心节点</param>
     private void Triangulate(HexCell cell)
     {
         //遍历六个方向添加三角面
@@ -474,7 +494,9 @@ public class HexMesh : MonoBehaviour
         position.z += (sample.z * 2f - 1f) * HexMetrics.cellPerturbStrength;
         return position;
     }
-
+    /// <summary>
+    /// 加载脚本实例时调用Awake
+    /// </summary>
     void Awake()
     {
         //获得网格管理器

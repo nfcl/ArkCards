@@ -6,7 +6,7 @@ namespace GameScene.Map
     public class HexGridChunk : MonoBehaviour
     {
         /// <summary>
-        /// 区块内的节点集
+        /// 区块内的节点单元集
         /// </summary>
         private HexCell[] cells;
         /// <summary>
@@ -14,7 +14,7 @@ namespace GameScene.Map
         /// </summary>
         private HexMesh hexMesh;
         /// <summary>
-        /// 画布
+        /// UI画布
         /// </summary>
         private Canvas gridCanvas;
 
@@ -26,6 +26,9 @@ namespace GameScene.Map
             //刷新后开启此脚本
             enabled = true;
         }
+        /// <summary>
+        /// 
+        /// </summary>
         void LateUpdate()
         {
             //在LateUpdate进行刷新防止冲突
@@ -55,6 +58,9 @@ namespace GameScene.Map
         {
             gridCanvas.gameObject.SetActive(visible);
         }
+        /// <summary>
+        /// 
+        /// </summary>
         void Awake()
         {
             gridCanvas = GetComponentInChildren<Canvas>();

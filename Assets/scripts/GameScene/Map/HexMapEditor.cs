@@ -1,5 +1,6 @@
 ﻿using GameScene.Map;
 using System.Collections;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -38,6 +39,10 @@ public class HexMapEditor : MonoBehaviour
     /// 是否更改单元格高度
     /// </summary>
     private bool applyElevation = true;
+    /// <summary>
+    /// 河流更改选项
+    /// </summary>
+    private OptionalToggle riverEditMode;
 
     /// <summary>
     /// 选择对应下标的颜色
@@ -80,6 +85,13 @@ public class HexMapEditor : MonoBehaviour
 	public void ShowUI(bool visible)
     {
         hexGrid.ShowUI(visible);
+    }
+    /// <summary>
+    /// 设置河流编辑选项
+    /// </summary>
+    public void SetRiverMode(int mode)
+    {
+        riverEditMode = (OptionalToggle)mode;
     }
 
     /// <summary>
@@ -159,5 +171,13 @@ public class HexMapEditor : MonoBehaviour
         colorPannel.SelectToggle(0);
         //启用鼠标左键监听协程
         StartCoroutine(MouseLeftClickListener());
+    }
+
+    /// <summary>
+    /// 选项
+    /// </summary>
+    private enum OptionalToggle
+    {
+        Ignore, Yes, No
     }
 }

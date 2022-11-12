@@ -6,6 +6,8 @@ namespace GameScene.Map
     {
         private Transform swivel;       //旋转遥感
         private Transform stick;        //移动遥感
+
+        public HexGrid grid;            //地图
         //相机缩放
         private float zoom = 1f;        //相机缩放速率
         public float stickMinZoom;      //最小相机缩放
@@ -16,14 +18,15 @@ namespace GameScene.Map
         public float moveSpeedMinZoom;  //最小相机移动速度
         public float moveSpeedMaxZoom;  //最大相机移动速度
         //相机旋转
-        public float rotationSpeed;     //相机左右旋转速度
         private float zoomDelta;        //滚轮值
         private float xDelta;           //水平按键值
         private float zDelta;           //垂直按键值
         private float rotationAngle;    //相机旋转角度
+        public float rotationSpeed;     //相机左右旋转速度
 
-        public HexGrid grid;    //地图
-
+        /// <summary>
+        /// 
+        /// </summary>
         void Update()
         {
             //监听鼠标滚轮
@@ -118,7 +121,9 @@ namespace GameScene.Map
             //更新旋转角度
             transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Awake()
         {
             swivel = transform.GetChild(0);
