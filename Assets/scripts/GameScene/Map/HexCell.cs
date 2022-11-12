@@ -166,6 +166,19 @@ namespace GameScene.Map
                     HexMetrics.elevationStep;
             }
         }
+        /// <summary>
+        /// 河流表面Y轴坐标
+        /// 读 : 返回计算后的河流表面Y轴坐标
+        /// </summary>
+        public float RiverSurfaceY
+        {
+            get
+            {
+                return
+                    (elevation + HexMetrics.riverSurfaceElevationOffset) *
+                    HexMetrics.elevationStep;
+            }
+        }
 
         /// <summary>
         /// 区块刷新

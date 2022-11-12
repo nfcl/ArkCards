@@ -14,9 +14,13 @@ namespace GameScene.Map
         /// </summary>
         private Canvas gridCanvas;
         /// <summary>
-        /// 网格
+        /// 地形网格
         /// </summary>
         public HexMesh terrain;
+        /// <summary>
+        /// 河流网格
+        /// </summary>
+        public HexMesh rivers;
 
         /// <summary>
         /// 
@@ -38,6 +42,8 @@ namespace GameScene.Map
             cells = new HexCell[HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ];
 
             ShowUI(false);
+
+            Refresh();
         }
 
         /// <summary>
@@ -47,11 +53,13 @@ namespace GameScene.Map
         private void Triangulate()
         {
             terrain.Clear();
+            rivers.Clear();
             for (int i = 0; i < cells.Length; i++)
             {
                 Triangulate(cells[i]);
             }
             terrain.Apply();
+            rivers.Apply();
         }
         /// <summary>
         /// 根据中心点添加六个三角面
@@ -105,6 +113,7 @@ namespace GameScene.Map
             else
             {//无河流
              //扇形三角化
+                Debug.Log(cell);
                 TriangulateEdgeFan(center, e, cell.Color);
             }
             //添加该方向的混色区矩形网格
@@ -203,6 +212,10 @@ namespace GameScene.Map
             terrain.AddQuadColor(cell.Color);
             terrain.AddTrianglePerturbed(centerR, m.v4, m.v5);
             terrain.AddTriangleColor(cell.Color);
+            //根据出入河口判断是否需要倒转UV方向使水流同向
+            bool reversed = cell.IncomingRiver == direction;
+            TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed);
+            TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
         }
         /// <summary>
         /// 有河流起点或终点的纯色区三角化
@@ -224,6 +237,27 @@ namespace GameScene.Map
             TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
             //三角化中心点到中间线的扇形
             TriangulateEdgeFan(center, m, cell.Color);
+            //三角化河水
+            bool reversed = cell.HasIncomingRiver;
+            //重定向中心和底边的Y轴为河流表面
+            center.y = m.v2.y = m.v4.y = cell.RiverSurfaceY;
+            //添加中点至底边的四边形
+            TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
+            //添加中心至终点的三角形
+            rivers.AddTrianglePerturbed(center, m.v2, m.v4);
+            //添加UV坐标
+            if (reversed)
+            {
+                rivers.AddTriangleUV(
+                    new Vector2(0.5f, 0.4f), new Vector2(1f, 0.2f), new Vector2(0f, 0.2f)
+                );
+            }
+            else
+            {
+                rivers.AddTriangleUV(
+                    new Vector2(0.5f, 0.4f), new Vector2(0f, 0.6f), new Vector2(1f, 0.6f)
+                );
+            }
         }
         /// <summary>
         /// 存在河流的单元的剩余扇形的三角化
@@ -289,8 +323,14 @@ namespace GameScene.Map
             //判断此方向是否有河流经过
             if (cell.HasRiverThroughEdge(direction))
             {//如果此方向有河流经过
-             //中间点的Y轴坐标应为河床底坐标
+                //中间点的Y轴坐标应为河床底坐标
                 e2.v3.y = neighbor.StreamBedY;
+                //添加单元间河流的连接四边形
+                TriangulateRiverQuad(
+                    e1.v2, e1.v4, e2.v2, e2.v4,
+                    cell.RiverSurfaceY, neighbor.RiverSurfaceY,0.8f,
+                    cell.HasIncomingRiver && cell.IncomingRiver == direction
+                );
             }
             //根据边缘连接类型添加连接面
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope)
@@ -547,6 +587,30 @@ namespace GameScene.Map
 
             terrain.AddTriangleUnperturbed(v2, HexMetrics.Perturb(left), boundary);
             terrain.AddTriangleColor(c2, leftCell.Color, boundaryColor);
+        }
+        /// <summary>
+        /// 同高度的河流表面四边形
+        /// </summary>
+        void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y, float v, bool reversed)
+        {
+            TriangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed);
+        }
+        /// <summary>
+        /// 前后两端高度不同的河流四边形三角化
+        /// </summary>
+        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float v, bool reversed)
+        {
+            v1.y = v2.y = y1;
+            v3.y = v4.y = y2;
+            rivers.AddQuad(v1, v2, v3, v4);
+            if (reversed)
+            {
+                rivers.AddQuadUV(1f, 0f, 0.8f - v, 0.6f - v);
+            }
+            else
+            {
+                rivers.AddQuadUV(0f, 1f, v, v+0.2f);
+            }
         }
 
         /// <summary>

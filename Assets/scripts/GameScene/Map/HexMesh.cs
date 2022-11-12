@@ -26,9 +26,26 @@ public class HexMesh : MonoBehaviour
 	[NonSerialized] 
     private List<int> triangles;
     /// <summary>
+    /// UV坐标集
+    /// </summary>
+    [NonSerialized] 
+    private List<Vector2> uvs;
+    /// <summary>
     /// 网格碰撞器
     /// </summary>
     private MeshCollider meshCollider;
+    /// <summary>
+    /// 是否启用碰撞体
+    /// </summary>
+    public bool useCollider;
+    /// <summary>
+    /// 是否启用颜色
+    /// </summary>
+    public bool useColors;
+    /// <summary>
+    /// 是否启用UV坐标
+    /// </summary>
+    public bool useUVCoordinates;
 
     /// <summary>
     /// 清除网格数据
@@ -37,7 +54,14 @@ public class HexMesh : MonoBehaviour
     {
         hexMesh.Clear();
         vertices = ListPool<Vector3>.Get();
-        colors = ListPool<Color>.Get();
+        if (useColors)
+        {
+            colors = ListPool<Color>.Get();
+        }
+        if (useUVCoordinates)
+        {
+            uvs = ListPool<Vector2>.Get();
+        }
         triangles = ListPool<int>.Get();
     }
     /// <summary>
@@ -47,12 +71,23 @@ public class HexMesh : MonoBehaviour
     {
         hexMesh.SetVertices(vertices);
         ListPool<Vector3>.Add(vertices);
-        hexMesh.SetColors(colors);
-        ListPool<Color>.Add(colors);
+        if (useColors)
+        {
+            hexMesh.SetColors(colors);
+            ListPool<Color>.Add(colors);
+        }
+        if (useUVCoordinates)
+        {
+            hexMesh.SetUVs(0, uvs);
+            ListPool<Vector2>.Add(uvs);
+        }
         hexMesh.SetTriangles(triangles, 0);
         ListPool<int>.Add(triangles);
         hexMesh.RecalculateNormals();
-        meshCollider.sharedMesh = hexMesh;
+        if (useCollider)
+        {
+            meshCollider.sharedMesh = hexMesh;
+        }
     }
     /// <summary>
     /// 添加一个受噪声扰动的三角形到网格
@@ -148,7 +183,36 @@ public class HexMesh : MonoBehaviour
         colors.Add(c3);
         colors.Add(c4);
     }
-    
+    /// <summary>
+    /// 添加三角形UV坐标
+    /// </summary>
+    public void AddTriangleUV(Vector2 uv1, Vector2 uv2, Vector2 uv3)
+    {
+        uvs.Add(uv1);
+        uvs.Add(uv2);
+        uvs.Add(uv3);
+    }
+    /// <summary>
+    /// 添加四边形UV坐标
+    /// </summary>
+    public void AddQuadUV(Vector2 uv1, Vector2 uv2, Vector2 uv3, Vector2 uv4)
+    {
+        uvs.Add(uv1);
+        uvs.Add(uv2);
+        uvs.Add(uv3);
+        uvs.Add(uv4);
+    }
+    /// <summary>
+    /// 添加四边形UV坐标
+    /// </summary>
+    public void AddQuadUV(float uMin, float uMax, float vMin, float vMax)
+    {
+        uvs.Add(new Vector2(uMin, vMin));
+        uvs.Add(new Vector2(uMax, vMin));
+        uvs.Add(new Vector2(uMin, vMax));
+        uvs.Add(new Vector2(uMax, vMax));
+    }
+
     /// <summary>
     /// 加载脚本实例时调用Awake
     /// </summary>
@@ -157,7 +221,10 @@ public class HexMesh : MonoBehaviour
         //获得网格管理器
         hexMesh = GetComponent<MeshFilter>().mesh = new Mesh();
         //获得网格碰撞体
-        meshCollider = gameObject.AddComponent<MeshCollider>();
+        if (useCollider)
+        {
+            meshCollider = gameObject.AddComponent<MeshCollider>();
+        }
         //命名新网格
         hexMesh.name = "Hex Mesh";
     }

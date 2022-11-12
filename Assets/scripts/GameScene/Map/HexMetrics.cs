@@ -103,6 +103,10 @@ namespace GameScene.Map
         /// 河床深度相对偏移量
         /// </summary>
         public const float streamBedElevationOffset = -1f;
+        /// <summary>
+        /// 河流表面相对高度偏移量
+        /// </summary>
+        public const float riverSurfaceElevationOffset = -0.5f;
 
         /// <summary>
         /// 根据给定方向给出方向向量
