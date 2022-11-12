@@ -10,13 +10,13 @@ namespace GameScene.Map
         /// </summary>
         private HexCell[] cells;
         /// <summary>
-        /// 网格
-        /// </summary>
-        private HexMesh hexMesh;
-        /// <summary>
         /// UI画布
         /// </summary>
         private Canvas gridCanvas;
+        /// <summary>
+        /// 网格
+        /// </summary>
+        public HexMesh terrain;
 
         /// <summary>
         /// 区块刷新
@@ -32,7 +32,7 @@ namespace GameScene.Map
         void LateUpdate()
         {
             //在LateUpdate进行刷新防止冲突
-            hexMesh.Triangulate(cells);
+            terrain.Triangulate(cells);
             //刷新后再次关闭脚本
             enabled = false;
         }
@@ -64,7 +64,6 @@ namespace GameScene.Map
         void Awake()
         {
             gridCanvas = GetComponentInChildren<Canvas>();
-            hexMesh = GetComponentInChildren<HexMesh>();
 
             cells = new HexCell[HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ];
 

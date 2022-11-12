@@ -153,6 +153,19 @@ namespace GameScene.Map
         /// 读 : 返回河流出口或河流入口是否不同时存在
         /// </summary>
         public bool HasRiverBeginOrEnd { get { return hasIncomingRiver != hasOutgoingRiver; } }
+        /// <summary>
+        /// 河床底的Y轴坐标
+        /// 读 : 返回计算后的河床底Y轴坐标
+        /// </summary>
+        public float StreamBedY
+        {
+            get
+            {
+                return
+                    (elevation + HexMetrics.streamBedElevationOffset) *
+                    HexMetrics.elevationStep;
+            }
+        }
 
         /// <summary>
         /// 区块刷新

@@ -43,6 +43,18 @@ public class HexMapEditor : MonoBehaviour
     /// 河流更改选项
     /// </summary>
     private OptionalToggle riverEditMode;
+    /// <summary>
+    /// 鼠标是否拖拽
+    /// </summary>
+    private bool isDrag;
+    /// <summary>
+    /// 拖拽的方向
+    /// </summary>
+    private HexDirection dragDirection;
+    /// <summary>
+    /// 上一个拖拽的单元格
+    /// </summary>
+    private HexCell previousCell;
 
     /// <summary>
     /// 选择对应下标的颜色
@@ -103,26 +115,79 @@ public class HexMapEditor : MonoBehaviour
     /// </summary>
     private RaycastHit HandleInput_hit;
     /// <summary>
-    /// 鼠标点击监听协程
+    /// 鼠标监听协程
     /// </summary>
     private IEnumerator MouseLeftClickListener()
     {
         while (true)
         {
+            //直到鼠标左键按下
             yield return new WaitUntil(() => Input.GetMouseButton(0));
-            if (true == EventSystem.current.IsPointerOverGameObject()) continue;
+            //判断点击是否在UI上
+            if (true == EventSystem.current.IsPointerOverGameObject())
+            {
+                goto ELSE;
+            }
+            //射线检测
             HandleInput_inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            //判断是否检测到了物体
             if (Physics.Raycast(HandleInput_inputRay, out HandleInput_hit))
             {
-                EditCells(hexGrid.GetCell(HandleInput_hit.point));
+                //获得点击到的单元
+                HexCell currentCell = hexGrid.GetCell(HandleInput_hit.point);
+                //判断上一个单元和当前点击的单元是否不同
+                if (false == (previousCell is null) && previousCell != currentCell)
+                {//上一个单元和当前点击的单元不同
+                    ValidateDrag(currentCell);
+                }
+                else
+                {
+                    isDrag = false;
+                }
+                //编辑单元
+                EditCells(currentCell);
+                //上一个单元变为当前点击的单元
+                previousCell = currentCell;
+            }
+            else
+            {
+                goto ELSE;
+            }
+
+            continue;
+
+            ELSE:
+                previousCell = null;
+        }
+    }
+    /// <summary>
+    /// 查找上一个单元是否是当前单元的邻居
+    /// </summary>
+    private void ValidateDrag(HexCell currentCell)
+    {
+        //遍历邻居
+        for (
+            dragDirection = HexDirection.NE;
+            dragDirection <= HexDirection.NW;
+            dragDirection++
+        )
+        {
+            //判断是否相同
+            if (previousCell.GetNeighbor(dragDirection) == currentCell)
+            {
+                //是邻居则拖拽有效
+                isDrag = true;
+                return;
             }
         }
+        //无效
+        isDrag = false;
     }
     /// <summary>
     /// 编辑以center为中心，brushsize为半径的单元群
     /// </summary>
     /// <param name="center">中心</param>
-	void EditCells(HexCell center)
+	private void EditCells(HexCell center)
     {
         int centerX = center.coordinates.X;
         int centerZ = center.coordinates.Z;
@@ -159,6 +224,18 @@ public class HexMapEditor : MonoBehaviour
         {
             cell.Elevation = activeElevation;
         }
+        //调整河流
+        if (riverEditMode == OptionalToggle.No)
+        {//如果编辑模式为去除则清除单元河流
+            cell.RemoveRiver();
+        }
+        else if (isDrag && riverEditMode == OptionalToggle.Yes)
+        {//如果编辑模式为添加则添加河流出口				
+            HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
+            //判断对应方向是否存在邻居
+            if (otherCell is null) return;
+            otherCell.SetOutgoingRiver(dragDirection);
+        }
     }
     /// <summary>
     /// 加载脚本实例时调用Awake
@@ -178,6 +255,6 @@ public class HexMapEditor : MonoBehaviour
     /// </summary>
     private enum OptionalToggle
     {
-        Ignore, Yes, No
+        Ignore, No, Yes
     }
 }
