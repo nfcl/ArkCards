@@ -161,11 +161,10 @@ namespace GameScene.Map
             //创建地图节点
             CreateCells();
         }
-
         /// <summary>
-        /// 点击地图节点
+        /// 根据世界坐标计算获得对应的地图节点
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">点击的世界坐标</param>
         public HexCell GetCell(Vector3 position)
         {
             //换算坐标系到六边形三维坐标
@@ -173,6 +172,48 @@ namespace GameScene.Map
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             int index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
             return cells[index];
+        }
+        /// <summary>
+        /// 根据节点坐标获得对应的地图节点
+        /// </summary>
+        public HexCell GetCell(int x, int z)
+        {
+            if (z < 0 || z >= cellCountZ)
+            {
+                return null;
+            }
+            if (x < 0 || x >= cellCountX)
+            {
+                return null;
+            }
+            return cells[x + z * cellCountX];
+        }
+        /// <summary>
+        /// 根据偏移后的二维坐标获得地图节点
+        /// </summary>
+        public HexCell GetCell(HexCoordinates coordinates)
+        {
+            int z = coordinates.Z;
+            if (z < 0 || z >= cellCountZ)
+            {
+                return null;
+            }
+            int x = coordinates.X + z / 2;
+            if (x < 0 || x >= cellCountX)
+            {
+                return null;
+            }
+            return cells[x + z * cellCountX];
+        }
+        /// <summary>
+        /// 显示单元格UI
+        /// </summary>
+        public void ShowUI(bool visible)
+        {
+            for (int i = 0; i < chunks.Length; i++)
+            {
+                chunks[i].ShowUI(visible);
+            }
         }
     }
 }

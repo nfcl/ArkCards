@@ -48,13 +48,21 @@ namespace GameScene.Map
             cell.transform.SetParent(transform, false);
             cell.uiRect.SetParent(gridCanvas.transform, false);
         }
-
+        /// <summary>
+        /// 是否显示UI
+        /// </summary>
+        public void ShowUI(bool visible)
+        {
+            gridCanvas.gameObject.SetActive(visible);
+        }
         void Awake()
         {
             gridCanvas = GetComponentInChildren<Canvas>();
             hexMesh = GetComponentInChildren<HexMesh>();
 
             cells = new HexCell[HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ];
+
+            ShowUI(false);
         }
     }
 }

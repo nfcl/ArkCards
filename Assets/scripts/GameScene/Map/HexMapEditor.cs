@@ -10,19 +10,77 @@ public class HexMapEditor : MonoBehaviour
     /// </summary>
     public Color[] colors;
     /// <summary>
-    /// 
+    /// 六边形网格
     /// </summary>
     public HexGrid hexGrid;
     /// <summary>
-    /// 当前选择的节点颜色
+    /// 单元格颜色选择面板
+    /// </summary>
+    public ColorPannel colorPannel;
+
+    /// <summary>
+    /// 当前选择的单元格颜色
     /// </summary>
     private Color activeColor;
     /// <summary>
-    /// 当前选择的节点高度
+    /// 刷子的大小
+    /// </summary>
+    private int brushSize;
+    /// <summary>
+    /// 当前选择的单元格高度
     /// </summary>
     private int activeElevation;
+    /// <summary>
+    /// 是否更改单元格颜色
+    /// </summary>
+    private bool applyColor = true;
+    /// <summary>
+    /// 是否更改单元格高度
+    /// </summary>
+    private bool applyElevation = true;
 
-    public ColorPannel colorPannel;
+    /// <summary>
+    /// 选择对应下标的颜色
+    /// </summary>
+    /// <param name="index">要选择的颜色</param>
+    public void SelectColor(int index)
+    {
+        applyColor = index >= 0;
+        if (applyColor)
+        {
+            activeColor = colors[index];
+        }
+    }
+    /// <summary>
+    /// 选择设置的单元格高度
+    /// </summary>
+    /// <param name="elevation">高度</param>
+    public void SetElevation(float elevation)
+    {
+        activeElevation = (int)elevation;
+    }
+    /// <summary>
+    /// 设置是否启用更改高度
+    /// </summary>
+    public void SetApplyElevation(bool toggle)
+    {
+        applyElevation = toggle;
+    }
+    /// <summary>
+    /// 设置刷子大小
+    /// </summary>
+    /// <param name="size">要设置的大小</param>
+    public void SetBrushSize(float size)
+    {
+        brushSize = (int)size;
+    }
+    /// <summary>
+    /// 设置地图节点的UI是否显示
+    /// </summary>
+	public void ShowUI(bool visible)
+    {
+        hexGrid.ShowUI(visible);
+    }
 
     /// <summary>
     /// HandleInput方法的Ray缓存
@@ -35,7 +93,7 @@ public class HexMapEditor : MonoBehaviour
     /// <summary>
     /// 鼠标点击监听协程
     /// </summary>
-    IEnumerator MouseLeftClickListener()
+    private IEnumerator MouseLeftClickListener()
     {
         while (true)
         {
@@ -44,43 +102,62 @@ public class HexMapEditor : MonoBehaviour
             HandleInput_inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(HandleInput_inputRay, out HandleInput_hit))
             {
-                EditCell(hexGrid.GetCell(HandleInput_hit.point));
+                EditCells(hexGrid.GetCell(HandleInput_hit.point));
             }
         }
     }
     /// <summary>
-    /// 选择对应下标的颜色
+    /// 编辑以center为中心，brushsize为半径的单元群
     /// </summary>
-    /// <param name="index">要选择的颜色</param>
-    public void SelectColor(int index)
+    /// <param name="center">中心</param>
+	void EditCells(HexCell center)
     {
-        activeColor = colors[index];
+        int centerX = center.coordinates.X;
+        int centerZ = center.coordinates.Z;
+
+        for (int r = 0, z = centerZ - brushSize; z <= centerZ; z++, r++)
+        {
+            for (int x = centerX - r; x <= centerX + brushSize; x++)
+            {
+                EditCell(hexGrid.GetCell(new HexCoordinates(x, z)));
+            }
+        }
+        for (int r = 0, z = centerZ + brushSize; z > centerZ; z--, r++)
+        {
+            for (int x = centerX - brushSize; x <= centerX + r; x++)
+            {
+                EditCell(hexGrid.GetCell(new HexCoordinates(x, z)));
+            }
+        }
     }
     /// <summary>
-    /// 选择设置的节点高度
+    /// 编辑单元
     /// </summary>
-    /// <param name="elevation">高度</param>
-    public void SetElevation(float elevation)
-    {
-        activeElevation = (int)elevation;
-    }
-
+    /// <param name="cell">要编辑的单元</param>
     private void EditCell(HexCell cell)
     {
-        cell.Color = activeColor;
-        cell.Elevation = activeElevation;
+        if (cell is null) return;
+        //调整颜色
+        if (applyColor)
+        {
+            cell.Color = activeColor;
+        }
+        //调整高度
+        if (applyElevation)
+        {
+            cell.Elevation = activeElevation;
+        }
     }
-
-    public void Start()
+    /// <summary>
+    /// 加载脚本实例时调用Awake
+    /// </summary>
+    private void Awake()
     {
-
-    }
-
-    void Awake()
-    {
+        //设置颜色选择器
         colorPannel.SetColors(colors);
         colorPannel.SetToggleDelegate(SelectColor);
-        StartCoroutine(MouseLeftClickListener());
         colorPannel.SelectToggle(0);
+        //启用鼠标左键监听协程
+        StartCoroutine(MouseLeftClickListener());
     }
 }
