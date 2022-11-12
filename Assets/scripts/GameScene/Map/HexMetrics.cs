@@ -90,7 +90,7 @@ namespace GameScene.Map
         /// <summary>
         /// 噪声扰动强度
         /// </summary>
-        public const float cellPerturbStrength = 0f;// 4f;
+        public const float cellPerturbStrength = 4f;
         /// <summary>
         /// 噪声缩放
         /// </summary>
@@ -102,7 +102,7 @@ namespace GameScene.Map
         /// <summary>
         /// 河床深度相对偏移量
         /// </summary>
-        public const float streamBedElevationOffset = -1f;
+        public const float streamBedElevationOffset = -1.75f;
         /// <summary>
         /// 河流表面相对高度偏移量
         /// </summary>
