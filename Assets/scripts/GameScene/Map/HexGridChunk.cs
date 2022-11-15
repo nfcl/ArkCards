@@ -343,6 +343,10 @@ namespace GameScene.Map
             //如果河流出口方向在河流入口的对面，即直流，需要断开道路向外偏移
             else if (cell.IncomingRiver == cell.OutgoingRiver.Opposite())
             {
+                if (false == hasRoadThroughEdge)
+                {
+                    return;
+                }
                 Vector3 corner;
                 if (previousHasRiver)
                 {

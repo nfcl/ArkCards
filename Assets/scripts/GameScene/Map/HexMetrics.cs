@@ -97,7 +97,7 @@ namespace GameScene.Map
         /// <summary>
         /// 单元噪声扰动强度
         /// </summary>
-        public const float cellPerturbStrength = 0f;
+        public const float cellPerturbStrength = 4f;
         /// <summary>
         /// 垂直方向噪声扰动强度
         /// </summary>
