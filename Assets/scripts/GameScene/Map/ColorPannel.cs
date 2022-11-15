@@ -1,10 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameScene.Map
+namespace GameScene.Map.Editor
 {
+    /// <summary>
+    /// 颜色选择类
+    /// </summary>
     public class ColorPannel : MonoBehaviour
     {
         /// <summary>
@@ -14,11 +15,11 @@ namespace GameScene.Map
         /// <summary>
         /// 颜色选项组
         /// </summary>
-        public ToggleGroup toggleGroup;
+        public ToggleGroup ToggleGroup;
         /// <summary>
-        /// 颜色选项集
+        /// 颜色选项集合
         /// </summary>
-        public ColorToggle[] colorToggles;
+        public ColorToggle[] ColorToggles;
 
         /// <summary>
         /// 设置颜色选项
@@ -27,7 +28,7 @@ namespace GameScene.Map
         public void SetColors(Color[] colors)
         {
             int size = colors.Length;
-            colorToggles = new ColorToggle[size];
+            ColorToggles = new ColorToggle[size];
             RectTransform rt = GetComponent<RectTransform>();
             rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + (10 + 30) * size);
             Vector3 bufpos = new Vector3(0, -25, 0);
@@ -36,10 +37,10 @@ namespace GameScene.Map
             {
                 clone = Instantiate(ColorTogglePrefab, transform);
                 clone.name = i.ToString();
-                colorToggles[i] = clone.GetComponent<ColorToggle>();
-                colorToggles[i].SetPos(bufpos);
-                colorToggles[i].SetColor(colors[i]);
-                colorToggles[i].SetToggleGroup(toggleGroup);
+                ColorToggles[i] = clone.GetComponent<ColorToggle>();
+                ColorToggles[i].SetPos(bufpos);
+                ColorToggles[i].SetColor(colors[i]);
+                ColorToggles[i].SetToggleGroup(ToggleGroup);
                 bufpos.y -= 40;
             }
         }
@@ -49,17 +50,17 @@ namespace GameScene.Map
         /// <param name="index">要打开的开关下标</param>
         public void SelectToggle(int index)
         {
-            colorToggles[index].SelectToggle();
+            ColorToggles[index].SelectToggle();
         }
         /// <summary>
         /// 设置开关的回调函数
         /// </summary>
         public void SetToggleDelegate(ColorToggle.ColorToggleDelegate dele)
         {
-            int size = colorToggles.Length;
+            int size = ColorToggles.Length;
             for (int i = 0; i < size; ++i)
             {
-                colorToggles[i].SetToggleValueChangeListener(dele, i);
+                ColorToggles[i].SetToggleValueChangeListener(dele, i);
             }
         }
     }

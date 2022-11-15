@@ -1,16 +1,19 @@
-using System;
 using UnityEngine;
 
 namespace GameScene.Map
 {
+    /// <summary>
+    /// <para/>六边形度量（直译）
+    /// <para/>存储了一些基础数据和一些封装后的方法
+    /// </summary>
     public static class HexMetrics
     {
         /// <summary>
-        /// 
+        /// 内切圆半径 ：外切圆半径
         /// </summary>
         public const float outerToInner = 0.866025404f;
         /// <summary>
-        /// 
+        /// 外切圆半径 ：内切圆半径
         /// </summary>
         public const float innerToOuter = 1f / outerToInner;
         /// <summary>
@@ -24,7 +27,7 @@ namespace GameScene.Map
         /// <summary>
         /// 尖顶朝上的六边形六个角坐标相对于中心位置
         /// </summary>
-        private static Vector3[] corners_spire = new Vector3[]
+        private readonly static Vector3[] corners = new Vector3[]
         {
             new Vector3(0f          , 0f, outerRadius           ),
             new Vector3(innerRadius , 0f, outerRadius * 0.5f    ),
@@ -37,50 +40,50 @@ namespace GameScene.Map
         /// <summary>
         /// 平顶朝上的六边形六个角坐标相对于中心位置
         /// </summary>
-        private static Vector3[] corners_flattened = new Vector3[]
-        {
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-            new Vector3(outerRadius         ,0,0                ),
-            new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
-            new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
-            new Vector3(-outerRadius        ,0,0                ),
-            new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-        };
+        //private readonly static Vector3[] corners_flattened = new Vector3[]
+        //{
+        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        //    new Vector3(outerRadius         ,0,0                ),
+        //    new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
+        //    new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
+        //    new Vector3(-outerRadius        ,0,0                ),
+        //    new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
+        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        //};
         /// <summary>
-        /// 单个区块的水平长度
+        /// 单个区块的水平单元数
         /// </summary>
         public const int chunkSizeX = 5;
         /// <summary>
-        /// 单个区块的垂直长度
+        /// 单个区块的垂直单元数
         /// </summary>
         public const int chunkSizeZ = 5;
         /// <summary>
-        /// 纯色区域比例
+        /// 六边形中央纯色区域半径占总半径的比例
         /// </summary>
         public const float solidFactor = 0.8f;
         /// <summary>
-        /// 混合色区域比例
+        /// 六边形外围混合色区域（过渡区）环半径占总半径的比例
         /// </summary>
         public const float blendFactor = 1f - solidFactor;
         /// <summary>
-        /// 相邻节点高度每单位实际y轴差距
+        /// 每单位节点高度的实际y轴大小
         /// </summary>
         public const float elevationStep = 3f;
         /// <summary>
-        /// 每个斜面的平台个数
+        /// 每个斜坡的平台个数
         /// </summary>
         public const int terracesPerSlope = 2;
         /// <summary>
-        /// 每个斜面的面数
+        /// 每个斜坡的总面数(包括水平和倾斜的)
         /// </summary>
         public const int terraceSteps = terracesPerSlope * 2 + 1;
         /// <summary>
-        /// 斜面阶梯的水平均分量
+        /// 单元连接边缘斜坡阶梯的水平均分量
         /// </summary>
-        public const float horizontalTerraceStepSize = 1f / terraceSteps; 
+        public const float horizontalTerraceStepSize = 1f / terraceSteps;
         /// <summary>
-        /// 斜面阶梯的垂直均分量
+        /// 单元连接边缘斜坡阶梯的垂直均分量
         /// </summary>
         public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
         /// <summary>
@@ -88,73 +91,73 @@ namespace GameScene.Map
         /// </summary>
         public static Texture2D noiseSource = Resources.Load<Texture2D>("GameScene/MapNodes/sprite/noise");
         /// <summary>
-        /// 噪声扰动强度
-        /// </summary>
-        public const float cellPerturbStrength = 4f;
-        /// <summary>
-        /// 噪声缩放
+        /// 噪声强度缩放
         /// </summary>
         public const float noiseScale = 0.003f;
+        /// <summary>
+        /// 单元噪声扰动强度
+        /// </summary>
+        public const float cellPerturbStrength = 0f;
         /// <summary>
         /// 垂直方向噪声扰动强度
         /// </summary>
         public const float elevationPerturbStrength = 1.5f;
         /// <summary>
-        /// 河床深度相对偏移量
+        /// 河床深度偏移量（相对于单元高度）
         /// </summary>
         public const float streamBedElevationOffset = -1.75f;
         /// <summary>
-        /// 河流表面相对高度偏移量
+        /// 河流表面高度偏移量（相对于单元高度）
         /// </summary>
         public const float riverSurfaceElevationOffset = -0.5f;
 
         /// <summary>
-        /// 根据给定方向给出方向向量
+        /// 给定方向的左侧顶点的向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetFirstCorner(HexDirection direction)
         {
-            return corners_spire[(int)direction];
+            return corners[(int)direction];
         }
         /// <summary>
-        /// 根据给定方向给出顺时针方向的下一个方向
+        /// 给定方向的右侧顶点的向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetSecondCorner(HexDirection direction)
         {
-            return corners_spire[(int)direction + 1];
+            return corners[(int)direction + 1];
         }
         /// <summary>
-        /// 获得给定方向的纯色区域向量
+        /// 给定方向从中心到纯色区域边缘的向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetFirstSolidCorner(HexDirection direction)
         {
-            return corners_spire[(int)direction] * solidFactor;
+            return corners[(int)direction] * solidFactor;
         }
         /// <summary>
-        /// 获得给定方向的下一个方向纯色区域向量
+        /// 给定方向的下一个方向从中心到纯色区域边缘向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetSecondSolidCorner(HexDirection direction)
         {
-            return corners_spire[(int)direction + 1] * solidFactor;
+            return corners[(int)direction + 1] * solidFactor;
         }
         /// <summary>
-        /// 获得纯色区域底边对应到混色底边的方向向量
+        /// 从纯色区边缘到混色区边缘的方向向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetBridge(HexDirection direction)
         {
-            return (corners_spire[(int)direction] + corners_spire[(int)direction + 1]) *
+            return (corners[(int)direction] + corners[(int)direction + 1]) *
                 blendFactor;
         }
         /// <summary>
-        /// 斜面插值向量计算
+        /// 单元斜坡边缘阶梯插值点位置计算
         /// </summary>
         /// <param name="a">起始位置</param>
         /// <param name="b">终止位置</param>
-        /// <param name="step">位于斜面位置</param>
+        /// <param name="step">要求的插值点位置</param>
         public static Vector3 TerraceLerp(Vector3 a, Vector3 b, int step)
         {
             //计算水平插值
@@ -167,11 +170,11 @@ namespace GameScene.Map
             return a;
         }
         /// <summary>
-        /// 斜面颜色插值计算
+        /// 单元斜坡边缘阶梯插值点颜色计算
         /// </summary>
         /// <param name="a">起始颜色</param>
         /// <param name="b">终止颜色</param>
-        /// <param name="step">位于斜面位置</param>
+        /// <param name="step">要求的插值点位置</param>
         public static Color TerraceLerp(Color a, Color b, int step)
         {
             float h = step * HexMetrics.horizontalTerraceStepSize;
@@ -200,16 +203,25 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// 噪声采样
+        /// 指定方向纯色区边缘的中间位置
+        /// </summary>
+        /// <param name="direction">指定方向</param>
+        public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
+        {
+            //返回两边角的向量相加除以2
+            return (corners[(int)direction] + corners[(int)direction + 1]) * (0.5f * solidFactor);
+        }
+        /// <summary>
+        /// 使用三维坐标中的X轴和Z轴对噪声图进行二维噪声采样
         /// </summary>
         /// <param name="position">三维位置</param>
-        /// <returns></returns>
+        /// <returns>返回一个颜色的四元数</returns>
         public static Vector4 SampleNoise(Vector3 position)
         {
             return noiseSource.GetPixelBilinear(position.x * noiseScale, position.z * noiseScale);
         }
         /// <summary>
-        /// 对顶点进行噪声扰动
+        /// 对三维顶点位置进行噪声扰动
         /// </summary>
         /// <param name="position">原顶点位置</param>
         /// <returns>返回扰动后的顶点位置</returns>
@@ -223,13 +235,6 @@ namespace GameScene.Map
             position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
             //返回扰动后的坐标
             return position;
-        }
-        /// <summary>
-        /// 获得指定方向纯色边缘的中间位置
-        /// </summary>
-        public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
-        {
-            return (corners_spire[(int)direction] + corners_spire[(int)direction + 1]) * (0.5f * solidFactor);
         }
     }
 }

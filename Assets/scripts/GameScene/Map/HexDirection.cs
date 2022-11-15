@@ -1,12 +1,29 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace GameScene.Map
+﻿namespace GameScene.Map
 {
+
+    //   / \ / \
+    //  |NW |NE |
+    // / \ / \ / \
+    //| W | C | E |
+    // \ / \ / \ / 
+    //  |SW |SE |
+    //   \ / \ /
+
+    /// <summary>
+    /// 边方向枚举
+    /// </summary>
     public enum HexDirection
     {
-        NE, E, SE, SW, W, NW
+        NE,     //右上
+        E,      //右
+        SE,     //右下
+        SW,     //左下
+        W,      //左
+        NW      //左上
     }
-
+    /// <summary>
+    /// 方向的额外方法
+    /// </summary>
     public static class HexDirectionExtensions
     {
         /// <summary>
@@ -23,7 +40,6 @@ namespace GameScene.Map
         {
             return direction == HexDirection.NE ? HexDirection.NW : (direction - 1);
         }
-
         /// <summary>
         /// 返回给定方向按顺时针方向的下一个方向
         /// </summary>
@@ -49,10 +65,3 @@ namespace GameScene.Map
         }
     }
 }
-//   / \ / \
-//  |NW |NE |
-// / \ / \ / \
-//| W | C | E |
-// \ / \ / \ / 
-//  |SW |SE |
-//   \ / \ /

@@ -3,12 +3,12 @@ using UnityEngine;
 
 /// <summary>
 /// <para/>一个Canvas内的Pannel场景切换类
-/// <para/>可以对要管理的Pannel进行增减操作
-/// <para/>显示其中一个隐藏其他所有的
-/// <para/>通过设置CanvasGroup的alpha进行隐藏和显示
 /// </summary>
 public class PannelChange
 {
+    /// <summary>
+    /// 
+    /// </summary>
     private Dictionary<string, CanvasGroup> _source;
 
     /// <summary>
@@ -19,16 +19,15 @@ public class PannelChange
 
         _source = new Dictionary<string, CanvasGroup>();
     }
-
     /// <summary>
     /// 带参构造
     /// </summary>
     /// <param name="source">要增加管理的Pannel</param>
-    public PannelChange(List<KeyValuePair<string,CanvasGroup>> source)
+    public PannelChange(List<KeyValuePair<string, CanvasGroup>> source)
     {
         _source = new Dictionary<string, CanvasGroup>();
 
-        foreach(KeyValuePair<string,CanvasGroup> item in source)
+        foreach (KeyValuePair<string, CanvasGroup> item in source)
         {
             if (false == _source.ContainsKey(item.Key))
             {
@@ -55,7 +54,6 @@ public class PannelChange
             return false;
         }
     }
-
     /// <summary>
     /// 根据名称移除一个Pannel
     /// </summary>
@@ -63,7 +61,7 @@ public class PannelChange
     /// <returns>返回是否移除成功(管理的Pannel中是否存在对应名称的)</returns>
     public bool RemovePannel(string name)
     {
-        if(true == _source.ContainsKey(name))
+        if (true == _source.ContainsKey(name))
         {
             _source.Remove(name);
             return true;
@@ -73,7 +71,6 @@ public class PannelChange
             return false;
         }
     }
-
     /// <summary>
     /// 显示新的Pannel,并隐藏旧的Pannel
     /// </summary>
@@ -83,7 +80,7 @@ public class PannelChange
     {
         if (true == _source.ContainsKey(name))
         {
-            foreach(CanvasGroup item in _source.Values)
+            foreach (CanvasGroup item in _source.Values)
             {
                 item.alpha = 0;
                 item.blocksRaycasts = false;

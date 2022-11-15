@@ -1,7 +1,7 @@
-﻿namespace Tool
+﻿public static class Math
 {
-    public static class Math 
+    public static int Abs(int i)
     {
-        public const float sqrt3 = 1.7320508075688772935274463415059f;
+        return i > 0 ? i : -i;
     }
 }

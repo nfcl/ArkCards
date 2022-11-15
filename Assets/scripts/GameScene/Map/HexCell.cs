@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace GameScene.Map
@@ -7,43 +6,55 @@ namespace GameScene.Map
     public class HexCell : MonoBehaviour
     {
         /// <summary>
-        /// 单元坐标
-        /// </summary>
-        public HexCoordinates coordinates;
-        /// <summary>
-        /// 单元颜色
+        /// 地形颜色
         /// </summary>
         private Color color;
         /// <summary>
-        /// 单元的邻居
+        /// 邻居
         /// </summary>
         private HexCell[] neighbors;
         /// <summary>
-        /// 单元高度
+        /// 地形高度
         /// </summary>
         private int elevation = int.MinValue;
         /// <summary>
-        /// 单元是否存在河流入口
+        /// 是否存在河流入口
         /// </summary>
         private bool hasIncomingRiver;
         /// <summary>
-        /// 单元是否存在河流出口
+        /// 是否存在河流出口
         /// </summary>
         private bool hasOutgoingRiver;
         /// <summary>
-        /// 单元河流入口方向
+        /// 河流入口方向
         /// </summary>
         private HexDirection incomingRiver;
         /// <summary>
-        /// 单元河流出口方向
+        /// 河流出口方向
         /// </summary>
         private HexDirection outgoingRiver;
         /// <summary>
-        /// 单元UI的RectTransform
+        /// 六个方向是否存在道路
+        /// </summary>
+        [SerializeField]
+        private bool[] roads;
+
+        /// <summary>
+        /// 坐标
+        /// </summary>
+        public HexCoordinates coordinates;
+        /// <summary>
+        /// <para/>单元所属的区块
+        /// </summary>
+        public HexGridChunk chunk;
+        /// <summary>
+        /// UI的RectTransform
         /// </summary>
         public RectTransform uiRect;
         /// <summary>
-        /// 单元高度属性
+        /// <para/>高度属性
+        /// <para/>读 ：返回高度
+        /// <para/>写 ：写入高度，设置实体和UI的Y轴位置，并对河流的合法性进行检测，刷新区块
         /// </summary>
         public int Elevation
         {
@@ -60,7 +71,7 @@ namespace GameScene.Map
                 }
                 //设置高度
                 elevation = value;
-                //设置单元位置
+                //设置单元y轴位置
                 Vector3 position = transform.localPosition;
                 position.y = value * HexMetrics.elevationStep;
                 //对y轴进行噪声扰动
@@ -70,28 +81,52 @@ namespace GameScene.Map
                 Vector3 uiPosition = uiRect.localPosition;
                 uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
-                //如果更改高度后的河流出口在上坡则清除河流出口
-                if (
-                    hasOutgoingRiver &&
-                    elevation < GetNeighbor(outgoingRiver).elevation
+                //判断河流出口是否合法
+                if
+                (
+                    //存在河流出口
+                    hasOutgoingRiver == true
+                    //河流上坡
+                    && elevation < GetNeighbor(outgoingRiver).elevation
                 )
                 {
                     RemoveOutgoingRiver();
                 }
-                //如果更改高度后的河流入口在上坡则清除河流入口
-                if (
-                    hasIncomingRiver &&
-                    elevation > GetNeighbor(incomingRiver).elevation
+                //判断河流入口是否合法
+                if
+                (
+                    //存在河流入口
+                    hasIncomingRiver == true
+                    //河流上坡
+                    && elevation > GetNeighbor(incomingRiver).elevation
                 )
                 {
                     RemoveIncomingRiver();
                 }
+                //判断各方向道路的合法性
+                for (int i = 0; i < roads.Length; i++)
+                {
+                    //判断此方向道路合法性
+                    if
+                    (
+                        //存在道路
+                        roads[i] == true
+                        //与对应方向邻居的高度差过大
+                        && GetElevationDifference((HexDirection)i) > 1
+                    )
+                    {
+                        //清除此方向道路
+                        SetRoad(i, false);
+                    }
+                }
+
                 //更改后进行刷新
                 Refresh();
             }
         }
         /// <summary>
-        /// 单元位置访问器
+        /// <para/>单元位置属性
+        /// <para/>读 ：返回实体以父物体为坐标系的位置
         /// </summary>
         public Vector3 Position
         {
@@ -101,7 +136,9 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// 单元颜色属性
+        /// <para/>单元颜色属性
+        /// <para/>读 ：返回地形颜色
+        /// <para/>写 ：设置颜色并刷新区块
         /// </summary>
         public Color Color
         {
@@ -120,42 +157,85 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// 所属区块
+        /// <para/>是否存在河流入口属性
+        /// <para/>读 : 返回是否存在河流入口
         /// </summary>
-        public HexGridChunk chunk;
+        public bool HasIncomingRiver
+        {
+            get
+            {
+                return hasIncomingRiver;
+            }
+        }
         /// <summary>
-        /// 是否存在河流入口
-        /// 读 : 返回是否存在河流入口
+        /// <para/>是否存在河流出口属性
+        /// <para/>读 : 返回是否存在河流出口
         /// </summary>
-        public bool HasIncomingRiver { get { return hasIncomingRiver; } }
+        public bool HasOutgoingRiver
+        {
+            get
+            {
+                return hasOutgoingRiver;
+            }
+        }
         /// <summary>
-        /// 是否存在河流出口
-        /// 读 : 返回是否存在河流出口
+        /// <para/>河流入口方向属性
+        /// <para/>读 : 返回河流入口方向
         /// </summary>
-        public bool HasOutgoingRiver { get { return hasOutgoingRiver; } }
+        public HexDirection IncomingRiver
+        {
+            get
+            {
+                return incomingRiver;
+            }
+        }
         /// <summary>
-        /// 河流入口方向
-        /// 读 : 返回河流入口方向
+        /// <para/>河流出口方向属性
+        /// <para/>读 : 返回河流出口方向
         /// </summary>
-        public HexDirection IncomingRiver { get { return incomingRiver; } }
+        public HexDirection OutgoingRiver
+        {
+            get
+            {
+                return outgoingRiver;
+            }
+        }
         /// <summary>
-        /// 河流出口方向
-        /// 读 : 返回河流出口方向
+        /// <para/>单元是否存在河流属性
+        /// <para/>读 : 返回是否存在河流入口或出口
         /// </summary>
-        public HexDirection OutgoingRiver { get { return outgoingRiver; } }
+        public bool HasRiver
+        {
+            get
+            {
+                return hasIncomingRiver || hasOutgoingRiver;
+            }
+        }
         /// <summary>
-        /// 单元是否存在河流
-        /// 读 : 返回是否存在河流入口或出口
+        /// <para/>单元是否是河流源头或终点属性
+        /// <para/>读 : 返回河流出口或河流入口是否不同时存在
         /// </summary>
-        public bool HasRiver { get { return hasIncomingRiver || hasOutgoingRiver; } }
+        public bool HasRiverBeginOrEnd
+        {
+            get
+            {
+                return hasIncomingRiver != hasOutgoingRiver;
+            }
+        }
         /// <summary>
-        /// 单元是否是河流源头或终点
-        /// 读 : 返回河流出口或河流入口是否不同时存在
+        /// 单元河流入口或出口方向
+        /// 读 : 存在河流入口则返回入口方向，否则返回出口方向
         /// </summary>
-        public bool HasRiverBeginOrEnd { get { return hasIncomingRiver != hasOutgoingRiver; } }
+        public HexDirection RiverBeginOrEndDirection
+        {
+            get
+            {
+                return hasIncomingRiver ? incomingRiver : outgoingRiver;
+            }
+        }
         /// <summary>
-        /// 河床底的Y轴坐标
-        /// 读 : 返回计算后的河床底Y轴坐标
+        /// <para/>河床底的Y轴坐标属性
+        /// <para/>读 : 返回计算后的河床底Y轴坐标
         /// </summary>
         public float StreamBedY
         {
@@ -167,8 +247,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// 河流表面Y轴坐标
-        /// 读 : 返回计算后的河流表面Y轴坐标
+        /// <para/>河流表面Y轴坐标属性
+        /// <para/>读 : 返回计算后的河流表面Y轴坐标
         /// </summary>
         public float RiverSurfaceY
         {
@@ -179,9 +259,27 @@ namespace GameScene.Map
                     HexMetrics.elevationStep;
             }
         }
+        /// <summary>
+        /// 该单元是否存在道路属性
+        /// 读 : 返回六个方向是否有任意方向存在道路
+        /// </summary>
+        public bool HasRoads
+        {
+            get
+            {
+                for (int i = 0; i < roads.Length; i++)
+                {
+                    if (roads[i])
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         /// <summary>
-        /// 区块刷新
+        /// 刷新本区块和邻居所属的不同区块
         /// </summary>
         private void Refresh()
         {
@@ -207,19 +305,35 @@ namespace GameScene.Map
             chunk.Refresh();
         }
         /// <summary>
-        /// 根据方向获得相邻的单元
+        /// 设置对应方向的道路
         /// </summary>
-        /// <param name="direction">相邻单元的方向</param>
-        /// <returns>返回对饮的相邻单元</returns>
+        /// <param name="index">道路下标</param>
+        /// <param name="state">道路是否存在</param>
+        private void SetRoad(int index, bool state)
+        {
+            //设置对应方向的道路
+            roads[index] = state;
+            //设置邻居对应方向的道路
+            neighbors[index].roads[(int)((HexDirection)index).Opposite()] = state;
+            //刷新
+            neighbors[index].RefreshSelfOnly();
+            RefreshSelfOnly();
+        }
+
+        /// <summary>
+        /// 获得对应方向的邻居
+        /// </summary>
+        /// <param name="direction">指定的方向</param>
+        /// <returns>返回对应方向的邻居</returns>
         public HexCell GetNeighbor(HexDirection direction)
         {
             return neighbors[(int)direction];
         }
         /// <summary>
-        /// 根据方向设置相邻的单元
+        /// 设置对应方向的邻居
         /// </summary>
-        /// <param name="direction">相邻单元的方向</param>
-        /// <param name="cell">要设置的相邻单元</param>
+        /// <param name="direction">指定的方向</param>
+        /// <param name="cell">要设置成的邻居</param>
         public void SetNeighbor(HexDirection direction, HexCell cell)
         {
             //设置自己的邻居
@@ -231,14 +345,15 @@ namespace GameScene.Map
         /// 获得和对应方向邻居的边缘连接类型
         /// </summary>
         /// <param name="direction">对应方向</param>
+        /// <returns>返回边缘连接类型</returns>
         public HexEdgeType GetEdgeType(HexDirection direction)
         {
             return HexMetrics.GetEdgeType(elevation, neighbors[(int)direction].elevation);
         }
         /// <summary>
-        /// 某方向的边缘是否有河流经过
+        /// 检测某方向的边缘是否有河流经过
         /// </summary>
-        /// <param name="direction">方向</param>
+        /// <param name="direction">指定方向</param>
         public bool HasRiverThroughEdge(HexDirection direction)
         {
             return
@@ -309,16 +424,58 @@ namespace GameScene.Map
             //设置河流出口
             hasOutgoingRiver = true;
             outgoingRiver = direction;
-            //刷新
-            RefreshSelfOnly();
             //设置邻居的河流入口
             neighbor.RemoveIncomingRiver();
             neighbor.hasIncomingRiver = true;
             neighbor.incomingRiver = direction.Opposite();
-            neighbor.RefreshSelfOnly();
+            //清除此方向的道路
+            SetRoad((int)direction, false);
         }
         /// <summary>
-        /// 
+        /// 指定方向是否存在道路
+        /// </summary>
+        public bool HasRoadThroughEdge(HexDirection direction)
+        {
+            return roads[(int)direction];
+        }
+        /// <summary>
+        /// 添加对应方向的道路
+        /// </summary>
+        public void AddRoad(HexDirection direction)
+        {
+            //判断是否可以在此方向设置道路
+            if (roads[(int)direction] == false                          //此方向不存在道路
+                && HasRiverThroughEdge(direction) == false     //此方向不存在河流
+                && GetElevationDifference(direction) <= 1)     //此方向的与邻居的高度差较小
+            {
+                SetRoad((int)direction, true);
+            }
+        }
+        /// <summary>
+        /// 清除所有道路
+        /// </summary>
+        public void RemoveRoads()
+        {
+            for (int i = 0; i < neighbors.Length; i++)
+            {
+                if (true == roads[i])
+                {
+                    //清除道路
+                    SetRoad(i, false);
+                }
+            }
+        }
+        /// <summary>
+        /// 获得自己和对应方向邻居的高度差
+        /// </summary>
+        public int GetElevationDifference(HexDirection direction)
+        {
+            int difference = elevation - GetNeighbor(direction).elevation;
+            return difference >= 0 ? difference : -difference;
+        }
+
+        /// <summary>
+        /// 加载脚本实例时调用 Awake
         /// </summary>
         public void Awake()
         {

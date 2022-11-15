@@ -1,19 +1,21 @@
 ﻿using UnityEngine;
+
 namespace GameScene.Map
 {
     /// <summary>
-    /// 一条线段的两个端点和3个四等分点的集合
+    /// <para/>边缘顶点集
+    /// <para/>包含了一条线段的两个端点和中间的三个分割点
     /// </summary>
     public struct EdgeVertices
     {
-        public Vector3 v1;  // 0
-        public Vector3 v2;  // 1/4
-        public Vector3 v3;  // 2/4
-        public Vector3 v4;  // 3/4
-        public Vector3 v5;  // 1
+        public Vector3 v1;
+        public Vector3 v2;
+        public Vector3 v3;
+        public Vector3 v4;
+        public Vector3 v5;
 
         /// <summary>
-        /// 根据两个端点构造四等分点
+        /// 0.25 ： 0.25 ： 0.25 ：0.25
         /// </summary>
         public EdgeVertices(Vector3 corner1, Vector3 corner2)
         {
@@ -24,7 +26,7 @@ namespace GameScene.Map
             v5 = corner2;
         }
         /// <summary>
-        /// 左右分割点按比例对称
+        /// outerStep ：0.5 - outerStep ： 0.5 - outerStep ： outerStep
         /// </summary>
         /// <param name="corner1">左端点</param>
         /// <param name="corner2">右端点</param>
@@ -38,7 +40,7 @@ namespace GameScene.Map
             v5 = corner2;
         }
         /// <summary>
-        /// 根据两个边缘进行插值计算
+        /// 对两个边缘进行斜坡阶梯的插值计算
         /// </summary>
         /// <returns>返回对应位置的插值边缘</returns>
         public static EdgeVertices TerraceLerp(EdgeVertices a, EdgeVertices b, int step)

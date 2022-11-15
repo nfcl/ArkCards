@@ -1,8 +1,10 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameScene.Map
 {
+    /// <summary>
+    /// 六边形坐标
+    /// </summary>
     [System.Serializable]
     public struct HexCoordinates
     {
@@ -20,36 +22,44 @@ namespace GameScene.Map
         /// </summary>
         public int Z { get; private set; }
 
+        /// <summary>
+        /// 正常构造
+        /// </summary>
+        /// <param name="x">x轴坐标</param>
+        /// <param name="z">z轴坐标</param>
         public HexCoordinates(int x, int z)
         {
             X = x;
             Z = z;
         }
         /// <summary>
-        /// 
+        /// 将未偏移的六边形坐标转化为偏移后的六边形坐标
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="z"></param>
-        /// <returns></returns>
+        /// <param name="x">x轴坐标</param>
+        /// <param name="z">z轴坐标</param>
+        /// <returns>返回偏移后的坐标</returns>
         public static HexCoordinates FromOffsetCoordinates(int x, int z)
         {
-            //if (z < 0)
-            //    return new HexCoordinates(x - (z - 1) / 2, z);
-            //else
-                return new HexCoordinates(x - z / 2, z);
+            return new HexCoordinates(x - z / 2, z);
         }
-
+        /// <summary>
+        /// 将世界坐标转换为六边形坐标
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
         public static HexCoordinates FromPosition(Vector3 position)
         {
+            //三维坐标构造
             float x = position.x / (HexMetrics.innerRadius * 2f);
             float y = -x;
             float offset = position.z / (HexMetrics.outerRadius * 3f);
             x -= offset;
-            y -= offset; 
+            y -= offset;
+            //取整
             int iX = Mathf.RoundToInt(x);
             int iY = Mathf.RoundToInt(y);
             int iZ = Mathf.RoundToInt(-x - y);
-
+            //如果计算的三维坐标非法还需要重新合法化
             if (iX + iY + iZ != 0)
             {
                 float dX = Mathf.Abs(x - iX);
@@ -65,21 +75,12 @@ namespace GameScene.Map
                     iZ = -iX - iY;
                 }
             }
-
+            //返回结果
             return new HexCoordinates(iX, iZ);
         }
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"({X} , {Y} , {Z})";             
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string ToStringOnSeparateLines()
         {
             return $"{X}\n{Y}\n{Z}";
