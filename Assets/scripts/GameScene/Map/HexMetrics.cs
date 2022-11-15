@@ -109,7 +109,7 @@ namespace GameScene.Map
         /// <summary>
         /// 河流表面高度偏移量（相对于单元高度）
         /// </summary>
-        public const float riverSurfaceElevationOffset = -0.5f;
+        public const float waterElevationOffset = -0.5f;
 
         /// <summary>
         /// 给定方向的左侧顶点的向量

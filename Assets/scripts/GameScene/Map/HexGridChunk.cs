@@ -25,6 +25,14 @@ namespace GameScene.Map
         /// 道路网格
         /// </summary>
         public HexMesh roads;
+        /// <summary>
+        /// 水面网格
+        /// </summary>
+        public HexMesh water;
+        /// <summary>
+        /// 岸边的水面网格
+        /// </summary>
+        public HexMesh waterShore;
 
         /// <summary>
         /// 
@@ -60,6 +68,8 @@ namespace GameScene.Map
             terrain.Clear();
             rivers.Clear();
             roads.Clear();
+            water.Clear();
+            waterShore.Clear();
             //创建网格
             for (int i = 0; i < cells.Length; i++)
             {
@@ -69,6 +79,8 @@ namespace GameScene.Map
             terrain.Apply();
             rivers.Apply();
             roads.Apply();
+            water.Apply();
+            waterShore.Apply();
         }
         /// <summary>
         /// 根据中心点添加六边形的六个三角面
@@ -127,6 +139,11 @@ namespace GameScene.Map
             if (direction <= HexDirection.SE)
             {
                 TriangulateConnection(direction, cell, e);
+            }
+            //如果这个单元被淹没则调用水面的三角化方法
+            if (cell.IsUnderwater)
+            {
+                TriangulateWater(direction, cell, center);
             }
         }
         /// <summary>
@@ -274,7 +291,7 @@ namespace GameScene.Map
         /// <summary>
         /// 存在河流的单元的剩余扇形的三角化
         /// </summary>
-        private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) 
+        private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e)
         {
             if (cell.HasRoads)
             {
@@ -458,14 +475,14 @@ namespace GameScene.Map
                 //添加单元间河流的连接四边形
                 TriangulateRiverQuad(
                     e1.v2, e1.v4, e2.v2, e2.v4,
-                    cell.RiverSurfaceY, neighbor.RiverSurfaceY,0.8f,
+                    cell.RiverSurfaceY, neighbor.RiverSurfaceY, 0.8f,
                     cell.HasIncomingRiver && cell.IncomingRiver == direction
                 );
             }
             //根据边缘连接类型添加连接面
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope)
             {//斜坡才需要处理
-                TriangulateEdgeTerraces(e1, cell, e2, neighbor,cell.HasRoadThroughEdge(direction));
+                TriangulateEdgeTerraces(e1, cell, e2, neighbor, cell.HasRoadThroughEdge(direction));
             }
             else
             {//平坦和悬崖正常连接即可
@@ -758,7 +775,7 @@ namespace GameScene.Map
             }
             else
             {
-                rivers.AddQuadUV(0f, 1f, v, v+0.2f);
+                rivers.AddQuadUV(0f, 1f, v, v + 0.2f);
             }
         }
         /// <summary>
@@ -829,6 +846,107 @@ namespace GameScene.Map
                 interpolators.y = cell.HasRoadThroughEdge(direction.Next()) ? 0.5f : 0.25f;
             }
             return interpolators;
+        }
+        /// <summary>
+        /// 单个方向的水面三角化方法
+        /// </summary>
+        private void TriangulateWater(HexDirection direction, HexCell cell, Vector3 center)
+        {
+            //中心高度为水面高度
+            center.y = cell.WaterSurfaceY;
+            //获得对应方向的邻居
+            HexCell neighbor = cell.GetNeighbor(direction);
+            //区分岸边的水域和开放的水域三角化处理
+            if (neighbor != null && !neighbor.IsUnderwater)
+            {
+                TriangulateWaterShore(direction, cell, neighbor, center);
+            }
+            else
+            {
+                TriangulateOpenWater(direction, cell, neighbor, center);
+            }
+        }
+        /// <summary>
+        /// 开放水域的三角化方法
+        /// </summary>
+        private void TriangulateOpenWater(HexDirection direction, HexCell cell, HexCell neighbor, Vector3 center)
+        {
+            //计算纯色区底边两端点位置
+            Vector3 c1 = center + HexMetrics.GetFirstSolidCorner(direction);
+            Vector3 c2 = center + HexMetrics.GetSecondSolidCorner(direction);
+            //添加纯色区三角形
+            water.AddTrianglePerturbed(center, c1, c2);
+            //判断相邻水面的连接
+            if (direction <= HexDirection.SE && neighbor != null)
+            {
+                //计算纯色区边缘到混色区边缘的垂直向量
+                Vector3 bridge = HexMetrics.GetBridge(direction);
+                //计算四边形的混色区边缘底边
+                Vector3 e1 = c1 + bridge;
+                Vector3 e2 = c2 + bridge;
+                //添加四边形
+                water.AddQuad(c1, c2, e1, e2);
+                //判断中心角的连接
+                if (direction <= HexDirection.E)
+                {
+                    //获得下一个邻居
+                    HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
+                    //如果邻居不存在或邻居则邻居并没有淹没则不需要连接
+                    if (nextNeighbor == null || !nextNeighbor.IsUnderwater)
+                    {
+                        return;
+                    }
+                    //添加中心三角形
+                    water.AddTrianglePerturbed(c2, e2, c2 + HexMetrics.GetBridge(direction.Next()));
+                }
+            }
+        }
+        /// <summary>
+        /// 靠近岸边的水域三角化方法
+        /// </summary>
+        private void TriangulateWaterShore(HexDirection direction, HexCell cell, HexCell neighbor, Vector3 center)
+        {
+            //纯色区边缘
+            EdgeVertices e1 = new EdgeVertices(
+                center + HexMetrics.GetFirstSolidCorner(direction),
+                center + HexMetrics.GetSecondSolidCorner(direction)
+            );
+            //添加纯色区扇形
+            water.AddTrianglePerturbed(center, e1.v1, e1.v2);
+            water.AddTrianglePerturbed(center, e1.v2, e1.v3);
+            water.AddTrianglePerturbed(center, e1.v3, e1.v4);
+            water.AddTrianglePerturbed(center, e1.v4, e1.v5);
+            //获得纯色区至混色区边缘的垂直向量
+            Vector3 bridge = HexMetrics.GetBridge(direction);
+            //混色区边缘
+            EdgeVertices e2 = new EdgeVertices(
+                e1.v1 + bridge,
+                e1.v5 + bridge
+            );
+            //添加混色区连接矩形
+            waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+            waterShore.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+            waterShore.AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+            waterShore.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+            //添加UV坐标
+            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            //获得下一个方向的邻居
+            HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
+            //如果存在下一个邻居则需要添加连接角
+            if (nextNeighbor != null)
+            {
+
+                waterShore.AddTrianglePerturbed(e1.v5, e2.v5, e1.v5 + HexMetrics.GetBridge(direction.Next()));
+
+                waterShore.AddTriangleUV(
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 1f),
+                    new Vector2(0f, nextNeighbor.IsUnderwater ? 0f : 1f)
+                );
+            }
         }
 
         /// <summary>

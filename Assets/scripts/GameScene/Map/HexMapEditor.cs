@@ -60,6 +60,14 @@ namespace GameScene.Map.Editor
         /// 上一个拖拽的单元格
         /// </summary>
         private HexCell previousCell;
+        /// <summary>
+        /// 当前那选择的水面高度
+        /// </summary>
+        private int activeWaterLevel;
+        /// <summary>
+        /// 是否更改单元格水面高度
+        /// </summary>
+        private bool applyWaterLevel = true;
 
         /// <summary>
         /// 选择对应下标的颜色
@@ -116,6 +124,20 @@ namespace GameScene.Map.Editor
         public void SetRoadMode(int mode)
         {
             roadMode = (OptionalToggle)mode;
+        }
+        /// <summary>
+        /// 设置是否启用水面高度调整
+        /// </summary>
+        public void SetApplyWaterLevel(bool toggle)
+        {
+            applyWaterLevel = toggle;
+        }
+        /// <summary>
+        /// 设置当前调整的水面高度
+        /// </summary>
+        public void SetWaterLevel(float level)
+        {
+            activeWaterLevel = (int)level;
         }
 
         /// <summary>
@@ -235,6 +257,11 @@ namespace GameScene.Map.Editor
             if (applyElevation)
             {
                 cell.Elevation = activeElevation;
+            }
+            //调整水面高度
+            if (applyWaterLevel)
+            {
+                cell.WaterLevel = activeWaterLevel;
             }
             //移除河流
             if (riverEditMode == OptionalToggle.No)

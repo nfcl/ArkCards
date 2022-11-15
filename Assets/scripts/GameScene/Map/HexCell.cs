@@ -38,6 +38,10 @@ namespace GameScene.Map
         /// </summary>
         [SerializeField]
         private bool[] roads;
+        /// <summary>
+        /// 水面高度
+        /// </summary>
+        private int waterLevel;
 
         /// <summary>
         /// 坐标
@@ -255,13 +259,13 @@ namespace GameScene.Map
             get
             {
                 return
-                    (elevation + HexMetrics.riverSurfaceElevationOffset) *
+                    (elevation + HexMetrics.waterElevationOffset) *
                     HexMetrics.elevationStep;
             }
         }
         /// <summary>
-        /// 该单元是否存在道路属性
-        /// 读 : 返回六个方向是否有任意方向存在道路
+        /// <para/>该单元是否存在道路属性
+        /// <para/>读 : 返回六个方向是否有任意方向存在道路
         /// </summary>
         public bool HasRoads
         {
@@ -275,6 +279,51 @@ namespace GameScene.Map
                     }
                 }
                 return false;
+            }
+        }
+        /// <summary>
+        /// <para/>水面高度属性
+        /// <para/>读 : 返回当前单元的水面高度
+        /// <para/>写 : 设置当前单元的水面高度并刷新档期那区块
+        /// </summary>
+        public int WaterLevel
+        {
+            get
+            {
+                return waterLevel;
+            }
+            set
+            {
+                if (waterLevel == value)
+                {
+                    return;
+                }
+                waterLevel = value;
+                Refresh();
+            }
+        }
+        /// <summary>
+        /// <para/>单元是否被水面淹没属性
+        /// <para/>读 : 返回水面高度是否高于地形高度
+        /// </summary>
+        public bool IsUnderwater
+        {
+            get
+            {
+                return waterLevel > elevation;
+            }
+        }
+        /// <summary>
+        /// <para/>被淹没的单元的水面Y轴坐标
+        /// <para/>读 : 返回计算后的Y轴坐标
+        /// </summary>
+        public float WaterSurfaceY
+        {
+            get
+            {
+                return
+                    (waterLevel + HexMetrics.waterElevationOffset)
+                    * HexMetrics.elevationStep;
             }
         }
 
