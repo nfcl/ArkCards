@@ -85,28 +85,8 @@ namespace GameScene.Map
                 Vector3 uiPosition = uiRect.localPosition;
                 uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
-                //判断河流出口是否合法
-                if
-                (
-                    //存在河流出口
-                    hasOutgoingRiver == true
-                    //河流上坡
-                    && elevation < GetNeighbor(outgoingRiver).elevation
-                )
-                {
-                    RemoveOutgoingRiver();
-                }
-                //判断河流入口是否合法
-                if
-                (
-                    //存在河流入口
-                    hasIncomingRiver == true
-                    //河流上坡
-                    && elevation > GetNeighbor(incomingRiver).elevation
-                )
-                {
-                    RemoveIncomingRiver();
-                }
+                //移除非法的河流出入口
+                ValidateRivers();
                 //判断各方向道路的合法性
                 for (int i = 0; i < roads.Length; i++)
                 {
@@ -299,6 +279,7 @@ namespace GameScene.Map
                     return;
                 }
                 waterLevel = value;
+                ValidateRivers();
                 Refresh();
             }
         }
@@ -458,11 +439,18 @@ namespace GameScene.Map
         public void SetOutgoingRiver(HexDirection direction)
         {
             //如果在要设置的方向已存在河流出口则返回
-            if (hasOutgoingRiver && outgoingRiver == direction) return;
+            if (hasOutgoingRiver && outgoingRiver == direction)
+            {
+                return;
+            }
             //获得对应方向的邻居
             HexCell neighbor = GetNeighbor(direction);
             //如果邻居不存在或者邻居的高度大于本单元高度（河流上坡）则返回
-            if (!neighbor || elevation < neighbor.elevation) return;
+
+            if (!IsValidRiverDestination(neighbor))
+            {
+                return;
+            }
             //移除河流出口
             RemoveOutgoingRiver();
             //如果要设置的方向已存在河流入口则先移除河流入口
@@ -521,6 +509,39 @@ namespace GameScene.Map
         {
             int difference = elevation - GetNeighbor(direction).elevation;
             return difference >= 0 ? difference : -difference;
+        }
+        /// <summary>
+        /// 检查邻居是否是河流出口的有效目的地
+        /// </summary>
+        private bool IsValidRiverDestination(HexCell neighbor)
+        {
+            return
+                neighbor
+                && (
+                        elevation >= neighbor.elevation
+                        || waterLevel == neighbor.elevation
+                    )
+                ;
+        }
+        /// <summary>
+        /// 移除非法的河流出入口
+        /// </summary>
+        private void ValidateRivers()
+        {
+            if (
+                hasOutgoingRiver == true
+                && IsValidRiverDestination(GetNeighbor(outgoingRiver)) == false
+            )
+            {
+                RemoveOutgoingRiver();
+            }
+            if (
+                hasIncomingRiver == true
+                && GetNeighbor(incomingRiver).IsValidRiverDestination(this) == false
+            )
+            {
+                RemoveIncomingRiver();
+            }
         }
 
         /// <summary>
