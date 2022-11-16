@@ -85,6 +85,7 @@
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\River.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\VertexColors.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water.cginc" />
+    <None Include="Assets\Resources\GameScene\MapNodes\Shader\Estuary.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Road.shader" />
   </ItemGroup>
