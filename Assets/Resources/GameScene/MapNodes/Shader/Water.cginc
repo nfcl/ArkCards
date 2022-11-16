@@ -12,7 +12,7 @@ float Foam(float shore, float2 worldXZ, sampler2D noiseTex) {
 	foam1 *= foam1;
 
 	float distortion2 = noise.y * (1 - shore);
-	float foam2 = sin((shore + distortion2) * 10 + _Time.y + 2);
+	float foam2 = sin((shore + distortion2) * 10 + _Time.y + 3.14);
 	foam2 *= foam2 * 0.7;
 
 	return max(foam1, foam2) * shore;

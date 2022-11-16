@@ -872,15 +872,15 @@ namespace GameScene.Map
         private void TriangulateOpenWater(HexDirection direction, HexCell cell, HexCell neighbor, Vector3 center)
         {
             //计算纯色区底边两端点位置
-            Vector3 c1 = center + HexMetrics.GetFirstSolidCorner(direction);
-            Vector3 c2 = center + HexMetrics.GetSecondSolidCorner(direction);
+            Vector3 c1 = center + HexMetrics.GetFirstWaterCorner(direction);
+            Vector3 c2 = center + HexMetrics.GetSecondWaterCorner(direction);
             //添加纯色区三角形
             water.AddTrianglePerturbed(center, c1, c2);
             //判断相邻水面的连接
             if (direction <= HexDirection.SE && neighbor != null)
             {
                 //计算纯色区边缘到混色区边缘的垂直向量
-                Vector3 bridge = HexMetrics.GetBridge(direction);
+                Vector3 bridge = HexMetrics.GetWaterBridge(direction);
                 //计算四边形的混色区边缘底边
                 Vector3 e1 = c1 + bridge;
                 Vector3 e2 = c2 + bridge;
@@ -897,7 +897,7 @@ namespace GameScene.Map
                         return;
                     }
                     //添加中心三角形
-                    water.AddTrianglePerturbed(c2, e2, c2 + HexMetrics.GetBridge(direction.Next()));
+                    water.AddTrianglePerturbed(c2, e2, c2 + HexMetrics.GetWaterBridge(direction.Next()));
                 }
             }
         }
@@ -908,20 +908,21 @@ namespace GameScene.Map
         {
             //纯色区边缘
             EdgeVertices e1 = new EdgeVertices(
-                center + HexMetrics.GetFirstSolidCorner(direction),
-                center + HexMetrics.GetSecondSolidCorner(direction)
+                center + HexMetrics.GetFirstWaterCorner(direction),
+                center + HexMetrics.GetSecondWaterCorner(direction)
             );
             //添加纯色区扇形
             water.AddTrianglePerturbed(center, e1.v1, e1.v2);
             water.AddTrianglePerturbed(center, e1.v2, e1.v3);
             water.AddTrianglePerturbed(center, e1.v3, e1.v4);
             water.AddTrianglePerturbed(center, e1.v4, e1.v5);
-            //获得纯色区至混色区边缘的垂直向量
-            Vector3 bridge = HexMetrics.GetBridge(direction);
+            //邻居的中心点
+            Vector3 center2 = neighbor.Position;
+            center2.y = center.y;
             //混色区边缘
             EdgeVertices e2 = new EdgeVertices(
-                e1.v1 + bridge,
-                e1.v5 + bridge
+                center2 + HexMetrics.GetSecondSolidCorner(direction.Opposite()),
+                center2 + HexMetrics.GetFirstSolidCorner(direction.Opposite())
             );
             //添加混色区连接矩形
             waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
@@ -939,7 +940,12 @@ namespace GameScene.Map
             if (nextNeighbor != null)
             {
 
-                waterShore.AddTrianglePerturbed(e1.v5, e2.v5, e1.v5 + HexMetrics.GetBridge(direction.Next()));
+                Vector3 v3 = nextNeighbor.Position + (nextNeighbor.IsUnderwater ?
+                    HexMetrics.GetFirstWaterCorner(direction.Previous()) :
+                    HexMetrics.GetFirstSolidCorner(direction.Previous()));
+                v3.y = center.y;
+
+                waterShore.AddTrianglePerturbed(e1.v5, e2.v5, v3);
 
                 waterShore.AddTriangleUV(
                     new Vector2(0f, 0f),

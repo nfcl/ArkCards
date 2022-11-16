@@ -59,11 +59,11 @@ namespace GameScene.Map
         /// </summary>
         public const int chunkSizeZ = 5;
         /// <summary>
-        /// 六边形中央纯色区域半径占总半径的比例
+        /// 六边形纯色区域半径占总半径的比例
         /// </summary>
         public const float solidFactor = 0.8f;
         /// <summary>
-        /// 六边形外围混合色区域（过渡区）环半径占总半径的比例
+        /// 六边形混合色区域（过渡区）环半径占总半径的比例
         /// </summary>
         public const float blendFactor = 1f - solidFactor;
         /// <summary>
@@ -110,6 +110,14 @@ namespace GameScene.Map
         /// 河流表面高度偏移量（相对于单元高度）
         /// </summary>
         public const float waterElevationOffset = -0.5f;
+        /// <summary>
+        /// 水面六边形纯色区域半径占总半径的比例
+        /// </summary>
+        public const float waterFactor = 0.6f;
+        /// <summary>
+        /// 水面六边形混合色区域（过渡区）环半径占总半径的比例
+        /// </summary>
+        public const float waterBlendFactor = 1f - waterFactor;
 
         /// <summary>
         /// 给定方向的左侧顶点的向量
@@ -144,7 +152,7 @@ namespace GameScene.Map
             return corners[(int)direction + 1] * solidFactor;
         }
         /// <summary>
-        /// 从纯色区边缘到混色区边缘的方向向量
+        /// 获得六边形纯色区边缘至混色区边缘的垂直向量
         /// </summary>
         /// <param name="direction">给定方向</param>
         public static Vector3 GetBridge(HexDirection direction)
@@ -235,6 +243,28 @@ namespace GameScene.Map
             position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
             //返回扰动后的坐标
             return position;
+        }
+        /// <summary>
+        /// 给定方向的水面六边形左侧顶点向量
+        /// </summary>
+        public static Vector3 GetFirstWaterCorner(HexDirection direction)
+        {
+            return corners[(int)direction] * waterFactor;
+        }
+        /// <summary>
+        /// 给定方向的水面六边形右侧顶点向量
+        /// </summary>
+        public static Vector3 GetSecondWaterCorner(HexDirection direction)
+        {
+            return corners[(int)direction + 1] * waterFactor;
+        }
+        /// <summary>
+        /// 获得水面六边形纯色区边缘至混色区边缘的垂直向量
+        /// </summary>
+        public static Vector3 GetWaterBridge(HexDirection direction)
+        {
+            return (corners[(int)direction] + corners[(int)direction + 1]) *
+                waterBlendFactor;
         }
     }
 }
