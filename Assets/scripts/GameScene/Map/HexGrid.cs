@@ -23,6 +23,14 @@ namespace GameScene.Map
         private HexGridChunk[] chunks;
 
         /// <summary>
+        /// 随机数种子
+        /// </summary>
+        public int seed;
+        /// <summary>
+        /// 噪声纹理
+        /// </summary>
+        public Texture2D noiseSource;
+        /// <summary>
         /// 单元标签预设体
         /// </summary>
         public Text cellLabelPrefab;
@@ -221,6 +229,12 @@ namespace GameScene.Map
         /// </summary>
         private void Awake()
         {
+            if (HexMetrics.noiseSource is null)
+            {
+                HexMetrics.noiseSource = noiseSource;
+                HexMetrics.InitializeHashGrid(seed);
+            }
+            HexMetrics.InitializeHashGrid(seed);
             //计算地图总结点长宽
             cellCountX = chunkCountX * HexMetrics.chunkSizeX;
             cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;

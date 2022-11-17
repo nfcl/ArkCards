@@ -42,6 +42,10 @@ namespace GameScene.Map
         /// 水面高度
         /// </summary>
         private int waterLevel;
+        /// <summary>
+        /// 细节密度级别
+        /// </summary>
+        private int urbanLevel;
 
         /// <summary>
         /// 坐标
@@ -305,6 +309,26 @@ namespace GameScene.Map
                 return
                     (waterLevel + HexMetrics.waterElevationOffset)
                     * HexMetrics.elevationStep;
+            }
+        }
+        /// <summary>
+        /// <para/>细节密度级别属性
+        /// <para/>读 : 获得当前单元的密度级别
+        /// <para/>写 : 设置密度级别并刷新当前区块
+        /// </summary>
+        public int UrbanLevel
+        {
+            get
+            {
+                return urbanLevel;
+            }
+            set
+            {
+                if (urbanLevel != value)
+                {
+                    urbanLevel = value;
+                    RefreshSelfOnly();
+                }
             }
         }
 

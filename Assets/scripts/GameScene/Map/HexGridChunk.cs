@@ -14,6 +14,10 @@ namespace GameScene.Map
         /// </summary>
         private Canvas gridCanvas;
         /// <summary>
+        /// 地形细节要素管理器
+        /// </summary>
+        public HexFeatureManager features;
+        /// <summary>
         /// 地形网格
         /// </summary>
         public HexMesh terrain;
@@ -75,6 +79,7 @@ namespace GameScene.Map
             water.Clear();
             waterShore.Clear();
             estuaries.Clear();
+            features.Clear();
             //创建网格
             for (int i = 0; i < cells.Length; i++)
             {
@@ -87,6 +92,7 @@ namespace GameScene.Map
             water.Apply();
             waterShore.Apply();
             estuaries.Apply();
+            features.Apply();
         }
         /// <summary>
         /// 根据中心点添加六边形的六个三角面
@@ -98,6 +104,12 @@ namespace GameScene.Map
             for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
             {
                 Triangulate(d, cell);
+            }
+            //确保该单元不存在任何地形结构
+            if (!cell.IsUnderwater && !cell.HasRiver && !cell.HasRoads)
+            {
+                //在单元中心添加一个地形要素
+                features.AddFeature(cell, cell.Position);
             }
         }
         /// <summary>
@@ -140,6 +152,14 @@ namespace GameScene.Map
             else
             {//无河流
                 TriangulateWithoutRiver(direction, cell, center, e);
+                //判断当前方向是否可以放置地形细节
+                if (
+                    cell.IsUnderwater ==false                                //不在水榭
+                    && cell.HasRoadThroughEdge(direction) == false  //当前方向没有道路
+                )
+                {
+                    features.AddFeature(cell, (center + e.v1 + e.v5) * (1f / 3f));
+                }
             }
             //添加该方向的混色区矩形网格
             if (direction <= HexDirection.SE)
@@ -343,6 +363,14 @@ namespace GameScene.Map
 
             TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
             TriangulateEdgeFan(center, m, cell.Color);
+            //判断当前方向是否可以添加地形细节
+            if (
+                cell.IsUnderwater == false                                  //不在水下
+                && cell.HasRoadThroughEdge(direction) == false     //当前方向没有道路
+            )
+            {
+                features.AddFeature(cell, (center + e.v1 + e.v5) * (1f / 3f));
+            }
         }
         /// <summary>
         /// 路和河处于同一单元时的纯色区处理

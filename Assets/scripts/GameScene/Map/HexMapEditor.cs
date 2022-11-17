@@ -68,6 +68,14 @@ namespace GameScene.Map.Editor
         /// 是否更改单元格水面高度
         /// </summary>
         private bool applyWaterLevel = true;
+        /// <summary>
+        /// 当前选择的城市等级（地形细节）
+        /// </summary>
+        private int activeUrbanLevel;
+        /// <summary>
+        /// 是否启用更改城市等级
+        /// </summary>
+        private bool applyUrbanLevel = true;
 
         /// <summary>
         /// 选择对应下标的颜色
@@ -138,6 +146,20 @@ namespace GameScene.Map.Editor
         public void SetWaterLevel(float level)
         {
             activeWaterLevel = (int)level;
+        }
+        /// <summary>
+        /// 设置是否启用修改城市等级
+        /// </summary>
+        public void SetApplyUrbanLevel(bool toggle)
+        {
+            applyUrbanLevel = toggle;
+        }
+        /// <summary>
+        /// 设置当前修改的城市等级
+        /// </summary>
+        public void SetUrbanLevel(float level)
+        {
+            activeUrbanLevel = (int)level;
         }
 
         /// <summary>
@@ -262,6 +284,11 @@ namespace GameScene.Map.Editor
             if (applyWaterLevel)
             {
                 cell.WaterLevel = activeWaterLevel;
+            }
+            //调整城市等级
+            if (applyUrbanLevel)
+            {
+                cell.UrbanLevel = activeUrbanLevel;
             }
             //移除河流
             if (riverEditMode == OptionalToggle.No)

@@ -9,17 +9,20 @@ namespace GameScene.Map
     public struct HexHash
     {
 
-        public float a; 
-        
+        public float a;
+
         public float b;
+
+        public float c;
         /// <summary>
         /// 创建一个哈希值
         /// </summary>
         public static HexHash Create()
         {
             HexHash hash;
-            hash.a = Random.value;
-            hash.b = Random.value;
+            hash.a = Random.value * 0.999f;
+            hash.b = Random.value * 0.999f;
+            hash.c = Random.value * 0.999f;
             return hash;
         }
     }

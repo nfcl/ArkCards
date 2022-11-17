@@ -131,6 +131,14 @@ namespace GameScene.Map
         /// 哈希网格
         /// </summary>
         private static HexHash[] hashGrid;
+        /// <summary>
+        /// 细节生成的控制阈值
+        /// </summary>
+        private static float[][] featureThresholds = {
+            new float[] {0.0f, 0.0f, 0.4f},
+            new float[] {0.0f, 0.4f, 0.6f},
+            new float[] {0.4f, 0.6f, 0.8f}
+        };
 
         /// <summary>
         /// 初始化哈希网格
@@ -313,6 +321,13 @@ namespace GameScene.Map
         {
             return (corners[(int)direction] + corners[(int)direction + 1]) *
                 waterBlendFactor;
+        }
+        /// <summary>
+        /// 根据级别获得细节阈值数组
+        /// </summary>
+        public static float[] GetFeatureThresholds(int level)
+        {
+            return featureThresholds[level];
         }
     }
 }
