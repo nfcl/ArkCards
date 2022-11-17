@@ -369,3 +369,4 @@ FodyWeavers.xsd
 /Assets/Resources
 /Assets/Scenes
 /UserSettings
+/Assets/scripts/GameScene/Map/HexEdgeType .cs.meta.private.0

@@ -40,16 +40,16 @@ namespace GameScene.Map
         /// <summary>
         /// 平顶朝上的六边形六个角坐标相对于中心位置
         /// </summary>
-        //private readonly static Vector3[] corners_flattened = new Vector3[]
-        //{
-        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-        //    new Vector3(outerRadius         ,0,0                ),
-        //    new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
-        //    new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
-        //    new Vector3(-outerRadius        ,0,0                ),
-        //    new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
-        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-        //};
+        private readonly static Vector3[] corners_flattened = new Vector3[]
+        {
+            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+            new Vector3(outerRadius         ,0,0                ),
+            new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
+            new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
+            new Vector3(-outerRadius        ,0,0                ),
+            new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
+            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        };
         /// <summary>
         /// 单个区块的水平单元数
         /// </summary>
@@ -89,7 +89,7 @@ namespace GameScene.Map
         /// <summary>
         /// 噪声图
         /// </summary>
-        public static Texture2D noiseSource = Resources.Load<Texture2D>("GameScene/MapNodes/sprite/noise");
+        public static Texture2D noiseSource; //= Resources.Load<Texture2D>("GameScene/MapNodes/sprite/noise");
         /// <summary>
         /// 噪声强度缩放
         /// </summary>
@@ -97,7 +97,7 @@ namespace GameScene.Map
         /// <summary>
         /// 单元噪声扰动强度
         /// </summary>
-        public const float cellPerturbStrength = 0f;
+        public const float cellPerturbStrength = 4f;
         /// <summary>
         /// 垂直方向噪声扰动强度
         /// </summary>
@@ -118,7 +118,55 @@ namespace GameScene.Map
         /// 水面六边形混合色区域（过渡区）环半径占总半径的比例
         /// </summary>
         public const float waterBlendFactor = 1f - waterFactor;
+        /// <summary>
+        /// 随机哈希网格大小
+        /// </summary>
+        public const int hashGridSize = 256;
+        /// <summary>
+        /// 哈希网格采样放缩
+        /// </summary>
+        public const float hashGridScale = 0.25f;
 
+        /// <summary>
+        /// 哈希网格
+        /// </summary>
+        private static HexHash[] hashGrid;
+
+        /// <summary>
+        /// 初始化哈希网格
+        /// </summary>
+        public static void InitializeHashGrid(int seed)
+        {
+            //保存当前的随机数生成器状态
+            Random.State currentState = Random.state;
+            //设置随机数种子
+            Random.InitState(seed);
+            //初始化哈希网格
+            hashGrid = new HexHash[hashGridSize * hashGridSize];
+            for (int i = 0; i < hashGrid.Length; i++)
+            {
+                hashGrid[i] = HexHash.Create();
+            }
+            //设置回状态
+            Random.state = currentState;
+        }
+        /// <summary>
+        /// 通过Vector3对哈希网格采样
+        /// </summary>
+        public static HexHash SampleHashGrid(Vector3 position)
+        {
+            int x = (int)(position.x * hashGridScale) % hashGridSize;
+            if (x < 0)
+            {
+                x += hashGridSize;
+            }
+            int z = (int)(position.z * hashGridScale) % hashGridSize;
+            if (z < 0)
+            {
+                z += hashGridSize;
+            }
+            return hashGrid[x + z * hashGridSize];
+        }
         /// <summary>
         /// 给定方向的左侧顶点的向量
         /// </summary>
