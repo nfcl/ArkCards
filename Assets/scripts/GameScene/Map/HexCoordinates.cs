@@ -85,5 +85,15 @@ namespace GameScene.Map
         {
             return $"{X}\n{Y}\n{Z}";
         }
+
+        public static bool operator !=(HexCoordinates lhs, HexCoordinates rhs)
+        {
+            return lhs.X != rhs.X || lhs.Z != rhs.Z;
+        }
+
+        public static bool operator ==(HexCoordinates lhs, HexCoordinates rhs)
+        {
+            return lhs.X == rhs.X && lhs.Z == rhs.Z;
+        }
     }
 }

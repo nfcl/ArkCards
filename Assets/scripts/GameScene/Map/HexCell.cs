@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace GameScene.Map
@@ -10,7 +9,7 @@ namespace GameScene.Map
         /// </summary>
         private Color color;
         /// <summary>
-        /// 邻居
+        /// 邻居列表
         /// </summary>
         private HexCell[] neighbors;
         /// <summary>
@@ -46,6 +45,7 @@ namespace GameScene.Map
         /// 细节密度级别
         /// </summary>
         private int urbanLevel;
+        private HexTerrainType terrinType;
 
         /// <summary>
         /// 坐标
@@ -61,8 +61,8 @@ namespace GameScene.Map
         public RectTransform uiRect;
         /// <summary>
         /// <para/>高度属性
-        /// <para/>读 ：返回高度
-        /// <para/>写 ：写入高度，设置实体和UI的Y轴位置，并对河流的合法性进行检测，刷新区块
+        /// <para/>读 : 返回高度
+        /// <para/>写 : 写入高度，设置实体和UI的Y轴位置，并对河流的合法性进行检测，刷新区块
         /// </summary>
         public int Elevation
         {
@@ -114,7 +114,7 @@ namespace GameScene.Map
         }
         /// <summary>
         /// <para/>单元位置属性
-        /// <para/>读 ：返回实体以父物体为坐标系的位置
+        /// <para/>读 : 返回实体以父物体为坐标系的位置
         /// </summary>
         public Vector3 Position
         {
@@ -125,8 +125,8 @@ namespace GameScene.Map
         }
         /// <summary>
         /// <para/>单元颜色属性
-        /// <para/>读 ：返回地形颜色
-        /// <para/>写 ：设置颜色并刷新区块
+        /// <para/>读 : 返回地形颜色
+        /// <para/>写 : 设置颜色并刷新区块
         /// </summary>
         public Color Color
         {
@@ -331,7 +331,22 @@ namespace GameScene.Map
                 }
             }
         }
-
+        /// <summary>
+        /// <para/>地形属性
+        /// <para/>读 :  返回当前单元的地形类型
+        /// <para/>写 :  设置当前单元的地形类型
+        /// </summary>
+        public HexTerrainType TerrinType
+        {
+            get 
+            { 
+                return terrinType; 
+            }
+            set
+            {
+                terrinType = value; 
+            }
+        }
         /// <summary>
         /// 刷新本区块和邻居所属的不同区块
         /// </summary>
@@ -566,6 +581,23 @@ namespace GameScene.Map
             {
                 RemoveIncomingRiver();
             }
+        }
+
+        /// <summary>
+        /// 重载!=运算符
+        /// </summary>
+        /// <returns>返回两者坐标是否不同</returns>
+        public static bool operator !=(HexCell lhs, HexCell rhs)
+        {
+            return lhs.coordinates != rhs.coordinates;
+        }
+        /// <summary>
+        /// 重载==运算符
+        /// </summary>
+        /// <returns>返回两者坐标是否相同</returns>
+        public static bool operator ==(HexCell lhs, HexCell rhs)
+        {
+            return lhs.coordinates == rhs.coordinates;
         }
 
         /// <summary>
