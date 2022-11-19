@@ -1,13 +1,10 @@
+using System.IO;
 using UnityEngine;
 
 namespace GameScene.Map
 {
     public class HexCell : MonoBehaviour
     {
-        /// <summary>
-        /// 地形颜色
-        /// </summary>
-        private Color color;
         /// <summary>
         /// 邻居列表
         /// </summary>
@@ -42,10 +39,9 @@ namespace GameScene.Map
         /// </summary>
         private int waterLevel;
         /// <summary>
-        /// 细节密度级别
+        /// 当前单元的地形类型
         /// </summary>
-        private int urbanLevel;
-        private HexTerrainType terrinType;
+        private HexTerrainType terrainType = new HexTerrainType { type = -1 };
 
         /// <summary>
         /// 坐标
@@ -79,35 +75,12 @@ namespace GameScene.Map
                 }
                 //设置高度
                 elevation = value;
-                //设置单元y轴位置
-                Vector3 position = transform.localPosition;
-                position.y = value * HexMetrics.elevationStep;
-                //对y轴进行噪声扰动
-                position.y += (HexMetrics.SampleNoise(position).y * 2f - 1f) * HexMetrics.elevationPerturbStrength;
-                transform.localPosition = position;
-                //设置单元UI位置
-                Vector3 uiPosition = uiRect.localPosition;
-                uiPosition.z = -position.y;
-                uiRect.localPosition = uiPosition;
+                //刷新位置
+                RefreshPosition();
                 //移除非法的河流出入口
                 ValidateRivers();
                 //判断各方向道路的合法性
-                for (int i = 0; i < roads.Length; i++)
-                {
-                    //判断此方向道路合法性
-                    if
-                    (
-                        //存在道路
-                        roads[i] == true
-                        //与对应方向邻居的高度差过大
-                        && GetElevationDifference((HexDirection)i) > 1
-                    )
-                    {
-                        //清除此方向道路
-                        SetRoad(i, false);
-                    }
-                }
-
+                ValidateRoads();
                 //更改后进行刷新
                 Refresh();
             }
@@ -126,22 +99,12 @@ namespace GameScene.Map
         /// <summary>
         /// <para/>单元颜色属性
         /// <para/>读 : 返回地形颜色
-        /// <para/>写 : 设置颜色并刷新区块
         /// </summary>
         public Color Color
         {
             get
             {
-                return color;
-            }
-            set
-            {
-                if (color == value)
-                {
-                    return;
-                }
-                color = value;
-                Refresh();
+                return terrainType.color;
             }
         }
         /// <summary>
@@ -312,41 +275,27 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>细节密度级别属性
-        /// <para/>读 : 获得当前单元的密度级别
-        /// <para/>写 : 设置密度级别并刷新当前区块
-        /// </summary>
-        public int UrbanLevel
-        {
-            get
-            {
-                return urbanLevel;
-            }
-            set
-            {
-                if (urbanLevel != value)
-                {
-                    urbanLevel = value;
-                    RefreshSelfOnly();
-                }
-            }
-        }
-        /// <summary>
         /// <para/>地形属性
         /// <para/>读 :  返回当前单元的地形类型
         /// <para/>写 :  设置当前单元的地形类型
         /// </summary>
         public HexTerrainType TerrinType
         {
-            get 
-            { 
-                return terrinType; 
+            get
+            {
+                return terrainType;
             }
             set
             {
-                terrinType = value; 
+                if (value == terrainType)
+                {
+                    return;
+                }
+                terrainType = value;
+                Refresh();
             }
         }
+
         /// <summary>
         /// 刷新本区块和邻居所属的不同区块
         /// </summary>
@@ -387,6 +336,76 @@ namespace GameScene.Map
             //刷新
             neighbors[index].RefreshSelfOnly();
             RefreshSelfOnly();
+        }
+        /// <summary>
+        /// 检查邻居是否是河流出口的有效目的地
+        /// </summary>
+        private bool IsValidRiverDestination(HexCell neighbor)
+        {
+            return
+                neighbor
+                && (
+                        elevation >= neighbor.elevation
+                        || waterLevel == neighbor.elevation
+                    )
+                ;
+        }
+        /// <summary>
+        /// 移除非法的河流出入口
+        /// </summary>
+        private void ValidateRivers()
+        {
+            if (
+                hasOutgoingRiver == true
+                && IsValidRiverDestination(GetNeighbor(outgoingRiver)) == false
+            )
+            {
+                RemoveOutgoingRiver();
+            }
+            if (
+                hasIncomingRiver == true
+                && GetNeighbor(incomingRiver).IsValidRiverDestination(this) == false
+            )
+            {
+                RemoveIncomingRiver();
+            }
+        }
+        /// <summary>
+        /// 移除非法的道路
+        /// </summary>
+        private void ValidateRoads()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                //判断此方向道路合法性
+                if
+                (
+                    //存在道路
+                    roads[i] == true
+                    //与对应方向邻居的高度差过大
+                    && GetEdgeType((HexDirection)i) == HexEdgeType.Cliff
+                )
+                {
+                    //清除此方向道路
+                    SetRoad(i, false);
+                }
+            }
+        }
+        /// <summary>
+        /// 刷新单元位置
+        /// </summary>
+        private void RefreshPosition()
+        {
+            Vector3 position = transform.localPosition;
+            position.y = elevation * HexMetrics.elevationStep;
+            position.y +=
+                (HexMetrics.SampleNoise(position).y * 2f - 1f) *
+                HexMetrics.elevationPerturbStrength;
+            transform.localPosition = position;
+
+            Vector3 uiPosition = uiRect.localPosition;
+            uiPosition.z = -position.y;
+            uiRect.localPosition = uiPosition;
         }
 
         /// <summary>
@@ -550,36 +569,83 @@ namespace GameScene.Map
             return difference >= 0 ? difference : -difference;
         }
         /// <summary>
-        /// 检查邻居是否是河流出口的有效目的地
+        /// 单元格数据写入
         /// </summary>
-        private bool IsValidRiverDestination(HexCell neighbor)
+        public void Save(BinaryWriter writer)
         {
-            return
-                neighbor
-                && (
-                        elevation >= neighbor.elevation
-                        || waterLevel == neighbor.elevation
-                    )
-                ;
+            //地形
+            writer.Write((byte)terrainType.type);
+            //高度
+            writer.Write((byte)elevation);
+            //水面高度
+            writer.Write((byte)waterLevel);
+            //河流
+            if (hasIncomingRiver == true)
+            {
+                writer.Write((byte)(incomingRiver + 0b10000000));
+            }
+            else
+            {
+                writer.Write((byte)0);
+            }
+            if (hasOutgoingRiver)
+            {
+                writer.Write((byte)(outgoingRiver + 0b10000000));
+            }
+            else
+            {
+                writer.Write((byte)0);
+            }
+            //道路
+            int roadFlags = 0;
+            for (int i = 0; i < roads.Length; i++)
+            {
+                if (roads[i])
+                {
+                    roadFlags |= 1 << i;
+                }
+            }
+            writer.Write((byte)roadFlags);
         }
         /// <summary>
-        /// 移除非法的河流出入口
+        /// 单元格数据读取
         /// </summary>
-        private void ValidateRivers()
+        public void Load(BinaryReader reader)
         {
-            if (
-                hasOutgoingRiver == true
-                && IsValidRiverDestination(GetNeighbor(outgoingRiver)) == false
-            )
+            //地形
+            terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
+            //高度
+            elevation = reader.ReadByte();
+            //刷新位置
+            RefreshPosition();
+            //水面高度
+            waterLevel = reader.ReadByte();
+            //河流		
+            byte riverData = reader.ReadByte();
+            if (riverData >= 128)
             {
-                RemoveOutgoingRiver();
+                hasIncomingRiver = true;
+                incomingRiver = (HexDirection)(riverData - 0b10000000);
             }
-            if (
-                hasIncomingRiver == true
-                && GetNeighbor(incomingRiver).IsValidRiverDestination(this) == false
-            )
+            else
             {
-                RemoveIncomingRiver();
+                hasIncomingRiver = false;
+            }
+            riverData = reader.ReadByte();
+            if (riverData >= 128)
+            {
+                hasOutgoingRiver = true;
+                outgoingRiver = (HexDirection)(riverData - 0b10000000);
+            }
+            else
+            {
+                hasOutgoingRiver = false;
+            }
+            //道路
+            int roadFlags = reader.ReadByte();
+            for (int i = 0; i < roads.Length; i++)
+            {
+                roads[i] = (roadFlags & 1 << i) != 0;
             }
         }
 
@@ -589,6 +655,10 @@ namespace GameScene.Map
         /// <returns>返回两者坐标是否不同</returns>
         public static bool operator !=(HexCell lhs, HexCell rhs)
         {
+            if (lhs is null || rhs is null)
+            {
+                return true;
+            }
             return lhs.coordinates != rhs.coordinates;
         }
         /// <summary>
@@ -597,7 +667,25 @@ namespace GameScene.Map
         /// <returns>返回两者坐标是否相同</returns>
         public static bool operator ==(HexCell lhs, HexCell rhs)
         {
+            if (lhs is null || rhs is null)
+            {
+                return false;
+            }
             return lhs.coordinates == rhs.coordinates;
+        }
+        /// <summary>
+        /// 重写Equals
+        /// </summary>
+        public override bool Equals(object other)
+        {
+            return this == (HexCell)other;
+        }
+        /// <summary>
+        /// 重写GetHashCode
+        /// </summary>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         /// <summary>

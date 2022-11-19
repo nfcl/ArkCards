@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using UnityEditor.VersionControl;
+using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,10 +7,6 @@ namespace GameScene.Map.Editor
 {
     public class HexMapEditor : MonoBehaviour
     {
-        /// <summary>
-        /// 可选颜色
-        /// </summary>
-        public Color[] colors;
         /// <summary>
         /// 六边形网格
         /// </summary>
@@ -21,25 +17,29 @@ namespace GameScene.Map.Editor
         public ColorPannel colorPannel;
 
         /// <summary>
-        /// 当前选择的单元格颜色
+        /// 是否更改单元格地形
         /// </summary>
-        private Color activeColor;
+        private bool applyTerrain = false;
         /// <summary>
-        /// 刷子的大小
+        /// 是否更改单元格高度
         /// </summary>
-        private int brushSize;
+        private bool applyElevation = false;
+        /// <summary>
+        /// 是否更改单元格水面高度
+        /// </summary>
+        private bool applyWaterLevel = false;
+        /// <summary>
+        /// 当前选择的单元格地形
+        /// </summary>
+        private HexTerrainType activeTerrain;
+        /// <summary>
+        /// 当前那选择的水面高度
+        /// </summary>
+        private int activeWaterLevel;
         /// <summary>
         /// 当前选择的单元格高度
         /// </summary>
         private int activeElevation;
-        /// <summary>
-        /// 是否更改单元格颜色
-        /// </summary>
-        private bool applyColor = true;
-        /// <summary>
-        /// 是否更改单元格高度
-        /// </summary>
-        private bool applyElevation = true;
         /// <summary>
         /// 河流更改选项
         /// </summary>
@@ -48,6 +48,10 @@ namespace GameScene.Map.Editor
         /// 道路更改选项
         /// </summary>
         private OptionalToggle roadMode;
+        /// <summary>
+        /// 刷子的大小
+        /// </summary>
+        private int brushSize;
         /// <summary>
         /// 鼠标是否拖拽
         /// </summary>
@@ -60,34 +64,34 @@ namespace GameScene.Map.Editor
         /// 上一个拖拽的单元格
         /// </summary>
         private HexCell previousCell;
-        /// <summary>
-        /// 当前那选择的水面高度
-        /// </summary>
-        private int activeWaterLevel;
-        /// <summary>
-        /// 是否更改单元格水面高度
-        /// </summary>
-        private bool applyWaterLevel = true;
-        /// <summary>
-        /// 当前选择的城市等级（地形细节）
-        /// </summary>
-        private int activeUrbanLevel;
-        /// <summary>
-        /// 是否启用更改城市等级
-        /// </summary>
-        private bool applyUrbanLevel = true;
 
         /// <summary>
-        /// 选择对应下标的颜色
+        /// 设置是否启用更改高度
         /// </summary>
-        /// <param name="index">要选择的颜色</param>
-        public void SelectColor(int index)
+        public void SetApplyElevation(bool toggle)
         {
-            applyColor = index >= 0;
-            if (applyColor)
-            {
-                activeColor = colors[index];
-            }
+            applyElevation = toggle;
+        }
+        /// <summary>
+        /// 设置是否启用水面高度调整
+        /// </summary>
+        public void SetApplyWaterLevel(bool toggle)
+        {
+            applyWaterLevel = toggle;
+        }
+        /// <summary>
+        /// 设置是否启用修改地形
+        /// </summary>
+        public void SetApplyTerrain(bool toggle)
+        {
+            applyTerrain = toggle;
+        }
+        /// <summary>
+        /// 选择要调整的地形
+        /// </summary>
+        public void SelectTerrain(int index)
+        {
+            activeTerrain = HexMetrics.HexTerrains[index];
         }
         /// <summary>
         /// 选择设置的单元格高度
@@ -96,13 +100,6 @@ namespace GameScene.Map.Editor
         public void SetElevation(float elevation)
         {
             activeElevation = (int)elevation;
-        }
-        /// <summary>
-        /// 设置是否启用更改高度
-        /// </summary>
-        public void SetApplyElevation(bool toggle)
-        {
-            applyElevation = toggle;
         }
         /// <summary>
         /// 设置地图节点的UI是否显示
@@ -134,13 +131,6 @@ namespace GameScene.Map.Editor
             roadMode = (OptionalToggle)mode;
         }
         /// <summary>
-        /// 设置是否启用水面高度调整
-        /// </summary>
-        public void SetApplyWaterLevel(bool toggle)
-        {
-            applyWaterLevel = toggle;
-        }
-        /// <summary>
         /// 设置当前调整的水面高度
         /// </summary>
         public void SetWaterLevel(float level)
@@ -148,28 +138,37 @@ namespace GameScene.Map.Editor
             activeWaterLevel = (int)level;
         }
         /// <summary>
-        /// 设置是否启用修改城市等级
+        /// 保存地图
         /// </summary>
-        public void SetApplyUrbanLevel(bool toggle)
+        public void Save()
         {
-            applyUrbanLevel = toggle;
+            string path = Path.Combine(Application.persistentDataPath, "test.map");
+
+            Debug.Log(path);
+
+            using (
+                BinaryWriter writer =
+                    new BinaryWriter(File.Open(path, FileMode.Create))
+            )
+            {
+                hexGrid.Save(writer);
+            }
         }
         /// <summary>
-        /// 设置当前修改的城市等级
+        /// 加载地图
         /// </summary>
-        public void SetUrbanLevel(float level)
+        public void Load()
         {
-            activeUrbanLevel = (int)level;
+            string path = Path.Combine(Application.persistentDataPath, "test.map");
+            using (
+                BinaryReader reader =
+                    new BinaryReader(File.Open(path, FileMode.Open))
+            )
+            {
+                hexGrid.Load(reader);
+            }
         }
 
-        /// <summary>
-        /// HandleInput方法的Ray缓存
-        /// </summary>
-        private Ray HandleInput_inputRay;
-        /// <summary>
-        /// HandleInput方法的RaycastHit缓存
-        /// </summary>
-        private RaycastHit HandleInput_hit;
         /// <summary>
         /// 鼠标监听协程
         /// </summary>
@@ -185,12 +184,13 @@ namespace GameScene.Map.Editor
                     goto ELSE;
                 }
                 //射线检测
-                HandleInput_inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit raycastHit;
                 //判断是否检测到了物体
-                if (Physics.Raycast(HandleInput_inputRay, out HandleInput_hit))
+                if (Physics.Raycast(ray, out raycastHit))
                 {
                     //获得点击到的单元
-                    HexCell currentCell = hexGrid.GetCell(HandleInput_hit.point);
+                    HexCell currentCell = hexGrid.GetCell(raycastHit.point);
                     //判断上一个单元和当前点击的单元是否不同
                     if (false == (previousCell is null) && previousCell != currentCell)
                     {//上一个单元和当前点击的单元不同
@@ -269,26 +269,24 @@ namespace GameScene.Map.Editor
         /// <param name="cell">要编辑的单元</param>
         private void EditCell(HexCell cell)
         {
-            if (cell is null) return;
-            //调整颜色
-            if (applyColor)
+            if (cell is null)
             {
-                cell.Color = activeColor;
+                return;
+            }
+            //调整颜色
+            if (applyTerrain == true)
+            {
+                cell.TerrinType = activeTerrain;
             }
             //调整高度
-            if (applyElevation)
+            if (applyElevation == true)
             {
                 cell.Elevation = activeElevation;
             }
             //调整水面高度
-            if (applyWaterLevel)
+            if (applyWaterLevel == true)
             {
                 cell.WaterLevel = activeWaterLevel;
-            }
-            //调整城市等级
-            if (applyUrbanLevel)
-            {
-                cell.UrbanLevel = activeUrbanLevel;
             }
             //移除河流
             if (riverEditMode == OptionalToggle.No)
@@ -300,7 +298,7 @@ namespace GameScene.Map.Editor
             {
                 cell.RemoveRoads();
             }
-            else if (isDrag)
+            else if (isDrag == true)
             {
                 HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
                 if (otherCell)
@@ -324,10 +322,11 @@ namespace GameScene.Map.Editor
         /// </summary>
         private void Awake()
         {
-            //设置颜色选择器
-            colorPannel.SetColors(colors);
-            colorPannel.SetToggleDelegate(SelectColor);
+            //设置地形选择器
+            colorPannel.SetColors();
             colorPannel.SelectToggle(0);
+            SelectTerrain(0);
+            colorPannel.SetToggleDelegate(SelectTerrain);
             //启用鼠标左键监听协程
             StartCoroutine(MouseLeftClickListener());
         }

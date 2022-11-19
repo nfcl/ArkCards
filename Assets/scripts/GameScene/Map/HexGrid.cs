@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,10 @@ namespace GameScene.Map
         /// 噪声纹理
         /// </summary>
         public Texture2D noiseSource;
+        /// <summary>
+        /// 地形细节集合
+        /// </summary>
+        public HexFeatureCollection[] featureCollections;
         /// <summary>
         /// 单元标签预设体
         /// </summary>
@@ -111,8 +116,8 @@ namespace GameScene.Map
             HexCell cell = cells[i] = Instantiate(cellPrefab);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-            cell.Color = Color.white;
-            //设置相邻关系
+            cell.TerrinType = HexMetrics.HexTerrains[0];
+            //设置相邻关系 
             if (x > 0)
             {
                 //设置自己左侧（W）的邻居
@@ -223,6 +228,30 @@ namespace GameScene.Map
                 chunks[i].ShowUI(visible);
             }
         }
+        /// <summary>
+        /// 地图网格数据写入
+        /// </summary>
+        public void Save(BinaryWriter writer)
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].Save(writer);
+            }
+        }
+        /// <summary>
+        /// 地图网格数据读取
+        /// </summary>
+        public void Load(BinaryReader reader)
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].Load(reader);
+            }
+            for (int i = 0; i < chunks.Length; i++)
+            {
+                chunks[i].Refresh();
+            }
+        }
 
         /// <summary>
         /// 
@@ -233,6 +262,7 @@ namespace GameScene.Map
             {
                 HexMetrics.noiseSource = noiseSource;
                 HexMetrics.InitializeHashGrid(seed);
+                HexFeatureManager.InitfeatureCollection(featureCollections);
             }
             HexMetrics.InitializeHashGrid(seed);
             //计算地图总结点长宽
