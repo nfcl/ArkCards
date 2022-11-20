@@ -40,16 +40,16 @@ namespace GameScene.Map
         /// <summary>
         /// 平顶朝上的六边形六个角坐标相对于中心位置
         /// </summary>
-        private readonly static Vector3[] corners_flattened = new Vector3[]
-        {
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-            new Vector3(outerRadius         ,0,0                ),
-            new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
-            new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
-            new Vector3(-outerRadius        ,0,0                ),
-            new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
-            new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
-        };
+        //private readonly static Vector3[] corners_flattened = new Vector3[]
+        //{
+        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        //    new Vector3(outerRadius         ,0,0                ),
+        //    new Vector3(outerRadius * 0.5f  ,0,-innerRadius     ),
+        //    new Vector3(-outerRadius * 0.5f ,0,-innerRadius     ),
+        //    new Vector3(-outerRadius        ,0,0                ),
+        //    new Vector3(-outerRadius * 0.5f ,0,innerRadius      ),
+        //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
+        //};
         /// <summary>
         /// 单个区块的水平单元数
         /// </summary>
@@ -126,19 +126,23 @@ namespace GameScene.Map
         /// 哈希网格采样放缩
         /// </summary>
         public const float hashGridScale = 0.25f;
+        /// <summary>
+        /// 地形集合
+        /// </summary>
+        public static HexTerrainType[] HexTerrains = new HexTerrainType[]
+        {
+            //Grass
+            new HexTerrainType{ type = 0, color = new Color32(114,224,62 ,255)},
+            //Sand
+            new HexTerrainType{ type = 1, color = new Color32(249,240,71 ,255)},
+            //Snow
+            new HexTerrainType{ type = 2, color = new Color32(215,255,254,255)}
+        };
 
         /// <summary>
         /// 哈希网格
         /// </summary>
         private static HexHash[] hashGrid;
-        /// <summary>
-        /// 细节生成的控制阈值
-        /// </summary>
-        private static float[][] featureThresholds = {
-            new float[] {0.0f, 0.0f, 0.4f},
-            new float[] {0.0f, 0.4f, 0.6f},
-            new float[] {0.4f, 0.6f, 0.8f}
-        };
 
         /// <summary>
         /// 初始化哈希网格
@@ -321,13 +325,6 @@ namespace GameScene.Map
         {
             return (corners[(int)direction] + corners[(int)direction + 1]) *
                 waterBlendFactor;
-        }
-        /// <summary>
-        /// 根据级别获得细节阈值数组
-        /// </summary>
-        public static float[] GetFeatureThresholds(int level)
-        {
-            return featureThresholds[level];
         }
     }
 }

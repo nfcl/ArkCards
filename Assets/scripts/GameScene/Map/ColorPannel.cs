@@ -25,9 +25,9 @@ namespace GameScene.Map.Editor
         /// 设置颜色选项
         /// </summary>
         /// <param name="colors">新的颜色选项</param>
-        public void SetColors(Color[] colors)
+        public void SetColors()
         {
-            int size = colors.Length;
+            int size = HexMetrics.HexTerrains.Length;
             ColorToggles = new ColorToggle[size];
             RectTransform rt = GetComponent<RectTransform>();
             rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + (10 + 30) * size);
@@ -39,7 +39,7 @@ namespace GameScene.Map.Editor
                 clone.name = i.ToString();
                 ColorToggles[i] = clone.GetComponent<ColorToggle>();
                 ColorToggles[i].SetPos(bufpos);
-                ColorToggles[i].SetColor(colors[i]);
+                ColorToggles[i].SetColor(HexMetrics.HexTerrains[i].color);
                 ColorToggles[i].SetToggleGroup(ToggleGroup);
                 bufpos.y -= 40;
             }
