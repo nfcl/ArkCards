@@ -132,11 +132,15 @@ namespace GameScene.Map
         public static HexTerrainType[] HexTerrains = new HexTerrainType[]
         {
             //Grass
-            new HexTerrainType{ type = 0, color = new Color32(114,224,62 ,255)},
+            new HexTerrainType{ type = 0, typeName = "Grass"},
+            //Stone
+            new HexTerrainType{ type = 1, typeName = "Stone"},
             //Sand
-            new HexTerrainType{ type = 1, color = new Color32(249,240,71 ,255)},
+            new HexTerrainType{ type = 2, typeName = "Sand"},
             //Snow
-            new HexTerrainType{ type = 2, color = new Color32(215,255,254,255)}
+            new HexTerrainType{ type = 3, typeName = "Snow"},
+            //Mud
+            new HexTerrainType{ type = 4, typeName = "Mud"}
         };
 
         /// <summary>

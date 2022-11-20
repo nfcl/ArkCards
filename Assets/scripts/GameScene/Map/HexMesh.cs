@@ -37,6 +37,10 @@ namespace GameScene.Map
         [NonSerialized]
         private List<Vector2> uv2s;
         /// <summary>
+        /// 地形类型列表
+        /// </summary>
+        [NonSerialized] List<Vector3> terrainTypes;
+        /// <summary>
         /// 网格碰撞器
         /// </summary>
         private MeshCollider meshCollider;
@@ -57,6 +61,10 @@ namespace GameScene.Map
         /// 是否启用第二组UV坐标
         /// </summary>
         public bool useUV2Coordinates;
+        /// <summary>
+        /// 是否启用地形类型
+        /// </summary>
+        public bool useTerrainTypes;
 
         /// <summary>
         /// 清除网格数据
@@ -76,6 +84,10 @@ namespace GameScene.Map
             if (useUV2Coordinates)
             {
                 uv2s = ListPool<Vector2>.Get();
+            }
+            if (useTerrainTypes)
+            {
+                terrainTypes = ListPool<Vector3>.Get();
             }
             triangles = ListPool<int>.Get();
         }
@@ -100,6 +112,11 @@ namespace GameScene.Map
             {
                 hexMesh.SetUVs(1, uv2s);
                 ListPool<Vector2>.Add(uv2s);
+            }
+            if (useTerrainTypes)
+            {
+                hexMesh.SetUVs(2, terrainTypes);
+                ListPool<Vector3>.Add(terrainTypes);
             }
             hexMesh.SetTriangles(triangles, 0);
             ListPool<int>.Add(triangles);
@@ -277,6 +294,25 @@ namespace GameScene.Map
             uv2s.Add(new Vector2(uMax, vMin));
             uv2s.Add(new Vector2(uMin, vMax));
             uv2s.Add(new Vector2(uMax, vMax));
+        }
+        /// <summary>
+        /// 添加地形类型三角形
+        /// </summary>
+        public void AddTriangleTerrainTypes(Vector3 types)
+        {
+            terrainTypes.Add(types);
+            terrainTypes.Add(types);
+            terrainTypes.Add(types);
+        }
+        /// <summary>
+        /// 添加地形类型四边形
+        /// </summary>
+        public void AddQuadTerrainTypes(Vector3 types)
+        {
+            terrainTypes.Add(types);
+            terrainTypes.Add(types);
+            terrainTypes.Add(types);
+            terrainTypes.Add(types);
         }
 
         /// <summary>

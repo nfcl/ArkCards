@@ -14,7 +14,7 @@ namespace GameScene.Map.Editor
         /// <summary>
         /// 单元格颜色选择面板
         /// </summary>
-        public ColorPannel colorPannel;
+        public TerrainPannel terrainPannel;
 
         /// <summary>
         /// 是否更改单元格地形
@@ -245,7 +245,7 @@ namespace GameScene.Map.Editor
             //调整颜色
             if (applyTerrain == true)
             {
-                cell.TerrinType = activeTerrain;
+                cell.TerrainType = activeTerrain;
             }
             //调整高度
             if (applyElevation == true)
@@ -292,10 +292,10 @@ namespace GameScene.Map.Editor
         private void Awake()
         {
             //设置地形选择器
-            colorPannel.SetColors();
-            colorPannel.SelectToggle(0);
+            terrainPannel.SetColors();
+            terrainPannel.SelectToggle(0);
             SelectTerrain(0);
-            colorPannel.SetToggleDelegate(SelectTerrain);
+            terrainPannel.SetToggleDelegate(SelectTerrain);
             //启用鼠标左键监听协程
             StartCoroutine(MouseLeftClickListener());
         }

@@ -97,17 +97,6 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>单元颜色属性
-        /// <para/>读 : 返回地形颜色
-        /// </summary>
-        public Color Color
-        {
-            get
-            {
-                return terrainType.color;
-            }
-        }
-        /// <summary>
         /// <para/>是否存在河流入口属性
         /// <para/>读 : 返回是否存在河流入口
         /// </summary>
@@ -279,7 +268,7 @@ namespace GameScene.Map
         /// <para/>读 :  返回当前单元的地形类型
         /// <para/>写 :  设置当前单元的地形类型
         /// </summary>
-        public HexTerrainType TerrinType
+        public HexTerrainType TerrainType
         {
             get
             {

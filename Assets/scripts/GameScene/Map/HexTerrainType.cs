@@ -2,7 +2,6 @@
 
 namespace GameScene.Map
 {
-    [System.Serializable]
     public struct HexTerrainType
     {
         /// <summary>
@@ -10,9 +9,9 @@ namespace GameScene.Map
         /// </summary>
         public int type;
         /// <summary>
-        /// 地形颜色
+        /// 地形名称
         /// </summary>
-        public Color color;
+        public string typeName;
 
         /// <summary>
         /// 重载!=运算符

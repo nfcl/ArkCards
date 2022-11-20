@@ -6,7 +6,7 @@ namespace GameScene.Map.Editor
     /// <summary>
     /// 颜色选择类
     /// </summary>
-    public class ColorPannel : MonoBehaviour
+    public class TerrainPannel : MonoBehaviour
     {
         /// <summary>
         /// 单个颜色选项预设体
@@ -39,7 +39,7 @@ namespace GameScene.Map.Editor
                 clone.name = i.ToString();
                 ColorToggles[i] = clone.GetComponent<ColorToggle>();
                 ColorToggles[i].SetPos(bufpos);
-                ColorToggles[i].SetColor(HexMetrics.HexTerrains[i].color);
+                ColorToggles[i].SetTerrainName(HexMetrics.HexTerrains[i].typeName);
                 ColorToggles[i].SetToggleGroup(ToggleGroup);
                 bufpos.y -= 40;
             }

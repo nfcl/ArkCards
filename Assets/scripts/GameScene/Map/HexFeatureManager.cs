@@ -79,7 +79,7 @@ namespace GameScene.Map
         /// </summary>
         private Transform PickPrefab(HexCell cell,HexHash hash)
         {
-            int terrain = cell.TerrinType.type;
+            int terrain = cell.TerrainType.type;
             bool hasRiver = cell.HasRiver;
 
             if(terrain == 0)
@@ -90,6 +90,10 @@ namespace GameScene.Map
                 }
             }
             else if(terrain == 1)
+            {
+
+            }
+            else if(terrain == 2)
             {//Sand
                 if (hasRiver == true)
                 {//如果沿河则可生成椰子树
@@ -103,12 +107,16 @@ namespace GameScene.Map
                     return featureCollections["仙人掌"].Pick(hash.c);
                 }
             }
-            else if(terrain == 2)
+            else if(terrain == 3)
             {//Snow
                 if (hash.a > 0.7)
                 {
                     return featureCollections["带雪松树"].Pick(hash.c);
                 }
+            }
+            else if (terrain == 4)
+            {
+
             }
             return null;
         }

@@ -116,7 +116,7 @@ namespace GameScene.Map
             HexCell cell = cells[i] = Instantiate(cellPrefab);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-            cell.TerrinType = HexMetrics.HexTerrains[0];
+            cell.TerrainType = HexMetrics.HexTerrains[0];
             //设置相邻关系 
             if (x > 0)
             {
