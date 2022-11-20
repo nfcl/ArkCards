@@ -641,7 +641,7 @@ namespace GameScene.Map
             }
             //µÀÂ·
             int roadFlags = reader.ReadByte();
-            for (int i = roads.Length - 1; i >=0; i++)
+            for (int i = roads.Length - 1; i >=0; i--)
             {
                 roads[i] = (roadFlags & 1) == 1 ? true : false;
                 roadFlags >>= 1;
