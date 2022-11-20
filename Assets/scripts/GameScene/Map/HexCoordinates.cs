@@ -86,14 +86,35 @@ namespace GameScene.Map
             return $"{X}\n{Y}\n{Z}";
         }
 
+        /// <summary>
+        /// 重载!=运算符
+        /// </summary>
+        /// <returns>返回两者坐标是否不同</returns>
         public static bool operator !=(HexCoordinates lhs, HexCoordinates rhs)
         {
             return lhs.X != rhs.X || lhs.Z != rhs.Z;
         }
-
+        /// <summary>
+        /// 重载==运算符
+        /// </summary>
+        /// <returns>返回两者坐标是否相同</returns>
         public static bool operator ==(HexCoordinates lhs, HexCoordinates rhs)
         {
             return lhs.X == rhs.X && lhs.Z == rhs.Z;
+        }
+        /// <summary>
+        /// 重写Equals
+        /// </summary>
+        public override bool Equals(object other)
+        {
+            return this == (HexCoordinates)other;
+        }
+        /// <summary>
+        /// 重写GetHashCode
+        /// </summary>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

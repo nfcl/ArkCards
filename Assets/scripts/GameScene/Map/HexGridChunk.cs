@@ -72,7 +72,7 @@ namespace GameScene.Map
         /// <param name="cells">单元集合</param>
         private void Triangulate()
         {
-            //清除就的网格数据
+            //清除旧的网格数据
             terrain.Clear();
             rivers.Clear();
             roads.Clear();
@@ -154,7 +154,7 @@ namespace GameScene.Map
                 TriangulateWithoutRiver(direction, cell, center, e);
                 //判断当前方向是否可以放置地形细节
                 if (
-                    cell.IsUnderwater ==false                                //不在水榭
+                    cell.IsUnderwater == false                                //不在水榭
                     && cell.HasRoadThroughEdge(direction) == false  //当前方向没有道路
                 )
                 {
@@ -500,7 +500,7 @@ namespace GameScene.Map
             //获得对应方向的邻居
             HexCell neighbor = cell.GetNeighbor(direction);
             //如果没有邻居返回
-            if (neighbor == null) return;
+            if (neighbor is null) return;
             //计算纯色区域底边到混合区域底边垂线方向向量
             Vector3 bridge = HexMetrics.GetBridge(direction);
             bridge.y = neighbor.Position.y - cell.Position.y;
@@ -564,7 +564,7 @@ namespace GameScene.Map
             //如果存在下一个邻居则添加三个单元相交中心混合区域到网格
             //混合区域三个顶点颜色实为三个单元的颜色
             //限制方向防止产生重复的混合区域三角形
-            if (direction <= HexDirection.E && nextNeighbor != null)
+            if (direction <= HexDirection.E && (nextNeighbor is null) == false)
             {
                 //计算下一个混合矩形的同侧底边顶点
                 Vector3 v5 = e1.v5 + HexMetrics.GetBridge(direction.Next());
@@ -928,7 +928,7 @@ namespace GameScene.Map
             //获得对应方向的邻居
             HexCell neighbor = cell.GetNeighbor(direction);
             //区分岸边的水域和开放的水域三角化处理
-            if (neighbor != null && !neighbor.IsUnderwater)
+            if ((neighbor is null) == false && !neighbor.IsUnderwater)
             {
                 TriangulateWaterShore(direction, cell, neighbor, center);
             }
@@ -948,7 +948,7 @@ namespace GameScene.Map
             //添加纯色区三角形
             water.AddTriangle(center, c1, c2);
             //判断相邻水面的连接
-            if (direction <= HexDirection.SE && neighbor != null)
+            if (direction <= HexDirection.SE && (neighbor is null) == false)
             {
                 //计算纯色区边缘到混色区边缘的垂直向量
                 Vector3 bridge = HexMetrics.GetWaterBridge(direction);
@@ -963,7 +963,7 @@ namespace GameScene.Map
                     //获得下一个邻居
                     HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
                     //如果邻居不存在或邻居则邻居并没有淹没则不需要连接
-                    if (nextNeighbor == null || !nextNeighbor.IsUnderwater)
+                    if (nextNeighbor is null || !nextNeighbor.IsUnderwater)
                     {
                         return;
                     }
@@ -1017,7 +1017,7 @@ namespace GameScene.Map
             //获得下一个方向的邻居
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
             //如果存在下一个邻居则需要添加连接角
-            if (nextNeighbor != null)
+            if ((nextNeighbor is null) == false)
             {
 
                 Vector3 v3 = nextNeighbor.Position + (nextNeighbor.IsUnderwater ?
@@ -1061,7 +1061,7 @@ namespace GameScene.Map
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             //左侧四边形		
-            estuaries.AddQuad(e2.v1, e1.v2, e2.v2, e1.v3); 
+            estuaries.AddQuad(e2.v1, e1.v2, e2.v2, e1.v3);
             estuaries.AddQuadUV(
             new Vector2(0f, 1f), new Vector2(0f, 0f),
             new Vector2(1f, 1f), new Vector2(0f, 0f)

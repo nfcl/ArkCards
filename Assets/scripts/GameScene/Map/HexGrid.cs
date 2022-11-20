@@ -7,13 +7,13 @@ namespace GameScene.Map
     public class HexGrid : MonoBehaviour
     {
         /// <summary>
-        /// 地图宽的单元数
+        /// 地图水平区块个数
         /// </summary>
-        private int cellCountX;
+        private int chunkCountX;
         /// <summary>
-        /// 地图高的单元数
+        /// 地图垂直区块个数
         /// </summary>
-        private int cellCountZ;
+        private int chunkCountZ;
         /// <summary>
         /// 单元集合
         /// </summary>
@@ -48,13 +48,13 @@ namespace GameScene.Map
         /// </summary>
         public HexCell cellPrefab;
         /// <summary>
-        /// 地图水平区块个数
+        /// 地图宽的单元数
         /// </summary>
-        public int chunkCountX = 4;
+        public int cellCountX;
         /// <summary>
-        /// 地图垂直区块个数
+        /// 地图高的单元数
         /// </summary>
-        public int chunkCountZ = 3;
+        public int cellCountZ;
 
         /// <summary>
         /// 创建地图区块集合
@@ -233,6 +233,9 @@ namespace GameScene.Map
         /// </summary>
         public void Save(BinaryWriter writer)
         {
+            writer.Write(cellCountX);
+            writer.Write(cellCountZ);
+
             for (int i = 0; i < cells.Length; i++)
             {
                 cells[i].Save(writer);
@@ -243,6 +246,15 @@ namespace GameScene.Map
         /// </summary>
         public void Load(BinaryReader reader)
         {
+            int x = reader.ReadInt32(), z = reader.ReadInt32();
+            //判断和当前地图大小是否相同
+            if (x != cellCountX || z != cellCountZ)
+            {
+                if (!CreateMap(x, z))
+                {
+                    return;
+                }
+            }
             for (int i = 0; i < cells.Length; i++)
             {
                 cells[i].Load(reader);
@@ -251,6 +263,44 @@ namespace GameScene.Map
             {
                 chunks[i].Refresh();
             }
+        }
+        /// <summary>
+        /// 创建新的地图网格
+        /// </summary>
+        public bool CreateMap(int x, int z)
+        {
+            //判断地图大小是否合法
+            if (
+                x <= 0 || z <= 0                    //存在负数
+                || x % HexMetrics.chunkSizeX != 0   //x长度无法整除
+                || z % HexMetrics.chunkSizeZ != 0   //z长度无法整除
+            )
+            {
+#if UNITY_EDITOR
+                Debug.LogError("Unsupported map size.");
+#endif
+                //创建地图失败
+                return false;
+            }
+            //清除旧的数据
+            if (chunks != null)
+            {
+                for (int i = 0; i < chunks.Length; i++)
+                {
+                    Destroy(chunks[i].gameObject);
+                }
+            }
+            //计算地图总结点长宽
+            cellCountX = x;
+            cellCountZ = z;
+            chunkCountX = cellCountX / HexMetrics.chunkSizeX;
+            chunkCountZ = cellCountZ / HexMetrics.chunkSizeZ;
+            //创建地图区块
+            CreateChunks();
+            //创建地图单元
+            CreateCells();
+            //创建地图成功
+            return true;
         }
 
         /// <summary>
@@ -263,15 +313,9 @@ namespace GameScene.Map
                 HexMetrics.noiseSource = noiseSource;
                 HexMetrics.InitializeHashGrid(seed);
                 HexFeatureManager.InitfeatureCollection(featureCollections);
+                HexMetrics.InitializeHashGrid(seed);
             }
-            HexMetrics.InitializeHashGrid(seed);
-            //计算地图总结点长宽
-            cellCountX = chunkCountX * HexMetrics.chunkSizeX;
-            cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
-            //创建地图区块
-            CreateChunks();
-            //创建地图单元
-            CreateCells();
+            CreateMap(cellCountX, cellCountZ);
         }
     }
 }

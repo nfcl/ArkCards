@@ -137,37 +137,6 @@ namespace GameScene.Map.Editor
         {
             activeWaterLevel = (int)level;
         }
-        /// <summary>
-        /// 保存地图
-        /// </summary>
-        public void Save()
-        {
-            string path = Path.Combine(Application.persistentDataPath, "test.map");
-
-            Debug.Log(path);
-
-            using (
-                BinaryWriter writer =
-                    new BinaryWriter(File.Open(path, FileMode.Create))
-            )
-            {
-                hexGrid.Save(writer);
-            }
-        }
-        /// <summary>
-        /// 加载地图
-        /// </summary>
-        public void Load()
-        {
-            string path = Path.Combine(Application.persistentDataPath, "test.map");
-            using (
-                BinaryReader reader =
-                    new BinaryReader(File.Open(path, FileMode.Open))
-            )
-            {
-                hexGrid.Load(reader);
-            }
-        }
 
         /// <summary>
         /// 鼠标监听协程

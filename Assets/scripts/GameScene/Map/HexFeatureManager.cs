@@ -1,33 +1,59 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace GameScene.Map
 {
+    /// <summary>
+    /// <para/>地图细节控制器
+    /// <para/>用于管理地图细节的生成和清除
+    /// </summary>
     public class HexFeatureManager : MonoBehaviour
     {
         /// <summary>
         /// 地形要素预设体
         /// </summary>
-        public HexFeatureCollection[] featureCollections;
+        public static Dictionary<string, HexFeatureCollection> featureCollections;
         /// <summary>
-        /// 
+        /// 细节的容器
         /// </summary>
         private Transform container;
+
         /// <summary>
-        /// 
+        /// 清除地图细节
         /// </summary>
         public void Clear()
         {
-            if (container)
+            //如果存在细节容器则清除旧的细节容器
+            if ((container is null) == false)
             {
                 Destroy(container.gameObject);
             }
+            //生成新的细节容器
             container = new GameObject("Features Container").transform;
             container.SetParent(transform, false);
         }
         /// <summary>
         /// 
         /// </summary>
-        public void Apply() { }
+        public void Apply() 
+        {
+
+        }
+        /// <summary>
+        /// 初始化细节集合
+        /// </summary>
+        /// <param name="features"></param>
+        public static void InitfeatureCollection(HexFeatureCollection[] features)
+        {
+            if (featureCollections is null)
+            {
+                featureCollections = new Dictionary<string, HexFeatureCollection>();
+            }
+            foreach (HexFeatureCollection item in features)
+            {
+                featureCollections[item.name] = item;
+            }
+        }
         /// <summary>
         /// 在指定位置添加地形细节
         /// </summary>
@@ -35,7 +61,7 @@ namespace GameScene.Map
         {
             HexHash hash = HexMetrics.SampleHashGrid(position);
             //选取要生成的预制件
-            Transform prefab = PickPrefab(cell.UrbanLevel, hash.a, hash.b);
+            Transform prefab = PickPrefab(cell, hash);
             //如果没有则不生成
             if (prefab is null)
             {
@@ -49,19 +75,39 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// 根据级别和哈希值选取要生成的细节
+        /// 选取要生成的细节预制件
         /// </summary>
-        private Transform PickPrefab(int level, float hash, float choice)
+        private Transform PickPrefab(HexCell cell,HexHash hash)
         {
-            if (level > 0)
-            {
-                float[] thresholds = HexMetrics.GetFeatureThresholds(level - 1);
-                for (int i = 0; i < thresholds.Length; i++)
+            int terrain = cell.TerrinType.type;
+            bool hasRiver = cell.HasRiver;
+
+            if(terrain == 0)
+            {//Grass
+                if (hash.a > 0.6)
                 {
-                    if (hash < thresholds[i])
+                    return featureCollections["橡树"].Pick(hash.c);
+                }
+            }
+            else if(terrain == 1)
+            {//Sand
+                if (hasRiver == true)
+                {//如果沿河则可生成椰子树
+                    if (hash.a > 0.7)
                     {
-                        return featureCollections[i].Pick(choice);
+                        return featureCollections["椰子树"].Pick(hash.c);
                     }
+                }
+                if (hash.a > 0.7)
+                {
+                    return featureCollections["仙人掌"].Pick(hash.c);
+                }
+            }
+            else if(terrain == 2)
+            {//Snow
+                if (hash.a > 0.7)
+                {
+                    return featureCollections["带雪松树"].Pick(hash.c);
                 }
             }
             return null;
