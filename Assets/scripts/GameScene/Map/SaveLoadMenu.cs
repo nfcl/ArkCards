@@ -108,7 +108,7 @@ namespace GameScene.Map
             Array.Sort(paths);
             //
             listContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, paths.Length * (60 + 10) - 10);
-            Vector2 position = new Vector2(-390, 90);
+            Vector2 position = new Vector2(-390, listContent.rect.height / 2f - 10);
             //生成列表项
             for (int i = 0; i < paths.Length; i++)
             {
