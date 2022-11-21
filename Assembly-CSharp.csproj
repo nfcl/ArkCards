@@ -86,6 +86,7 @@
     <Compile Include="Assets\scripts\GameScene\Map\HexMapEditor.cs" />
     <Compile Include="Assets\scripts\Tool\ListPool.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\SaveLoadMenu.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\HexCellPriorityQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\WaterShore.shader" />
@@ -95,6 +96,7 @@
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Estuary.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Road\Road.shader" />
+    <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HighLight.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

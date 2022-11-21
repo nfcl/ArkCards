@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameScene.Map
 {
@@ -42,6 +43,10 @@ namespace GameScene.Map
         /// 当前单元的地形类型
         /// </summary>
         private HexTerrainType terrainType = new HexTerrainType { type = -1 };
+        /// <summary>
+        /// 当前单元格和选中单元格的距离
+        /// </summary>
+        private int distance;
 
         /// <summary>
         /// 坐标
@@ -55,6 +60,30 @@ namespace GameScene.Map
         /// UI的RectTransform
         /// </summary>
         public RectTransform uiRect;
+
+        /// <summary>
+        /// 优先队列使用的链表指针
+        /// </summary>
+        public HexCell NextWithSamePriority { get; set; }
+        /// <summary>
+        /// 回溯法寻路使用的来自哪一个节点
+        /// </summary>
+        public HexCell PathFrom { get; set; }
+        /// <summary>
+        /// 启发式寻路使用的理想代价
+        /// </summary>
+        public int SearchHeuristic { get; set; }
+        /// <summary>
+        /// 启发式寻路使用的综合代价
+        /// 读 : 返回理想代价和实际代价的和
+        /// </summary>
+        public int SearchPriority
+        {
+            get
+            {
+                return distance + SearchHeuristic;
+            }
+        }
         /// <summary>
         /// <para/>高度属性
         /// <para/>读 : 返回高度
@@ -284,6 +313,23 @@ namespace GameScene.Map
                 Refresh();
             }
         }
+        /// <summary>
+        /// 距离属性
+        /// 读 : 返回当前单元格和选中单元格的距离
+        /// 写 : 更新当前单元格和选中单元格的距离并更新UI
+        /// </summary>
+        public int Distance
+        {
+            get
+            {
+                return distance;
+            }
+            set
+            {
+                distance = value;
+                UpdateDistanceLabel();
+            }
+        }
 
         /// <summary>
         /// 刷新本区块和邻居所属的不同区块
@@ -395,6 +441,14 @@ namespace GameScene.Map
             Vector3 uiPosition = uiRect.localPosition;
             uiPosition.z = -position.y;
             uiRect.localPosition = uiPosition;
+        }
+        /// <summary>
+        /// 更新UI显示的距离
+        /// </summary>
+        private void UpdateDistanceLabel()
+        {
+            Text label = uiRect.GetComponent<Text>();
+            label.text = distance == int.MaxValue ? "" : distance.ToString();
         }
 
         /// <summary>
@@ -558,6 +612,23 @@ namespace GameScene.Map
             return difference >= 0 ? difference : -difference;
         }
         /// <summary>
+        /// 禁用突出显示
+        /// </summary>
+        public void DisableHighlight()
+        {
+            Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+            highlight.enabled = false;
+        }
+        /// <summary>
+        /// 启用突出显示
+        /// </summary>
+        public void EnableHighlight(Color color)
+        {
+            Image highlight = uiRect.GetChild(0).GetComponent<Image>();
+            highlight.color = color;
+            highlight.enabled = true;
+        }
+        /// <summary>
         /// 单元格数据写入
         /// </summary>
         public void Save(BinaryWriter writer)
@@ -590,7 +661,7 @@ namespace GameScene.Map
             for (int i = 0; i < roads.Length; i++)
             {
                 roadFlags <<= 1;
-                roadFlags |= (roads[i] == true? 1 : 0);
+                roadFlags |= (roads[i] == true ? 1 : 0);
             }
             writer.Write((byte)roadFlags);
         }
@@ -630,7 +701,7 @@ namespace GameScene.Map
             }
             //道路
             int roadFlags = reader.ReadByte();
-            for (int i = roads.Length - 1; i >=0; i--)
+            for (int i = roads.Length - 1; i >= 0; i--)
             {
                 roads[i] = (roadFlags & 1) == 1 ? true : false;
                 roadFlags >>= 1;

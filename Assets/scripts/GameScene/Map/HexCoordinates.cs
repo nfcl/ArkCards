@@ -32,6 +32,7 @@ namespace GameScene.Map
             X = x;
             Z = z;
         }
+
         /// <summary>
         /// 将未偏移的六边形坐标转化为偏移后的六边形坐标
         /// </summary>
@@ -77,6 +78,19 @@ namespace GameScene.Map
             }
             //返回结果
             return new HexCoordinates(iX, iZ);
+        }
+        /// <summary>
+        /// 计算两个坐标间的距离
+        /// </summary>
+        public int DistanceTo(HexCoordinates other)
+        {
+            return
+                (
+                    (X < other.X ? other.X - X : X - other.X)
+                    + (Y < other.Y ? other.Y - Y : Y - other.Y)
+                    + (Z < other.Z ? other.Z - Z : Z - other.Z)
+                ) / 2;
+
         }
         /// <summary>
         /// 

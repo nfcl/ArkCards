@@ -65,8 +65,6 @@ namespace GameScene.Map
 
             cells = new HexCell[HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ];
 
-            ShowUI(false);
-
             Refresh();
         }
 

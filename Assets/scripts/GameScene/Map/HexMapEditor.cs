@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.IO;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,7 +16,15 @@ namespace GameScene.Map.Editor
         /// 单元格颜色选择面板
         /// </summary>
         public TerrainPannel terrainPannel;
+        /// <summary>
+        /// 地形材质
+        /// </summary>
+        public Material terrainMaterial;
 
+        /// <summary>
+        /// 是否启用地图编辑
+        /// </summary>
+        private bool editMode = true;
         /// <summary>
         /// 是否更改单元格地形
         /// </summary>
@@ -64,7 +73,23 @@ namespace GameScene.Map.Editor
         /// 上一个拖拽的单元格
         /// </summary>
         private HexCell previousCell;
+        /// <summary>
+        /// 寻路的起点
+        /// </summary>
+        private HexCell searchFromCell;
+        /// <summary>
+        /// 寻路的终点
+        /// </summary>
+        private HexCell searchToCell;
 
+        /// <summary>
+        /// 设置编辑模式启用
+        /// </summary>
+        public void SetEditMode(bool toggle)
+        {
+            editMode = toggle;
+            hexGrid.ShowUI(!toggle);
+        }
         /// <summary>
         /// 设置是否启用更改高度
         /// </summary>
@@ -102,13 +127,6 @@ namespace GameScene.Map.Editor
             activeElevation = (int)elevation;
         }
         /// <summary>
-        /// 设置地图节点的UI是否显示
-        /// </summary>
-        public void ShowUI(bool visible)
-        {
-            hexGrid.ShowUI(visible);
-        }
-        /// <summary>
         /// 设置刷子大小
         /// </summary>
         /// <param name="size">要设置的大小</param>
@@ -137,16 +155,33 @@ namespace GameScene.Map.Editor
         {
             activeWaterLevel = (int)level;
         }
+        /// <summary>
+        /// 是否显示网格线
+        /// </summary>
+        public void ShowGrid(bool visible)
+        {
+            if (visible)
+            {
+                terrainMaterial.EnableKeyword("GRID_ON");
+            }
+            else
+            {
+                terrainMaterial.DisableKeyword("GRID_ON");
+            }
+        }
 
         /// <summary>
         /// 鼠标监听协程
         /// </summary>
         private IEnumerator MouseLeftClickListener()
         {
+            //编辑单元的条件
+            WaitUntil flag = new WaitUntil(() => Input.GetMouseButton(0) == true);
+
             while (true)
             {
                 //直到鼠标左键按下
-                yield return new WaitUntil(() => Input.GetMouseButton(0));
+                yield return flag;
                 //判断点击是否在UI上
                 if (true == EventSystem.current.IsPointerOverGameObject())
                 {
@@ -160,19 +195,41 @@ namespace GameScene.Map.Editor
                 {
                     //获得点击到的单元
                     HexCell currentCell = hexGrid.GetCell(raycastHit.point);
-                    //判断上一个单元和当前点击的单元是否不同
-                    if (false == (previousCell is null) && previousCell != currentCell)
-                    {//上一个单元和当前点击的单元不同
-                        ValidateDrag(currentCell);
-                    }
-                    else
+                    //判断是否是编辑模式
+                    if (editMode == true)
                     {
-                        isDrag = false;
+                        //判断上一个单元和当前点击的单元是否不同
+                        if (false == (previousCell is null) && previousCell != currentCell)
+                        {//上一个单元和当前点击的单元不同
+                            ValidateDrag(currentCell);
+                        }
+                        else
+                        {
+                            isDrag = false;
+                        }
+                        //编辑单元
+                        EditCells(currentCell);
+                        //上一个单元变为当前点击的单元
+                        previousCell = currentCell;
                     }
-                    //编辑单元
-                    EditCells(currentCell);
-                    //上一个单元变为当前点击的单元
-                    previousCell = currentCell;
+                    else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell)
+                    {
+                        if ((searchFromCell is null) == false) 
+                        {
+                            searchFromCell.DisableHighlight();
+                        }
+                        searchFromCell = currentCell;
+                        searchFromCell.EnableHighlight(Color.blue);
+                        if ((searchToCell is null) == false)
+                        {
+                            hexGrid.FindPath(searchFromCell, searchToCell);
+                        }
+                    }
+                    else if ((searchFromCell is null) == false && searchFromCell != currentCell)
+                    {
+                        searchToCell = currentCell;
+                        hexGrid.FindPath(searchFromCell, searchToCell);
+                    }
                 }
                 else
                 {
@@ -298,6 +355,8 @@ namespace GameScene.Map.Editor
             terrainPannel.SetToggleDelegate(SelectTerrain);
             //启用鼠标左键监听协程
             StartCoroutine(MouseLeftClickListener());
+            //关闭网格线显示
+            terrainMaterial.DisableKeyword("GRID_ON");
         }
 
         /// <summary>

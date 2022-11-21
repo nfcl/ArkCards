@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +24,10 @@ namespace GameScene.Map
         /// 地图区块集合
         /// </summary>
         private HexGridChunk[] chunks;
+        /// <summary>
+        /// 寻路使用的优先队列
+        /// </summary>
+        private HexCellPriorityQueue searchFrontier;
 
         /// <summary>
         /// 随机数种子
@@ -38,7 +44,7 @@ namespace GameScene.Map
         /// <summary>
         /// 单元标签预设体
         /// </summary>
-        public Text cellLabelPrefab;
+        public GameObject cellLabelPrefab;
         /// <summary>
         /// 地图区块预设体
         /// </summary>
@@ -147,11 +153,10 @@ namespace GameScene.Map
                 }
             }
             //新建单元标签
-            Text label = Instantiate(cellLabelPrefab);
-            label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-            label.text = cell.coordinates.ToStringOnSeparateLines();
+            GameObject label = Instantiate(cellLabelPrefab);    
+            label.GetComponent<RectTransform>().anchoredPosition = new Vector2(position.x, position.z);
             //设置UI的RectTransform
-            cell.uiRect = label.rectTransform;
+            cell.uiRect = label.GetComponent<RectTransform>();
             //设置单元高度
             cell.Elevation = 0;
             //添加单元到所属区块
@@ -174,7 +179,164 @@ namespace GameScene.Map
             int localZ = z - chunkZ * HexMetrics.chunkSizeZ;
             chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
         }
+        /// <summary>
+        /// 路径搜索可视化
+        /// </summary>
+        private IEnumerator SearchVisible(HexCell fromCell, HexCell toCell)
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].Distance = int.MaxValue;
+                cells[i].DisableHighlight();
+            }
+            fromCell.EnableHighlight(Color.blue);
+            toCell.EnableHighlight(Color.red);
 
+            WaitForSeconds delay = new WaitForSeconds(0);
+
+            List<HexCell> frontier = new List<HexCell>();
+            fromCell.Distance = 0;
+            frontier.Add(fromCell);
+            int distance;
+            while (frontier.Count > 0)
+            {
+                yield return delay;
+                HexCell current = frontier[0];
+                frontier.RemoveAt(0);
+
+                if (current == toCell)
+                {
+                    current = current.PathFrom;
+                    while (current != fromCell)
+                    {
+                        current.EnableHighlight(Color.white);
+                        current = current.PathFrom;
+                    }
+                    break;
+                }
+
+                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+                {
+                    HexCell neighbor = current.GetNeighbor(d);
+                    if (
+                        neighbor is null
+                        || neighbor.IsUnderwater == true
+                        )
+                    {
+                        continue;
+                    }
+
+                    HexEdgeType edgeType = current.GetEdgeType(d);
+                    if (edgeType == HexEdgeType.Cliff)
+                    {
+                        continue;
+                    }
+
+                    distance = current.Distance;
+                    if (current.HasRoadThroughEdge(d))
+                    {
+                        distance += 1;
+                    }
+                    else
+                    {
+                        distance += edgeType == HexEdgeType.Flat ? 5 : 10;
+                    }
+                    if (distance < neighbor.Distance)
+                    {
+                        if (neighbor.Distance == int.MaxValue)
+                        {
+                            neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
+                        }
+                        neighbor.Distance = distance;
+                        neighbor.PathFrom = current;
+                        frontier.Add(neighbor);
+                    }
+                }
+                frontier.Sort((x, y) => x.SearchPriority.CompareTo(y.SearchPriority));
+            }
+        }
+        /// <summary>
+        /// 路径搜索
+        /// </summary>
+        private void Search(HexCell fromCell, HexCell toCell)
+        {
+            if (searchFrontier is null)
+            {
+                searchFrontier = new HexCellPriorityQueue();
+            }
+            else
+            {
+                searchFrontier.Clear();
+            }
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].Distance = int.MaxValue;
+                cells[i].DisableHighlight();
+            }
+            fromCell.EnableHighlight(Color.blue);
+            toCell.EnableHighlight(Color.red);
+
+            fromCell.Distance = 0;
+            searchFrontier.Enqueue(fromCell);
+            int distance;
+            while (searchFrontier.Count > 0)
+            {
+                HexCell current = searchFrontier.Dequeue();
+
+                if (current == toCell)
+                {
+                    current = current.PathFrom;
+                    while (current != fromCell)
+                    {
+                        current.EnableHighlight(Color.white);
+                        current = current.PathFrom;
+                    }
+                    break;
+                }
+
+                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+                {
+                    HexCell neighbor = current.GetNeighbor(d);
+                    if (
+                        neighbor is null
+                        || neighbor.IsUnderwater == true
+                        )
+                    {
+                        continue;
+                    }
+
+                    HexEdgeType edgeType = current.GetEdgeType(d);
+                    if (edgeType == HexEdgeType.Cliff)
+                    {
+                        continue;
+                    }
+
+                    distance = current.Distance;
+                    if (current.HasRoadThroughEdge(d))
+                    {
+                        distance += 1;
+                    }
+                    else
+                    {
+                        distance += edgeType == HexEdgeType.Flat ? 5 : 10;
+                    }
+                    if (neighbor.Distance == int.MaxValue)
+                    {
+                        neighbor.Distance = distance;
+                        neighbor.PathFrom = current;
+                        neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
+                        searchFrontier.Enqueue(neighbor);
+                    }
+                    else if (distance < neighbor.Distance)
+                    {
+                        int oldPriority = neighbor.SearchPriority;
+                        neighbor.Distance = distance;
+                        neighbor.PathFrom = current;
+                        searchFrontier.Change(neighbor, oldPriority);
+                    }
+                }
+            }
+        }
         /// <summary>
         /// 根据世界坐标计算获得对应的地图单元
         /// </summary>
@@ -246,6 +408,8 @@ namespace GameScene.Map
         /// </summary>
         public void Load(BinaryReader reader)
         {
+            StopAllCoroutines();
+
             int x = reader.ReadInt32(), z = reader.ReadInt32();
             //判断和当前地图大小是否相同
             if (x != cellCountX || z != cellCountZ)
@@ -301,6 +465,17 @@ namespace GameScene.Map
             CreateCells();
             //创建地图成功
             return true;
+        }
+        /// <summary>
+        /// 寻找两个单元间的最短路径
+        /// </summary>
+        public void FindPath(HexCell fromCell, HexCell toCell)
+        {
+            ////停止旧的协程
+            //StopAllCoroutines();
+            ////开始新的协程
+            //StartCoroutine(SearchVisible(fromCell, toCell));
+            Search(fromCell, toCell);
         }
 
         /// <summary>
