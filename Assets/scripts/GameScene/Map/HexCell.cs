@@ -1,4 +1,4 @@
-using System.IO;
+ï»¿using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,75 +7,75 @@ namespace GameScene.Map
     public class HexCell : MonoBehaviour
     {
         /// <summary>
-        /// ÁÚ¾ÓÁĞ±í
+        /// é‚»å±…åˆ—è¡¨
         /// </summary>
         private HexCell[] neighbors;
         /// <summary>
-        /// µØĞÎ¸ß¶È
+        /// åœ°å½¢é«˜åº¦
         /// </summary>
         private int elevation = int.MinValue;
         /// <summary>
-        /// ÊÇ·ñ´æÔÚºÓÁ÷Èë¿Ú
+        /// æ˜¯å¦å­˜åœ¨æ²³æµå…¥å£
         /// </summary>
         private bool hasIncomingRiver;
         /// <summary>
-        /// ÊÇ·ñ´æÔÚºÓÁ÷³ö¿Ú
+        /// æ˜¯å¦å­˜åœ¨æ²³æµå‡ºå£
         /// </summary>
         private bool hasOutgoingRiver;
         /// <summary>
-        /// ºÓÁ÷Èë¿Ú·½Ïò
+        /// æ²³æµå…¥å£æ–¹å‘
         /// </summary>
         private HexDirection incomingRiver;
         /// <summary>
-        /// ºÓÁ÷³ö¿Ú·½Ïò
+        /// æ²³æµå‡ºå£æ–¹å‘
         /// </summary>
         private HexDirection outgoingRiver;
         /// <summary>
-        /// Áù¸ö·½ÏòÊÇ·ñ´æÔÚµÀÂ·
+        /// å…­ä¸ªæ–¹å‘æ˜¯å¦å­˜åœ¨é“è·¯
         /// </summary>
         [SerializeField]
         private bool[] roads;
         /// <summary>
-        /// Ë®Ãæ¸ß¶È
+        /// æ°´é¢é«˜åº¦
         /// </summary>
         private int waterLevel;
         /// <summary>
-        /// µ±Ç°µ¥ÔªµÄµØĞÎÀàĞÍ
+        /// å½“å‰å•å…ƒçš„åœ°å½¢ç±»å‹
         /// </summary>
         private HexTerrainType terrainType = new HexTerrainType { type = -1 };
         /// <summary>
-        /// µ±Ç°µ¥Ôª¸ñºÍÑ¡ÖĞµ¥Ôª¸ñµÄ¾àÀë
+        /// å½“å‰å•å…ƒæ ¼å’Œé€‰ä¸­å•å…ƒæ ¼çš„è·ç¦»
         /// </summary>
         private int distance;
 
         /// <summary>
-        /// ×ø±ê
+        /// åæ ‡
         /// </summary>
         public HexCoordinates coordinates;
         /// <summary>
-        /// <para/>µ¥ÔªËùÊôµÄÇø¿é
+        /// <para/>å•å…ƒæ‰€å±çš„åŒºå—
         /// </summary>
         public HexGridChunk chunk;
         /// <summary>
-        /// UIµÄRectTransform
+        /// UIçš„RectTransform
         /// </summary>
         public RectTransform uiRect;
 
         /// <summary>
-        /// ÓÅÏÈ¶ÓÁĞÊ¹ÓÃµÄÁ´±íÖ¸Õë
+        /// ä¼˜å…ˆé˜Ÿåˆ—ä½¿ç”¨çš„é“¾è¡¨æŒ‡é’ˆ
         /// </summary>
         public HexCell NextWithSamePriority { get; set; }
         /// <summary>
-        /// »ØËİ·¨Ñ°Â·Ê¹ÓÃµÄÀ´×ÔÄÄÒ»¸ö½Úµã
+        /// å›æº¯æ³•å¯»è·¯ä½¿ç”¨çš„æ¥è‡ªå“ªä¸€ä¸ªèŠ‚ç‚¹
         /// </summary>
         public HexCell PathFrom { get; set; }
         /// <summary>
-        /// Æô·¢Ê½Ñ°Â·Ê¹ÓÃµÄÀíÏë´ú¼Û
+        /// å¯å‘å¼å¯»è·¯ä½¿ç”¨çš„ç†æƒ³ä»£ä»·
         /// </summary>
         public int SearchHeuristic { get; set; }
         /// <summary>
-        /// Æô·¢Ê½Ñ°Â·Ê¹ÓÃµÄ×ÛºÏ´ú¼Û
-        /// ¶Á : ·µ»ØÀíÏë´ú¼ÛºÍÊµ¼Ê´ú¼ÛµÄºÍ
+        /// å¯å‘å¼å¯»è·¯ä½¿ç”¨çš„ç»¼åˆä»£ä»·
+        /// è¯» : è¿”å›ç†æƒ³ä»£ä»·å’Œå®é™…ä»£ä»·çš„å’Œ
         /// </summary>
         public int SearchPriority
         {
@@ -85,9 +85,9 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>¸ß¶ÈÊôĞÔ
-        /// <para/>¶Á : ·µ»Ø¸ß¶È
-        /// <para/>Ğ´ : Ğ´Èë¸ß¶È£¬ÉèÖÃÊµÌåºÍUIµÄYÖáÎ»ÖÃ£¬²¢¶ÔºÓÁ÷µÄºÏ·¨ĞÔ½øĞĞ¼ì²â£¬Ë¢ĞÂÇø¿é
+        /// <para/>é«˜åº¦å±æ€§
+        /// <para/>è¯» : è¿”å›é«˜åº¦
+        /// <para/>å†™ : å†™å…¥é«˜åº¦ï¼Œè®¾ç½®å®ä½“å’ŒUIçš„Yè½´ä½ç½®ï¼Œå¹¶å¯¹æ²³æµçš„åˆæ³•æ€§è¿›è¡Œæ£€æµ‹ï¼Œåˆ·æ–°åŒºå—
         /// </summary>
         public int Elevation
         {
@@ -97,26 +97,26 @@ namespace GameScene.Map
             }
             set
             {
-                //ÏàÍ¬¸ß¶È²»ĞèÒªË¢ĞÂ
+                //ç›¸åŒé«˜åº¦ä¸éœ€è¦åˆ·æ–°
                 if (elevation == value)
                 {
                     return;
                 }
-                //ÉèÖÃ¸ß¶È
+                //è®¾ç½®é«˜åº¦
                 elevation = value;
-                //Ë¢ĞÂÎ»ÖÃ
+                //åˆ·æ–°ä½ç½®
                 RefreshPosition();
-                //ÒÆ³ı·Ç·¨µÄºÓÁ÷³öÈë¿Ú
+                //ç§»é™¤éæ³•çš„æ²³æµå‡ºå…¥å£
                 ValidateRivers();
-                //ÅĞ¶Ï¸÷·½ÏòµÀÂ·µÄºÏ·¨ĞÔ
+                //åˆ¤æ–­å„æ–¹å‘é“è·¯çš„åˆæ³•æ€§
                 ValidateRoads();
-                //¸ü¸Äºó½øĞĞË¢ĞÂ
+                //æ›´æ”¹åè¿›è¡Œåˆ·æ–°
                 Refresh();
             }
         }
         /// <summary>
-        /// <para/>µ¥ÔªÎ»ÖÃÊôĞÔ
-        /// <para/>¶Á : ·µ»ØÊµÌåÒÔ¸¸ÎïÌåÎª×ø±êÏµµÄÎ»ÖÃ
+        /// <para/>å•å…ƒä½ç½®å±æ€§
+        /// <para/>è¯» : è¿”å›å®ä½“ä»¥çˆ¶ç‰©ä½“ä¸ºåæ ‡ç³»çš„ä½ç½®
         /// </summary>
         public Vector3 Position
         {
@@ -126,8 +126,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ÊÇ·ñ´æÔÚºÓÁ÷Èë¿ÚÊôĞÔ
-        /// <para/>¶Á : ·µ»ØÊÇ·ñ´æÔÚºÓÁ÷Èë¿Ú
+        /// <para/>æ˜¯å¦å­˜åœ¨æ²³æµå…¥å£å±æ€§
+        /// <para/>è¯» : è¿”å›æ˜¯å¦å­˜åœ¨æ²³æµå…¥å£
         /// </summary>
         public bool HasIncomingRiver
         {
@@ -137,8 +137,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ÊÇ·ñ´æÔÚºÓÁ÷³ö¿ÚÊôĞÔ
-        /// <para/>¶Á : ·µ»ØÊÇ·ñ´æÔÚºÓÁ÷³ö¿Ú
+        /// <para/>æ˜¯å¦å­˜åœ¨æ²³æµå‡ºå£å±æ€§
+        /// <para/>è¯» : è¿”å›æ˜¯å¦å­˜åœ¨æ²³æµå‡ºå£
         /// </summary>
         public bool HasOutgoingRiver
         {
@@ -148,8 +148,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ºÓÁ÷Èë¿Ú·½ÏòÊôĞÔ
-        /// <para/>¶Á : ·µ»ØºÓÁ÷Èë¿Ú·½Ïò
+        /// <para/>æ²³æµå…¥å£æ–¹å‘å±æ€§
+        /// <para/>è¯» : è¿”å›æ²³æµå…¥å£æ–¹å‘
         /// </summary>
         public HexDirection IncomingRiver
         {
@@ -159,8 +159,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ºÓÁ÷³ö¿Ú·½ÏòÊôĞÔ
-        /// <para/>¶Á : ·µ»ØºÓÁ÷³ö¿Ú·½Ïò
+        /// <para/>æ²³æµå‡ºå£æ–¹å‘å±æ€§
+        /// <para/>è¯» : è¿”å›æ²³æµå‡ºå£æ–¹å‘
         /// </summary>
         public HexDirection OutgoingRiver
         {
@@ -170,8 +170,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>µ¥ÔªÊÇ·ñ´æÔÚºÓÁ÷ÊôĞÔ
-        /// <para/>¶Á : ·µ»ØÊÇ·ñ´æÔÚºÓÁ÷Èë¿Ú»ò³ö¿Ú
+        /// <para/>å•å…ƒæ˜¯å¦å­˜åœ¨æ²³æµå±æ€§
+        /// <para/>è¯» : è¿”å›æ˜¯å¦å­˜åœ¨æ²³æµå…¥å£æˆ–å‡ºå£
         /// </summary>
         public bool HasRiver
         {
@@ -181,8 +181,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>µ¥ÔªÊÇ·ñÊÇºÓÁ÷Ô´Í·»òÖÕµãÊôĞÔ
-        /// <para/>¶Á : ·µ»ØºÓÁ÷³ö¿Ú»òºÓÁ÷Èë¿ÚÊÇ·ñ²»Í¬Ê±´æÔÚ
+        /// <para/>å•å…ƒæ˜¯å¦æ˜¯æ²³æµæºå¤´æˆ–ç»ˆç‚¹å±æ€§
+        /// <para/>è¯» : è¿”å›æ²³æµå‡ºå£æˆ–æ²³æµå…¥å£æ˜¯å¦ä¸åŒæ—¶å­˜åœ¨
         /// </summary>
         public bool HasRiverBeginOrEnd
         {
@@ -192,8 +192,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// µ¥ÔªºÓÁ÷Èë¿Ú»ò³ö¿Ú·½Ïò
-        /// ¶Á : ´æÔÚºÓÁ÷Èë¿ÚÔò·µ»ØÈë¿Ú·½Ïò£¬·ñÔò·µ»Ø³ö¿Ú·½Ïò
+        /// å•å…ƒæ²³æµå…¥å£æˆ–å‡ºå£æ–¹å‘
+        /// è¯» : å­˜åœ¨æ²³æµå…¥å£åˆ™è¿”å›å…¥å£æ–¹å‘ï¼Œå¦åˆ™è¿”å›å‡ºå£æ–¹å‘
         /// </summary>
         public HexDirection RiverBeginOrEndDirection
         {
@@ -203,8 +203,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ºÓ´²µ×µÄYÖá×ø±êÊôĞÔ
-        /// <para/>¶Á : ·µ»Ø¼ÆËãºóµÄºÓ´²µ×YÖá×ø±ê
+        /// <para/>æ²³åºŠåº•çš„Yè½´åæ ‡å±æ€§
+        /// <para/>è¯» : è¿”å›è®¡ç®—åçš„æ²³åºŠåº•Yè½´åæ ‡
         /// </summary>
         public float StreamBedY
         {
@@ -216,8 +216,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>ºÓÁ÷±íÃæYÖá×ø±êÊôĞÔ
-        /// <para/>¶Á : ·µ»Ø¼ÆËãºóµÄºÓÁ÷±íÃæYÖá×ø±ê
+        /// <para/>æ²³æµè¡¨é¢Yè½´åæ ‡å±æ€§
+        /// <para/>è¯» : è¿”å›è®¡ç®—åçš„æ²³æµè¡¨é¢Yè½´åæ ‡
         /// </summary>
         public float RiverSurfaceY
         {
@@ -229,8 +229,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>¸Ãµ¥ÔªÊÇ·ñ´æÔÚµÀÂ·ÊôĞÔ
-        /// <para/>¶Á : ·µ»ØÁù¸ö·½ÏòÊÇ·ñÓĞÈÎÒâ·½Ïò´æÔÚµÀÂ·
+        /// <para/>è¯¥å•å…ƒæ˜¯å¦å­˜åœ¨é“è·¯å±æ€§
+        /// <para/>è¯» : è¿”å›å…­ä¸ªæ–¹å‘æ˜¯å¦æœ‰ä»»æ„æ–¹å‘å­˜åœ¨é“è·¯
         /// </summary>
         public bool HasRoads
         {
@@ -247,9 +247,9 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>Ë®Ãæ¸ß¶ÈÊôĞÔ
-        /// <para/>¶Á : ·µ»Øµ±Ç°µ¥ÔªµÄË®Ãæ¸ß¶È
-        /// <para/>Ğ´ : ÉèÖÃµ±Ç°µ¥ÔªµÄË®Ãæ¸ß¶È²¢Ë¢ĞÂµµÆÚÄÇÇø¿é
+        /// <para/>æ°´é¢é«˜åº¦å±æ€§
+        /// <para/>è¯» : è¿”å›å½“å‰å•å…ƒçš„æ°´é¢é«˜åº¦
+        /// <para/>å†™ : è®¾ç½®å½“å‰å•å…ƒçš„æ°´é¢é«˜åº¦å¹¶åˆ·æ–°æ¡£æœŸé‚£åŒºå—
         /// </summary>
         public int WaterLevel
         {
@@ -269,8 +269,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>µ¥ÔªÊÇ·ñ±»Ë®ÃæÑÍÃ»ÊôĞÔ
-        /// <para/>¶Á : ·µ»ØË®Ãæ¸ß¶ÈÊÇ·ñ¸ßÓÚµØĞÎ¸ß¶È
+        /// <para/>å•å…ƒæ˜¯å¦è¢«æ°´é¢æ·¹æ²¡å±æ€§
+        /// <para/>è¯» : è¿”å›æ°´é¢é«˜åº¦æ˜¯å¦é«˜äºåœ°å½¢é«˜åº¦
         /// </summary>
         public bool IsUnderwater
         {
@@ -280,8 +280,8 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>±»ÑÍÃ»µÄµ¥ÔªµÄË®ÃæYÖá×ø±ê
-        /// <para/>¶Á : ·µ»Ø¼ÆËãºóµÄYÖá×ø±ê
+        /// <para/>è¢«æ·¹æ²¡çš„å•å…ƒçš„æ°´é¢Yè½´åæ ‡
+        /// <para/>è¯» : è¿”å›è®¡ç®—åçš„Yè½´åæ ‡
         /// </summary>
         public float WaterSurfaceY
         {
@@ -293,9 +293,9 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// <para/>µØĞÎÊôĞÔ
-        /// <para/>¶Á :  ·µ»Øµ±Ç°µ¥ÔªµÄµØĞÎÀàĞÍ
-        /// <para/>Ğ´ :  ÉèÖÃµ±Ç°µ¥ÔªµÄµØĞÎÀàĞÍ
+        /// <para/>åœ°å½¢å±æ€§
+        /// <para/>è¯» :  è¿”å›å½“å‰å•å…ƒçš„åœ°å½¢ç±»å‹
+        /// <para/>å†™ :  è®¾ç½®å½“å‰å•å…ƒçš„åœ°å½¢ç±»å‹
         /// </summary>
         public HexTerrainType TerrainType
         {
@@ -314,9 +314,9 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ¾àÀëÊôĞÔ
-        /// ¶Á : ·µ»Øµ±Ç°µ¥Ôª¸ñºÍÑ¡ÖĞµ¥Ôª¸ñµÄ¾àÀë
-        /// Ğ´ : ¸üĞÂµ±Ç°µ¥Ôª¸ñºÍÑ¡ÖĞµ¥Ôª¸ñµÄ¾àÀë²¢¸üĞÂUI
+        /// è·ç¦»å±æ€§
+        /// è¯» : è¿”å›å½“å‰å•å…ƒæ ¼å’Œé€‰ä¸­å•å…ƒæ ¼çš„è·ç¦»
+        /// å†™ : æ›´æ–°å½“å‰å•å…ƒæ ¼å’Œé€‰ä¸­å•å…ƒæ ¼çš„è·ç¦»å¹¶æ›´æ–°UI
         /// </summary>
         public int Distance
         {
@@ -332,48 +332,48 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// Ë¢ĞÂ±¾Çø¿éºÍÁÚ¾ÓËùÊôµÄ²»Í¬Çø¿é
+        /// åˆ·æ–°æœ¬åŒºå—å’Œé‚»å±…æ‰€å±çš„ä¸åŒåŒºå—
         /// </summary>
         private void Refresh()
         {
             if (chunk is null) return;
-            //Ë¢ĞÂËùÊôÇø¿é
+            //åˆ·æ–°æ‰€å±åŒºå—
             chunk.Refresh();
-            //Èç¹ûÏàÁÚµ¥ÔªÓĞ²»ÊÇÍ¬Ò»¸öÇø¿éµÄÔòÒªÍ¬Ê±Ë¢ĞÂÆäËùÊôÇø¿é
+            //å¦‚æœç›¸é‚»å•å…ƒæœ‰ä¸æ˜¯åŒä¸€ä¸ªåŒºå—çš„åˆ™è¦åŒæ—¶åˆ·æ–°å…¶æ‰€å±åŒºå—
             for (int i = 0; i < neighbors.Length; i++)
             {
 
                 HexCell neighbor = neighbors[i];
-                //ÎŞÁÚ¾Ó»òÁÚ¾ÓËùÊôÇø¿éÓë×Ô¼ºËùÊôÇø¿éÏàÍ¬Ôò²»ĞèÒªË¢ĞÂ
+                //æ— é‚»å±…æˆ–é‚»å±…æ‰€å±åŒºå—ä¸è‡ªå·±æ‰€å±åŒºå—ç›¸åŒåˆ™ä¸éœ€è¦åˆ·æ–°
                 if (neighbor is null || neighbor.chunk == chunk) continue;
 
                 neighbor.chunk.Refresh();
             }
         }
         /// <summary>
-        /// Ö»Ë¢ĞÂ±¾Çø¿é
+        /// åªåˆ·æ–°æœ¬åŒºå—
         /// </summary>
         private void RefreshSelfOnly()
         {
             chunk.Refresh();
         }
         /// <summary>
-        /// ÉèÖÃ¶ÔÓ¦·½ÏòµÄµÀÂ·
+        /// è®¾ç½®å¯¹åº”æ–¹å‘çš„é“è·¯
         /// </summary>
-        /// <param name="index">µÀÂ·ÏÂ±ê</param>
-        /// <param name="state">µÀÂ·ÊÇ·ñ´æÔÚ</param>
+        /// <param name="index">é“è·¯ä¸‹æ ‡</param>
+        /// <param name="state">é“è·¯æ˜¯å¦å­˜åœ¨</param>
         private void SetRoad(int index, bool state)
         {
-            //ÉèÖÃ¶ÔÓ¦·½ÏòµÄµÀÂ·
+            //è®¾ç½®å¯¹åº”æ–¹å‘çš„é“è·¯
             roads[index] = state;
-            //ÉèÖÃÁÚ¾Ó¶ÔÓ¦·½ÏòµÄµÀÂ·
+            //è®¾ç½®é‚»å±…å¯¹åº”æ–¹å‘çš„é“è·¯
             neighbors[index].roads[(int)((HexDirection)index).Opposite()] = state;
-            //Ë¢ĞÂ
+            //åˆ·æ–°
             neighbors[index].RefreshSelfOnly();
             RefreshSelfOnly();
         }
         /// <summary>
-        /// ¼ì²éÁÚ¾ÓÊÇ·ñÊÇºÓÁ÷³ö¿ÚµÄÓĞĞ§Ä¿µÄµØ
+        /// æ£€æŸ¥é‚»å±…æ˜¯å¦æ˜¯æ²³æµå‡ºå£çš„æœ‰æ•ˆç›®çš„åœ°
         /// </summary>
         private bool IsValidRiverDestination(HexCell neighbor)
         {
@@ -386,7 +386,7 @@ namespace GameScene.Map
                 ;
         }
         /// <summary>
-        /// ÒÆ³ı·Ç·¨µÄºÓÁ÷³öÈë¿Ú
+        /// ç§»é™¤éæ³•çš„æ²³æµå‡ºå…¥å£
         /// </summary>
         private void ValidateRivers()
         {
@@ -406,28 +406,28 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ÒÆ³ı·Ç·¨µÄµÀÂ·
+        /// ç§»é™¤éæ³•çš„é“è·¯
         /// </summary>
         private void ValidateRoads()
         {
             for (int i = 0; i < 6; i++)
             {
-                //ÅĞ¶Ï´Ë·½ÏòµÀÂ·ºÏ·¨ĞÔ
+                //åˆ¤æ–­æ­¤æ–¹å‘é“è·¯åˆæ³•æ€§
                 if
                 (
-                    //´æÔÚµÀÂ·
+                    //å­˜åœ¨é“è·¯
                     roads[i] == true
-                    //Óë¶ÔÓ¦·½ÏòÁÚ¾ÓµÄ¸ß¶È²î¹ı´ó
+                    //ä¸å¯¹åº”æ–¹å‘é‚»å±…çš„é«˜åº¦å·®è¿‡å¤§
                     && GetEdgeType((HexDirection)i) == HexEdgeType.Cliff
                 )
                 {
-                    //Çå³ı´Ë·½ÏòµÀÂ·
+                    //æ¸…é™¤æ­¤æ–¹å‘é“è·¯
                     SetRoad(i, false);
                 }
             }
         }
         /// <summary>
-        /// Ë¢ĞÂµ¥ÔªÎ»ÖÃ
+        /// åˆ·æ–°å•å…ƒä½ç½®
         /// </summary>
         private void RefreshPosition()
         {
@@ -443,7 +443,7 @@ namespace GameScene.Map
             uiRect.localPosition = uiPosition;
         }
         /// <summary>
-        /// ¸üĞÂUIÏÔÊ¾µÄ¾àÀë
+        /// æ›´æ–°UIæ˜¾ç¤ºçš„è·ç¦»
         /// </summary>
         private void UpdateDistanceLabel()
         {
@@ -452,39 +452,39 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// »ñµÃ¶ÔÓ¦·½ÏòµÄÁÚ¾Ó
+        /// è·å¾—å¯¹åº”æ–¹å‘çš„é‚»å±…
         /// </summary>
-        /// <param name="direction">Ö¸¶¨µÄ·½Ïò</param>
-        /// <returns>·µ»Ø¶ÔÓ¦·½ÏòµÄÁÚ¾Ó</returns>
+        /// <param name="direction">æŒ‡å®šçš„æ–¹å‘</param>
+        /// <returns>è¿”å›å¯¹åº”æ–¹å‘çš„é‚»å±…</returns>
         public HexCell GetNeighbor(HexDirection direction)
         {
             return neighbors[(int)direction];
         }
         /// <summary>
-        /// ÉèÖÃ¶ÔÓ¦·½ÏòµÄÁÚ¾Ó
+        /// è®¾ç½®å¯¹åº”æ–¹å‘çš„é‚»å±…
         /// </summary>
-        /// <param name="direction">Ö¸¶¨µÄ·½Ïò</param>
-        /// <param name="cell">ÒªÉèÖÃ³ÉµÄÁÚ¾Ó</param>
+        /// <param name="direction">æŒ‡å®šçš„æ–¹å‘</param>
+        /// <param name="cell">è¦è®¾ç½®æˆçš„é‚»å±…</param>
         public void SetNeighbor(HexDirection direction, HexCell cell)
         {
-            //ÉèÖÃ×Ô¼ºµÄÁÚ¾Ó
+            //è®¾ç½®è‡ªå·±çš„é‚»å±…
             neighbors[(int)direction] = cell;
-            //ÉèÖÃÁÚ¾ÓµÄÁÚ¾Ó
+            //è®¾ç½®é‚»å±…çš„é‚»å±…
             cell.neighbors[(int)direction.Opposite()] = this;
         }
         /// <summary>
-        /// »ñµÃºÍ¶ÔÓ¦·½ÏòÁÚ¾ÓµÄ±ßÔµÁ¬½ÓÀàĞÍ
+        /// è·å¾—å’Œå¯¹åº”æ–¹å‘é‚»å±…çš„è¾¹ç¼˜è¿æ¥ç±»å‹
         /// </summary>
-        /// <param name="direction">¶ÔÓ¦·½Ïò</param>
-        /// <returns>·µ»Ø±ßÔµÁ¬½ÓÀàĞÍ</returns>
+        /// <param name="direction">å¯¹åº”æ–¹å‘</param>
+        /// <returns>è¿”å›è¾¹ç¼˜è¿æ¥ç±»å‹</returns>
         public HexEdgeType GetEdgeType(HexDirection direction)
         {
             return HexMetrics.GetEdgeType(elevation, neighbors[(int)direction].elevation);
         }
         /// <summary>
-        /// ¼ì²âÄ³·½ÏòµÄ±ßÔµÊÇ·ñÓĞºÓÁ÷¾­¹ı
+        /// æ£€æµ‹æŸæ–¹å‘çš„è¾¹ç¼˜æ˜¯å¦æœ‰æ²³æµç»è¿‡
         /// </summary>
-        /// <param name="direction">Ö¸¶¨·½Ïò</param>
+        /// <param name="direction">æŒ‡å®šæ–¹å‘</param>
         public bool HasRiverThroughEdge(HexDirection direction)
         {
             return
@@ -492,105 +492,105 @@ namespace GameScene.Map
                 hasOutgoingRiver && outgoingRiver == direction;
         }
         /// <summary>
-        /// ÒÆ³ıºÓÁ÷³ö¿Ú
+        /// ç§»é™¤æ²³æµå‡ºå£
         /// </summary>
         public void RemoveOutgoingRiver()
         {
-            //Èç¹û²»´æÔÚºÓÁ÷³ö¿ÚÔò·µ»Ø
+            //å¦‚æœä¸å­˜åœ¨æ²³æµå‡ºå£åˆ™è¿”å›
             if (!hasOutgoingRiver) return;
-            //Çå³ıºÓÁ÷³ö¿Ú
+            //æ¸…é™¤æ²³æµå‡ºå£
             hasOutgoingRiver = false;
-            //Ë¢ĞÂ
+            //åˆ·æ–°
             RefreshSelfOnly();
-            //Çå³ı¶ÔÓ¦·½ÏòÁÚ¾ÓµÄºÓÁ÷Èë¿Ú
+            //æ¸…é™¤å¯¹åº”æ–¹å‘é‚»å±…çš„æ²³æµå…¥å£
             HexCell neighbor = GetNeighbor(outgoingRiver);
             neighbor.hasIncomingRiver = false;
             neighbor.RefreshSelfOnly();
         }
         /// <summary>
-        /// ÒÆ³ıºÓÁ÷Èë¿Ú
+        /// ç§»é™¤æ²³æµå…¥å£
         /// </summary>
         public void RemoveIncomingRiver()
         {
-            //Èç¹û²»´æÔÚºÓÁ÷Èë¿ÚÔò·µ»Ø
+            //å¦‚æœä¸å­˜åœ¨æ²³æµå…¥å£åˆ™è¿”å›
             if (!hasIncomingRiver) return;
-            //Çå³ıºÓÁ÷Èë¿Ú
+            //æ¸…é™¤æ²³æµå…¥å£
             hasIncomingRiver = false;
-            //Ë¢ĞÂ
+            //åˆ·æ–°
             RefreshSelfOnly();
-            //Çå³ı¶ÔÓ¦ÁÚ¾ÓµÄºÓÁ÷³ö¿Ú
+            //æ¸…é™¤å¯¹åº”é‚»å±…çš„æ²³æµå‡ºå£
             HexCell neighbor = GetNeighbor(incomingRiver);
             neighbor.hasOutgoingRiver = false;
             neighbor.RefreshSelfOnly();
         }
         /// <summary>
-        /// ÒÆ³ıºÓÁ÷
+        /// ç§»é™¤æ²³æµ
         /// </summary>
         public void RemoveRiver()
         {
-            //ÒÆ³ıºÓÁ÷³ö¿Ú
+            //ç§»é™¤æ²³æµå‡ºå£
             RemoveOutgoingRiver();
-            //ÒÆ³ıºÓÁ÷Èë¿Ú
+            //ç§»é™¤æ²³æµå…¥å£
             RemoveIncomingRiver();
         }
         /// <summary>
-        /// ½«ºÓÁ÷³ö¿ÚÉèÖÃÔÚÄ³·½Ïò
+        /// å°†æ²³æµå‡ºå£è®¾ç½®åœ¨æŸæ–¹å‘
         /// </summary>
-        /// <param name="direction">ÒªÉèÖÃºÓÁ÷³ö¿ÚµÄ·½Ïò</param>
+        /// <param name="direction">è¦è®¾ç½®æ²³æµå‡ºå£çš„æ–¹å‘</param>
         public void SetOutgoingRiver(HexDirection direction)
         {
-            //Èç¹ûÔÚÒªÉèÖÃµÄ·½ÏòÒÑ´æÔÚºÓÁ÷³ö¿ÚÔò·µ»Ø
+            //å¦‚æœåœ¨è¦è®¾ç½®çš„æ–¹å‘å·²å­˜åœ¨æ²³æµå‡ºå£åˆ™è¿”å›
             if (hasOutgoingRiver && outgoingRiver == direction)
             {
                 return;
             }
-            //»ñµÃ¶ÔÓ¦·½ÏòµÄÁÚ¾Ó
+            //è·å¾—å¯¹åº”æ–¹å‘çš„é‚»å±…
             HexCell neighbor = GetNeighbor(direction);
-            //Èç¹ûÁÚ¾Ó²»´æÔÚ»òÕßÁÚ¾ÓµÄ¸ß¶È´óÓÚ±¾µ¥Ôª¸ß¶È£¨ºÓÁ÷ÉÏÆÂ£©Ôò·µ»Ø
+            //å¦‚æœé‚»å±…ä¸å­˜åœ¨æˆ–è€…é‚»å±…çš„é«˜åº¦å¤§äºæœ¬å•å…ƒé«˜åº¦ï¼ˆæ²³æµä¸Šå¡ï¼‰åˆ™è¿”å›
 
             if (!IsValidRiverDestination(neighbor))
             {
                 return;
             }
-            //ÒÆ³ıºÓÁ÷³ö¿Ú
+            //ç§»é™¤æ²³æµå‡ºå£
             RemoveOutgoingRiver();
-            //Èç¹ûÒªÉèÖÃµÄ·½ÏòÒÑ´æÔÚºÓÁ÷Èë¿ÚÔòÏÈÒÆ³ıºÓÁ÷Èë¿Ú
+            //å¦‚æœè¦è®¾ç½®çš„æ–¹å‘å·²å­˜åœ¨æ²³æµå…¥å£åˆ™å…ˆç§»é™¤æ²³æµå…¥å£
             if (hasIncomingRiver && incomingRiver == direction)
             {
                 RemoveIncomingRiver();
             }
-            //ÉèÖÃºÓÁ÷³ö¿Ú
+            //è®¾ç½®æ²³æµå‡ºå£
             hasOutgoingRiver = true;
             outgoingRiver = direction;
-            //ÉèÖÃÁÚ¾ÓµÄºÓÁ÷Èë¿Ú
+            //è®¾ç½®é‚»å±…çš„æ²³æµå…¥å£
             neighbor.RemoveIncomingRiver();
             neighbor.hasIncomingRiver = true;
             neighbor.incomingRiver = direction.Opposite();
-            //Çå³ı´Ë·½ÏòµÄµÀÂ·
+            //æ¸…é™¤æ­¤æ–¹å‘çš„é“è·¯
             SetRoad((int)direction, false);
         }
         /// <summary>
-        /// Ö¸¶¨·½ÏòÊÇ·ñ´æÔÚµÀÂ·
+        /// æŒ‡å®šæ–¹å‘æ˜¯å¦å­˜åœ¨é“è·¯
         /// </summary>
         public bool HasRoadThroughEdge(HexDirection direction)
         {
             return roads[(int)direction];
         }
         /// <summary>
-        /// Ìí¼Ó¶ÔÓ¦·½ÏòµÄµÀÂ·
+        /// æ·»åŠ å¯¹åº”æ–¹å‘çš„é“è·¯
         /// </summary>
         public void AddRoad(HexDirection direction)
         {
-            //ÅĞ¶ÏÊÇ·ñ¿ÉÒÔÔÚ´Ë·½ÏòÉèÖÃµÀÂ·
-            if (roads[(int)direction] == false                          //´Ë·½Ïò²»´æÔÚµÀÂ·
-                && HasRiverThroughEdge(direction) == false     //´Ë·½Ïò²»´æÔÚºÓÁ÷
-                && GetElevationDifference(direction) <= 1)     //´Ë·½ÏòµÄÓëÁÚ¾ÓµÄ¸ß¶È²î½ÏĞ¡
+            //åˆ¤æ–­æ˜¯å¦å¯ä»¥åœ¨æ­¤æ–¹å‘è®¾ç½®é“è·¯
+            if (roads[(int)direction] == false                          //æ­¤æ–¹å‘ä¸å­˜åœ¨é“è·¯
+                && HasRiverThroughEdge(direction) == false     //æ­¤æ–¹å‘ä¸å­˜åœ¨æ²³æµ
+                && GetElevationDifference(direction) <= 1)     //æ­¤æ–¹å‘çš„ä¸é‚»å±…çš„é«˜åº¦å·®è¾ƒå°
             {
                 SetRoad((int)direction, true);
             }
         }
         /// <summary>
-        /// Çå³ıËùÓĞµÀÂ·
+        /// æ¸…é™¤æ‰€æœ‰é“è·¯
         /// </summary>
         public void RemoveRoads()
         {
@@ -598,13 +598,13 @@ namespace GameScene.Map
             {
                 if (true == roads[i])
                 {
-                    //Çå³ıµÀÂ·
+                    //æ¸…é™¤é“è·¯
                     SetRoad(i, false);
                 }
             }
         }
         /// <summary>
-        /// »ñµÃ×Ô¼ººÍ¶ÔÓ¦·½ÏòÁÚ¾ÓµÄ¸ß¶È²î
+        /// è·å¾—è‡ªå·±å’Œå¯¹åº”æ–¹å‘é‚»å±…çš„é«˜åº¦å·®
         /// </summary>
         public int GetElevationDifference(HexDirection direction)
         {
@@ -612,7 +612,7 @@ namespace GameScene.Map
             return difference >= 0 ? difference : -difference;
         }
         /// <summary>
-        /// ½ûÓÃÍ»³öÏÔÊ¾
+        /// ç¦ç”¨çªå‡ºæ˜¾ç¤º
         /// </summary>
         public void DisableHighlight()
         {
@@ -620,7 +620,7 @@ namespace GameScene.Map
             highlight.enabled = false;
         }
         /// <summary>
-        /// ÆôÓÃÍ»³öÏÔÊ¾
+        /// å¯ç”¨çªå‡ºæ˜¾ç¤º
         /// </summary>
         public void EnableHighlight(Color color)
         {
@@ -629,17 +629,17 @@ namespace GameScene.Map
             highlight.enabled = true;
         }
         /// <summary>
-        /// µ¥Ôª¸ñÊı¾İĞ´Èë
+        /// å•å…ƒæ ¼æ•°æ®å†™å…¥
         /// </summary>
         public void Save(BinaryWriter writer)
         {
-            //µØĞÎ
+            //åœ°å½¢
             writer.Write((byte)terrainType.type);
-            //¸ß¶È
+            //é«˜åº¦
             writer.Write((byte)elevation);
-            //Ë®Ãæ¸ß¶È
+            //æ°´é¢é«˜åº¦
             writer.Write((byte)waterLevel);
-            //ºÓÁ÷
+            //æ²³æµ
             if (hasIncomingRiver == true)
             {
                 writer.Write((byte)(incomingRiver + 0b10000000));
@@ -656,7 +656,7 @@ namespace GameScene.Map
             {
                 writer.Write((byte)0);
             }
-            //µÀÂ·
+            //é“è·¯
             int roadFlags = 0;
             for (int i = 0; i < roads.Length; i++)
             {
@@ -666,19 +666,19 @@ namespace GameScene.Map
             writer.Write((byte)roadFlags);
         }
         /// <summary>
-        /// µ¥Ôª¸ñÊı¾İ¶ÁÈ¡
+        /// å•å…ƒæ ¼æ•°æ®è¯»å–
         /// </summary>
         public void Load(BinaryReader reader)
         {
-            //µØĞÎ
+            //åœ°å½¢
             terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
-            //¸ß¶È
+            //é«˜åº¦
             elevation = reader.ReadByte();
-            //Ë¢ĞÂÎ»ÖÃ
+            //åˆ·æ–°ä½ç½®
             RefreshPosition();
-            //Ë®Ãæ¸ß¶È
+            //æ°´é¢é«˜åº¦
             waterLevel = reader.ReadByte();
-            //ºÓÁ÷		
+            //æ²³æµ		
             byte riverData = reader.ReadByte();
             if (riverData >= 128)
             {
@@ -699,7 +699,7 @@ namespace GameScene.Map
             {
                 hasOutgoingRiver = false;
             }
-            //µÀÂ·
+            //é“è·¯
             int roadFlags = reader.ReadByte();
             for (int i = roads.Length - 1; i >= 0; i--)
             {
@@ -709,9 +709,9 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// ÖØÔØ!=ÔËËã·û
+        /// é‡è½½!=è¿ç®—ç¬¦
         /// </summary>
-        /// <returns>·µ»ØÁ½Õß×ø±êÊÇ·ñ²»Í¬</returns>
+        /// <returns>è¿”å›ä¸¤è€…åæ ‡æ˜¯å¦ä¸åŒ</returns>
         public static bool operator !=(HexCell lhs, HexCell rhs)
         {
             if (lhs is null || rhs is null)
@@ -721,9 +721,9 @@ namespace GameScene.Map
             return lhs.coordinates != rhs.coordinates;
         }
         /// <summary>
-        /// ÖØÔØ==ÔËËã·û
+        /// é‡è½½==è¿ç®—ç¬¦
         /// </summary>
-        /// <returns>·µ»ØÁ½Õß×ø±êÊÇ·ñÏàÍ¬</returns>
+        /// <returns>è¿”å›ä¸¤è€…åæ ‡æ˜¯å¦ç›¸åŒ</returns>
         public static bool operator ==(HexCell lhs, HexCell rhs)
         {
             if (lhs is null || rhs is null)
@@ -733,14 +733,14 @@ namespace GameScene.Map
             return lhs.coordinates == rhs.coordinates;
         }
         /// <summary>
-        /// ÖØĞ´Equals
+        /// é‡å†™Equals
         /// </summary>
         public override bool Equals(object other)
         {
             return this == (HexCell)other;
         }
         /// <summary>
-        /// ÖØĞ´GetHashCode
+        /// é‡å†™GetHashCode
         /// </summary>
         public override int GetHashCode()
         {
@@ -748,7 +748,7 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// ¼ÓÔØ½Å±¾ÊµÀıÊ±µ÷ÓÃ Awake
+        /// åŠ è½½è„šæœ¬å®ä¾‹æ—¶è°ƒç”¨ Awake
         /// </summary>
         public void Awake()
         {

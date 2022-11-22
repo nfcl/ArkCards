@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// <para/>Ò»¸öCanvasÄÚµÄPannel³¡¾°ÇĞ»»Àà
+/// <para/>ä¸€ä¸ªCanvaså†…çš„Pannelåœºæ™¯åˆ‡æ¢ç±»
 /// </summary>
 public class PannelChange
 {
@@ -12,7 +12,7 @@ public class PannelChange
     private Dictionary<string, CanvasGroup> _source;
 
     /// <summary>
-    /// ÎŞ²Î¹¹Ôì
+    /// æ— å‚æ„é€ 
     /// </summary>
     public PannelChange()
     {
@@ -20,9 +20,9 @@ public class PannelChange
         _source = new Dictionary<string, CanvasGroup>();
     }
     /// <summary>
-    /// ´ø²Î¹¹Ôì
+    /// å¸¦å‚æ„é€ 
     /// </summary>
-    /// <param name="source">ÒªÔö¼Ó¹ÜÀíµÄPannel</param>
+    /// <param name="source">è¦å¢åŠ ç®¡ç†çš„Pannel</param>
     public PannelChange(List<KeyValuePair<string, CanvasGroup>> source)
     {
         _source = new Dictionary<string, CanvasGroup>();
@@ -37,11 +37,11 @@ public class PannelChange
     }
 
     /// <summary>
-    /// Ôö¼ÓÒ»¸öĞÂµÄPannel½øĞĞ¹ÜÀí²¢Òş²Ø
+    /// å¢åŠ ä¸€ä¸ªæ–°çš„Pannelè¿›è¡Œç®¡ç†å¹¶éšè—
     /// </summary>
-    /// <param name="name">ÒªÔö¼ÓµÄPannelÃû³Æ</param>
-    /// <param name="source">ÒªÔö¼ÓµÄPannelÉÏµÄCanvasGroup</param>
-    /// <returns>·µ»ØÊÇ·ñÔö¼Ó³É¹¦(¹ÜÀíµÄPannelÖĞÊÇ·ñ²»´æÔÚ¶ÔÓ¦Ãû³ÆµÄ)</returns>
+    /// <param name="name">è¦å¢åŠ çš„Pannelåç§°</param>
+    /// <param name="source">è¦å¢åŠ çš„Pannelä¸Šçš„CanvasGroup</param>
+    /// <returns>è¿”å›æ˜¯å¦å¢åŠ æˆåŠŸ(ç®¡ç†çš„Pannelä¸­æ˜¯å¦ä¸å­˜åœ¨å¯¹åº”åç§°çš„)</returns>
     public bool AddPannel(string name, CanvasGroup source)
     {
         if (false == _source.ContainsKey(name))
@@ -55,10 +55,10 @@ public class PannelChange
         }
     }
     /// <summary>
-    /// ¸ù¾İÃû³ÆÒÆ³ıÒ»¸öPannel
+    /// æ ¹æ®åç§°ç§»é™¤ä¸€ä¸ªPannel
     /// </summary>
-    /// <param name="name">ÒªÒÆ³ıµÄPannelÃû³Æ</param>
-    /// <returns>·µ»ØÊÇ·ñÒÆ³ı³É¹¦(¹ÜÀíµÄPannelÖĞÊÇ·ñ´æÔÚ¶ÔÓ¦Ãû³ÆµÄ)</returns>
+    /// <param name="name">è¦ç§»é™¤çš„Pannelåç§°</param>
+    /// <returns>è¿”å›æ˜¯å¦ç§»é™¤æˆåŠŸ(ç®¡ç†çš„Pannelä¸­æ˜¯å¦å­˜åœ¨å¯¹åº”åç§°çš„)</returns>
     public bool RemovePannel(string name)
     {
         if (true == _source.ContainsKey(name))
@@ -72,10 +72,10 @@ public class PannelChange
         }
     }
     /// <summary>
-    /// ÏÔÊ¾ĞÂµÄPannel,²¢Òş²Ø¾ÉµÄPannel
+    /// æ˜¾ç¤ºæ–°çš„Pannel,å¹¶éšè—æ—§çš„Pannel
     /// </summary>
-    /// <param name="name">ÒªÏÔÊ¾µÄPannelÃû³Æ</param>
-    /// <returns>·µ»ØÊÇ·ñÏÔÊ¾³É¹¦(¹ÜÀíµÄPannelÖĞÊÇ·ñ´æÔÚ¶ÔÓ¦Ãû³ÆµÄ)</returns>
+    /// <param name="name">è¦æ˜¾ç¤ºçš„Pannelåç§°</param>
+    /// <returns>è¿”å›æ˜¯å¦æ˜¾ç¤ºæˆåŠŸ(ç®¡ç†çš„Pannelä¸­æ˜¯å¦å­˜åœ¨å¯¹åº”åç§°çš„)</returns>
     public bool ChangeToPannel(string name)
     {
         if (true == _source.ContainsKey(name))

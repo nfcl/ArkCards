@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ namespace StartScene
             }
 
             /// <summary>
-            /// ³õÊ¼»¯³¡¾°ÇĞ»»Àà
+            /// åˆå§‹åŒ–åœºæ™¯åˆ‡æ¢ç±»
             /// </summary>
             private void PannelChangeInit()
             {
@@ -28,15 +28,15 @@ namespace StartScene
             }
 
             /// <summary>
-            /// ÇĞ»»ÏÔÊ¾µÄPannel
+            /// åˆ‡æ¢æ˜¾ç¤ºçš„Pannel
             /// </summary>
-            /// <param name="name">ÒªÇĞ»»µ½µÄPannelÃû³Æ</param>
+            /// <param name="name">è¦åˆ‡æ¢åˆ°çš„Pannelåç§°</param>
             public void TogglePannel(string name)
             {
 #if UNITY_EDITOR
                 if (false == _pannelChange.ChangeToPannel(name))
                 {
-                    Debug.Log($"StartSceneStartCanvasManager³¢ÊÔÇĞ»»µ½{{{name}}}Ê§°Ü");
+                    Debug.Log($"StartSceneStartCanvasManagerå°è¯•åˆ‡æ¢åˆ°{{{name}}}å¤±è´¥");
                 }
 #else
                 _pannelChange.ChangeToPannel(name);
@@ -44,8 +44,8 @@ namespace StartScene
             }
 
             /// <summary>
-            /// <para/>ÍË³ö
-            /// <para/>Ö±½ÓÍË³ö³ÌĞò
+            /// <para/>é€€å‡º
+            /// <para/>ç›´æ¥é€€å‡ºç¨‹åº
             /// </summary>
             public void Exit()
             {

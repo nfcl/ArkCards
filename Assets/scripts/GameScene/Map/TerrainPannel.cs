@@ -1,30 +1,30 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameScene.Map.Editor
 {
     /// <summary>
-    /// ÑÕÉ«Ñ¡ÔñÀà
+    /// é¢œè‰²é€‰æ‹©ç±»
     /// </summary>
     public class TerrainPannel : MonoBehaviour
     {
         /// <summary>
-        /// µ¥¸öÑÕÉ«Ñ¡ÏîÔ¤ÉèÌå
+        /// å•ä¸ªé¢œè‰²é€‰é¡¹é¢„è®¾ä½“
         /// </summary>
         public GameObject ColorTogglePrefab;
         /// <summary>
-        /// ÑÕÉ«Ñ¡Ïî×é
+        /// é¢œè‰²é€‰é¡¹ç»„
         /// </summary>
         public ToggleGroup ToggleGroup;
         /// <summary>
-        /// ÑÕÉ«Ñ¡Ïî¼¯ºÏ
+        /// é¢œè‰²é€‰é¡¹é›†åˆ
         /// </summary>
         public ColorToggle[] ColorToggles;
 
         /// <summary>
-        /// ÉèÖÃÑÕÉ«Ñ¡Ïî
+        /// è®¾ç½®é¢œè‰²é€‰é¡¹
         /// </summary>
-        /// <param name="colors">ĞÂµÄÑÕÉ«Ñ¡Ïî</param>
+        /// <param name="colors">æ–°çš„é¢œè‰²é€‰é¡¹</param>
         public void SetColors()
         {
             int size = HexMetrics.HexTerrains.Length;
@@ -45,15 +45,15 @@ namespace GameScene.Map.Editor
             }
         }
         /// <summary>
-        /// ´ò¿ª³¡¾°ÖĞµÄ¿ª¹Ø
+        /// æ‰“å¼€åœºæ™¯ä¸­çš„å¼€å…³
         /// </summary>
-        /// <param name="index">Òª´ò¿ªµÄ¿ª¹ØÏÂ±ê</param>
+        /// <param name="index">è¦æ‰“å¼€çš„å¼€å…³ä¸‹æ ‡</param>
         public void SelectToggle(int index)
         {
             ColorToggles[index].SelectToggle();
         }
         /// <summary>
-        /// ÉèÖÃ¿ª¹ØµÄ»Øµ÷º¯Êı
+        /// è®¾ç½®å¼€å…³çš„å›è°ƒå‡½æ•°
         /// </summary>
         public void SetToggleDelegate(ColorToggle.ColorToggleDelegate dele)
         {

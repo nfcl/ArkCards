@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -9,72 +9,72 @@ namespace GameScene.Map
     public class HexGrid : MonoBehaviour
     {
         /// <summary>
-        /// µØÍ¼Ë®Æ½Çø¿é¸öÊı
+        /// åœ°å›¾æ°´å¹³åŒºå—ä¸ªæ•°
         /// </summary>
         private int chunkCountX;
         /// <summary>
-        /// µØÍ¼´¹Ö±Çø¿é¸öÊı
+        /// åœ°å›¾å‚ç›´åŒºå—ä¸ªæ•°
         /// </summary>
         private int chunkCountZ;
         /// <summary>
-        /// µ¥Ôª¼¯ºÏ
+        /// å•å…ƒé›†åˆ
         /// </summary>
         private HexCell[] cells;
         /// <summary>
-        /// µØÍ¼Çø¿é¼¯ºÏ
+        /// åœ°å›¾åŒºå—é›†åˆ
         /// </summary>
         private HexGridChunk[] chunks;
         /// <summary>
-        /// Ñ°Â·Ê¹ÓÃµÄÓÅÏÈ¶ÓÁĞ
+        /// å¯»è·¯ä½¿ç”¨çš„ä¼˜å…ˆé˜Ÿåˆ—
         /// </summary>
         private HexCellPriorityQueue searchFrontier;
 
         /// <summary>
-        /// Ëæ»úÊıÖÖ×Ó
+        /// éšæœºæ•°ç§å­
         /// </summary>
         public int seed;
         /// <summary>
-        /// ÔëÉùÎÆÀí
+        /// å™ªå£°çº¹ç†
         /// </summary>
         public Texture2D noiseSource;
         /// <summary>
-        /// µØĞÎÏ¸½Ú¼¯ºÏ
+        /// åœ°å½¢ç»†èŠ‚é›†åˆ
         /// </summary>
         public HexFeatureCollection[] featureCollections;
         /// <summary>
-        /// µ¥Ôª±êÇ©Ô¤ÉèÌå
+        /// å•å…ƒæ ‡ç­¾é¢„è®¾ä½“
         /// </summary>
         public GameObject cellLabelPrefab;
         /// <summary>
-        /// µØÍ¼Çø¿éÔ¤ÉèÌå
+        /// åœ°å›¾åŒºå—é¢„è®¾ä½“
         /// </summary>
         public HexGridChunk chunkPrefab;
         /// <summary>
-        /// µ¥ÔªÔ¤ÉèÌå
+        /// å•å…ƒé¢„è®¾ä½“
         /// </summary>
         public HexCell cellPrefab;
         /// <summary>
-        /// µØÍ¼¿íµÄµ¥ÔªÊı
+        /// åœ°å›¾å®½çš„å•å…ƒæ•°
         /// </summary>
         public int cellCountX;
         /// <summary>
-        /// µØÍ¼¸ßµÄµ¥ÔªÊı
+        /// åœ°å›¾é«˜çš„å•å…ƒæ•°
         /// </summary>
         public int cellCountZ;
 
         /// <summary>
-        /// ´´½¨µØÍ¼Çø¿é¼¯ºÏ
+        /// åˆ›å»ºåœ°å›¾åŒºå—é›†åˆ
         /// </summary>
         private void CreateChunks()
         {
-            //ÊµÀı»¯ÁĞ±í
+            //å®ä¾‹åŒ–åˆ—è¡¨
             chunks = new HexGridChunk[chunkCountX * chunkCountZ];
 
-            int x;  //Çø¿éµÄx×ø±ê
-            int z;  //Çø¿éµÄz×ø±ê
-            int i;  //Çø¿éÏÂ±ê
+            int x;  //åŒºå—çš„xåæ ‡
+            int z;  //åŒºå—çš„zåæ ‡
+            int i;  //åŒºå—ä¸‹æ ‡
 
-            //±éÀú´´½¨Çø¿é
+            //éå†åˆ›å»ºåŒºå—
             for (z = 0, i = 0; z < chunkCountZ; z++)
             {
                 for (x = 0; x < chunkCountX; x++)
@@ -85,18 +85,18 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ´´½¨µØÍ¼µ¥Ôª¼¯ºÏ
+        /// åˆ›å»ºåœ°å›¾å•å…ƒé›†åˆ
         /// </summary>
         private void CreateCells()
         {
-            //ÊµÀı»¯ÁĞ±í
+            //å®ä¾‹åŒ–åˆ—è¡¨
             cells = new HexCell[cellCountZ * cellCountX];
 
-            int x;  //µ¥Ôªx×ø±ê
-            int z;  //µ¥Ôªz×ø±ê
-            int i;  //µ¥ÔªÏÂ±ê
+            int x;  //å•å…ƒxåæ ‡
+            int z;  //å•å…ƒzåæ ‡
+            int i;  //å•å…ƒä¸‹æ ‡
 
-            //±éÀú´´½¨µ¥Ôª
+            //éå†åˆ›å»ºå•å…ƒ
             for (z = 0, i = 0; z < cellCountZ; z++)
             {
                 for (x = 0; x < cellCountX; x++)
@@ -106,81 +106,81 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ´´½¨ĞÂµÄµ¥Ôª
+        /// åˆ›å»ºæ–°çš„å•å…ƒ
         /// </summary>
-        /// <param name="x">µ¥ÔªxÖá</param>
-        /// <param name="z">µ¥ÔªzÖá</param>
-        /// <param name="i">µ¥ÔªÏÂ±ê</param>
+        /// <param name="x">å•å…ƒxè½´</param>
+        /// <param name="z">å•å…ƒzè½´</param>
+        /// <param name="i">å•å…ƒä¸‹æ ‡</param>
         private void CreateCell(int x, int z, int i)
         {
-            //¼ÆËãµ¥ÔªÊÀ½çÎ»ÖÃ
+            //è®¡ç®—å•å…ƒä¸–ç•Œä½ç½®
             Vector3 position;
             position.x = (x + z * 0.5f - z / 2) * (HexMetrics.innerRadius * 2f);
             position.y = 0f;
             position.z = z * (HexMetrics.outerRadius * 1.5f);
-            //ĞÂ½¨µ¥Ôª
+            //æ–°å»ºå•å…ƒ
             HexCell cell = cells[i] = Instantiate(cellPrefab);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.TerrainType = HexMetrics.HexTerrains[0];
-            //ÉèÖÃÏàÁÚ¹ØÏµ 
+            //è®¾ç½®ç›¸é‚»å…³ç³» 
             if (x > 0)
             {
-                //ÉèÖÃ×Ô¼º×ó²à£¨W£©µÄÁÚ¾Ó
+                //è®¾ç½®è‡ªå·±å·¦ä¾§ï¼ˆWï¼‰çš„é‚»å±…
                 cell.SetNeighbor(HexDirection.W, cells[i - 1]);
             }
             if (z > 0)
-            {//·ÇµÚÒ»ĞĞ
+            {//éç¬¬ä¸€è¡Œ
                 if ((z & 1) == 0)
-                {//Å¼ÊıĞĞ
-                    //ÉèÖÃ×Ô¼ºµÄÓÒÏÂ²à£¨SE£©µÄÁÚ¾Ó
+                {//å¶æ•°è¡Œ
+                    //è®¾ç½®è‡ªå·±çš„å³ä¸‹ä¾§ï¼ˆSEï¼‰çš„é‚»å±…
                     cell.SetNeighbor(HexDirection.SE, cells[i - cellCountX]);
                     if (x > 0)
-                    {//·ÇµÚÒ»ÁĞ
-                        //ÉèÖÃ×Ô¼ºµÄ×óÏÂ²à£¨SW£©µÄÁÚ¾Ó
+                    {//éç¬¬ä¸€åˆ—
+                        //è®¾ç½®è‡ªå·±çš„å·¦ä¸‹ä¾§ï¼ˆSWï¼‰çš„é‚»å±…
                         cell.SetNeighbor(HexDirection.SW, cells[i - cellCountX - 1]);
                     }
                 }
                 else
-                {//ÆæÊıĞĞ
-                    //ÉèÖÃ×Ô¼ºµÄ×óÏÂ²à£¨SW£©µÄÁÚ¾Ó
+                {//å¥‡æ•°è¡Œ
+                    //è®¾ç½®è‡ªå·±çš„å·¦ä¸‹ä¾§ï¼ˆSWï¼‰çš„é‚»å±…
                     cell.SetNeighbor(HexDirection.SW, cells[i - cellCountX]);
                     if (x < cellCountX - 1)
-                    {//·Ç×îºóÒ»¸ö
-                        //ÉèÖÃ×Ô¼ºµÄÓÒÏÂ²à£¨SE£©µÄÁÚ¾Ó
+                    {//éæœ€åä¸€ä¸ª
+                        //è®¾ç½®è‡ªå·±çš„å³ä¸‹ä¾§ï¼ˆSEï¼‰çš„é‚»å±…
                         cell.SetNeighbor(HexDirection.SE, cells[i - cellCountX + 1]);
                     }
                 }
             }
-            //ĞÂ½¨µ¥Ôª±êÇ©
+            //æ–°å»ºå•å…ƒæ ‡ç­¾
             GameObject label = Instantiate(cellLabelPrefab);    
             label.GetComponent<RectTransform>().anchoredPosition = new Vector2(position.x, position.z);
-            //ÉèÖÃUIµÄRectTransform
+            //è®¾ç½®UIçš„RectTransform
             cell.uiRect = label.GetComponent<RectTransform>();
-            //ÉèÖÃµ¥Ôª¸ß¶È
+            //è®¾ç½®å•å…ƒé«˜åº¦
             cell.Elevation = 0;
-            //Ìí¼Óµ¥Ôªµ½ËùÊôÇø¿é
+            //æ·»åŠ å•å…ƒåˆ°æ‰€å±åŒºå—
             AddCellToChunk(x, z, cell);
         }
         /// <summary>
-        /// Ìí¼Óµ¥Ôªµ½Ö¸¶¨Çø¿é
+        /// æ·»åŠ å•å…ƒåˆ°æŒ‡å®šåŒºå—
         /// </summary>
-        /// <param name="x">µ¥Ôªx×ø±ê</param>
-        /// <param name="z">µ¥Ôªz×ø±ê</param>
-        /// <param name="cell">ÒªÌí¼ÓµÄµ¥Ôª</param>
+        /// <param name="x">å•å…ƒxåæ ‡</param>
+        /// <param name="z">å•å…ƒzåæ ‡</param>
+        /// <param name="cell">è¦æ·»åŠ çš„å•å…ƒ</param>
         private void AddCellToChunk(int x, int z, HexCell cell)
         {
-            //»ñµÃ¶ÔÓ¦µÄÇø¿é
+            //è·å¾—å¯¹åº”çš„åŒºå—
             int chunkX = x / HexMetrics.chunkSizeX;
             int chunkZ = z / HexMetrics.chunkSizeZ;
             HexGridChunk chunk = chunks[chunkX + chunkZ * chunkCountX];
-            //Ìí¼Óµ¥Ôª
+            //æ·»åŠ å•å…ƒ
             int localX = x - chunkX * HexMetrics.chunkSizeX;
             int localZ = z - chunkZ * HexMetrics.chunkSizeZ;
             chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
         }
         /// <summary>
-        /// Â·¾¶ËÑË÷¿ÉÊÓ»¯
+        /// è·¯å¾„æœç´¢å¯è§†åŒ–
         /// </summary>
         private IEnumerator SearchVisible(HexCell fromCell, HexCell toCell)
         {
@@ -256,7 +256,7 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// Â·¾¶ËÑË÷
+        /// è·¯å¾„æœç´¢
         /// </summary>
         private void Search(HexCell fromCell, HexCell toCell)
         {
@@ -338,18 +338,18 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ¸ù¾İÊÀ½ç×ø±ê¼ÆËã»ñµÃ¶ÔÓ¦µÄµØÍ¼µ¥Ôª
+        /// æ ¹æ®ä¸–ç•Œåæ ‡è®¡ç®—è·å¾—å¯¹åº”çš„åœ°å›¾å•å…ƒ
         /// </summary>
-        /// <param name="position">µã»÷µÄÊÀ½ç×ø±ê</param>
+        /// <param name="position">ç‚¹å‡»çš„ä¸–ç•Œåæ ‡</param>
         public HexCell GetCell(Vector3 position)
         {
-            //»»Ëã×ø±êÏµµ½Áù±ßĞÎÈıÎ¬×ø±ê
+            //æ¢ç®—åæ ‡ç³»åˆ°å…­è¾¹å½¢ä¸‰ç»´åæ ‡
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             return cells[coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2];
         }
         /// <summary>
-        /// ¸ù¾İµ¥Ôª×ø±ê»ñµÃ¶ÔÓ¦µÄµØÍ¼µ¥Ôª
+        /// æ ¹æ®å•å…ƒåæ ‡è·å¾—å¯¹åº”çš„åœ°å›¾å•å…ƒ
         /// </summary>
         public HexCell GetCell(int x, int z)
         {
@@ -364,7 +364,7 @@ namespace GameScene.Map
             return cells[x + z * cellCountX];
         }
         /// <summary>
-        /// Ê¹ÓÃÆ«ÒÆºóµÄ¶şÎ¬×ø±ê»ñµÃµØÍ¼µ¥Ôª
+        /// ä½¿ç”¨åç§»åçš„äºŒç»´åæ ‡è·å¾—åœ°å›¾å•å…ƒ
         /// </summary>
         public HexCell GetCell(HexCoordinates coordinates)
         {
@@ -381,7 +381,7 @@ namespace GameScene.Map
             return cells[x + z * cellCountX];
         }
         /// <summary>
-        /// ÏÔÊ¾µ¥Ôª¸ñUI
+        /// æ˜¾ç¤ºå•å…ƒæ ¼UI
         /// </summary>
         public void ShowUI(bool visible)
         {
@@ -391,7 +391,7 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// µØÍ¼Íø¸ñÊı¾İĞ´Èë
+        /// åœ°å›¾ç½‘æ ¼æ•°æ®å†™å…¥
         /// </summary>
         public void Save(BinaryWriter writer)
         {
@@ -404,14 +404,14 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// µØÍ¼Íø¸ñÊı¾İ¶ÁÈ¡
+        /// åœ°å›¾ç½‘æ ¼æ•°æ®è¯»å–
         /// </summary>
         public void Load(BinaryReader reader)
         {
             StopAllCoroutines();
 
             int x = reader.ReadInt32(), z = reader.ReadInt32();
-            //ÅĞ¶ÏºÍµ±Ç°µØÍ¼´óĞ¡ÊÇ·ñÏàÍ¬
+            //åˆ¤æ–­å’Œå½“å‰åœ°å›¾å¤§å°æ˜¯å¦ç›¸åŒ
             if (x != cellCountX || z != cellCountZ)
             {
                 if (!CreateMap(x, z))
@@ -429,24 +429,24 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// ´´½¨ĞÂµÄµØÍ¼Íø¸ñ
+        /// åˆ›å»ºæ–°çš„åœ°å›¾ç½‘æ ¼
         /// </summary>
         public bool CreateMap(int x, int z)
         {
-            //ÅĞ¶ÏµØÍ¼´óĞ¡ÊÇ·ñºÏ·¨
+            //åˆ¤æ–­åœ°å›¾å¤§å°æ˜¯å¦åˆæ³•
             if (
-                x <= 0 || z <= 0                    //´æÔÚ¸ºÊı
-                || x % HexMetrics.chunkSizeX != 0   //x³¤¶ÈÎŞ·¨Õû³ı
-                || z % HexMetrics.chunkSizeZ != 0   //z³¤¶ÈÎŞ·¨Õû³ı
+                x <= 0 || z <= 0                    //å­˜åœ¨è´Ÿæ•°
+                || x % HexMetrics.chunkSizeX != 0   //xé•¿åº¦æ— æ³•æ•´é™¤
+                || z % HexMetrics.chunkSizeZ != 0   //zé•¿åº¦æ— æ³•æ•´é™¤
             )
             {
 #if UNITY_EDITOR
                 Debug.LogError("Unsupported map size.");
 #endif
-                //´´½¨µØÍ¼Ê§°Ü
+                //åˆ›å»ºåœ°å›¾å¤±è´¥
                 return false;
             }
-            //Çå³ı¾ÉµÄÊı¾İ
+            //æ¸…é™¤æ—§çš„æ•°æ®
             if (chunks != null)
             {
                 for (int i = 0; i < chunks.Length; i++)
@@ -454,26 +454,26 @@ namespace GameScene.Map
                     Destroy(chunks[i].gameObject);
                 }
             }
-            //¼ÆËãµØÍ¼×Ü½áµã³¤¿í
+            //è®¡ç®—åœ°å›¾æ€»ç»“ç‚¹é•¿å®½
             cellCountX = x;
             cellCountZ = z;
             chunkCountX = cellCountX / HexMetrics.chunkSizeX;
             chunkCountZ = cellCountZ / HexMetrics.chunkSizeZ;
-            //´´½¨µØÍ¼Çø¿é
+            //åˆ›å»ºåœ°å›¾åŒºå—
             CreateChunks();
-            //´´½¨µØÍ¼µ¥Ôª
+            //åˆ›å»ºåœ°å›¾å•å…ƒ
             CreateCells();
-            //´´½¨µØÍ¼³É¹¦
+            //åˆ›å»ºåœ°å›¾æˆåŠŸ
             return true;
         }
         /// <summary>
-        /// Ñ°ÕÒÁ½¸öµ¥Ôª¼äµÄ×î¶ÌÂ·¾¶
+        /// å¯»æ‰¾ä¸¤ä¸ªå•å…ƒé—´çš„æœ€çŸ­è·¯å¾„
         /// </summary>
         public void FindPath(HexCell fromCell, HexCell toCell)
         {
-            ////Í£Ö¹¾ÉµÄĞ­³Ì
+            ////åœæ­¢æ—§çš„åç¨‹
             //StopAllCoroutines();
-            ////¿ªÊ¼ĞÂµÄĞ­³Ì
+            ////å¼€å§‹æ–°çš„åç¨‹
             //StartCoroutine(SearchVisible(fromCell, toCell));
             Search(fromCell, toCell);
         }

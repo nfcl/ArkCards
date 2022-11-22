@@ -370,3 +370,9 @@ FodyWeavers.xsd
 /Assets/Scenes
 /UserSettings
 /Assets/scripts/GameScene/Map/HexEdgeType .cs.meta.private.0
+/Assets/Spine
+/spine-unity.csproj
+/spine-unity-examples.csproj
+/spine-unity-examples-editor.csproj
+/spine-unity-editor.csproj
+*.asset

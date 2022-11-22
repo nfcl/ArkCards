@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,21 +7,21 @@ namespace GameScene
 {
     public class GameSceneManager : MonoBehaviour
     {
-        private Operator.OperatorCollection     _operators;             //¸ÉÔ±ĞÅÏ¢
-        private Team.TeamCollection             _teams;                 //Ğ¡¶ÓĞÅÏ¢
+        private Operator.OperatorCollection     _operators;             //å¹²å‘˜ä¿¡æ¯
+        private Team.TeamCollection             _teams;                 //å°é˜Ÿä¿¡æ¯
 
         public void Start()
         {
-            //µØÍ¼³õÊ¼»¯
+            //åœ°å›¾åˆå§‹åŒ–
             MapInit();
-            //¸ÉÔ±³õÊ¼»¯
+            //å¹²å‘˜åˆå§‹åŒ–
             OperatorInit();
-            //Ğ¡¶Ó³õÊ¼»¯
+            //å°é˜Ÿåˆå§‹åŒ–
             TeamInit();
         }
 
         /// <summary>
-        /// µØÍ¼³õÊ¼»¯
+        /// åœ°å›¾åˆå§‹åŒ–
         /// </summary>
         public void MapInit()
         {
@@ -29,24 +29,24 @@ namespace GameScene
         }
 
         /// <summary>
-        /// ¸ÉÔ±ĞÅÏ¢³õÊ¼»¯
+        /// å¹²å‘˜ä¿¡æ¯åˆå§‹åŒ–
         /// </summary>
         public void OperatorInit()
         {
-            //¸ÉÔ±¼¯ºÏ³õÊ¼»¯
+            //å¹²å‘˜é›†åˆåˆå§‹åŒ–
             _operators = new Operator.OperatorCollection();
-            //´ÓÎÄ¼ş¶ÁÈ¡Íæ¼Ò¸ÉÔ±ĞÅÏ¢
+            //ä»æ–‡ä»¶è¯»å–ç©å®¶å¹²å‘˜ä¿¡æ¯
             //TODO
         }
 
         /// <summary>
-        /// Ğ¡¶ÓĞÅÏ¢³õÊ¼»¯
+        /// å°é˜Ÿä¿¡æ¯åˆå§‹åŒ–
         /// </summary>
         public void TeamInit()
         {
-            //Ğ¡¶Ó¼¯ºÏ³õÊ¼»¯
+            //å°é˜Ÿé›†åˆåˆå§‹åŒ–
             _teams = new Team.TeamCollection();
-            //´ÓÎÄ¼ş¶ÁÈ¡Íæ¼ÒĞ¡¶ÓĞÅÏ¢
+            //ä»æ–‡ä»¶è¯»å–ç©å®¶å°é˜Ÿä¿¡æ¯
             //TODO
         }
     }

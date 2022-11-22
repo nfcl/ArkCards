@@ -1,16 +1,16 @@
-namespace GameScene
+ï»¿namespace GameScene
 {
     namespace Operator
     {
         /// <summary>
-        /// ¸ÉÔ±×´Ì¬µÄÃ¶¾Ù
+        /// å¹²å‘˜çŠ¶æ€çš„æšä¸¾
         /// </summary>
         public enum OperatorState
         {
-            Team            = 0b0001,   //ÔÚĞ¡¶ÓÖĞ
-            Building        = 0b0010,   //ÔÚ½¨ÖşÖĞ
-            Died            = 0b0100,   // ÒÑËÀÍö
-            Other           = 0b1000,   //ÆäËûÇé¿ö     
+            Team            = 0b0001,   //åœ¨å°é˜Ÿä¸­
+            Building        = 0b0010,   //åœ¨å»ºç­‘ä¸­
+            Died            = 0b0100,   // å·²æ­»äº¡
+            Other           = 0b1000,   //å…¶ä»–æƒ…å†µ     
         }
     }
 }

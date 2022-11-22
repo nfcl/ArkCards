@@ -1,31 +1,31 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace GameScene.Map
 {
     /// <summary>
-    /// <para/>Áù±ßĞÎ¶ÈÁ¿£¨Ö±Òë£©
-    /// <para/>´æ´¢ÁËÒ»Ğ©»ù´¡Êı¾İºÍÒ»Ğ©·â×°ºóµÄ·½·¨
+    /// <para/>å…­è¾¹å½¢åº¦é‡ï¼ˆç›´è¯‘ï¼‰
+    /// <para/>å­˜å‚¨äº†ä¸€äº›åŸºç¡€æ•°æ®å’Œä¸€äº›å°è£…åçš„æ–¹æ³•
     /// </summary>
     public static class HexMetrics
     {
         /// <summary>
-        /// ÄÚÇĞÔ²°ë¾¶ £ºÍâÇĞÔ²°ë¾¶
+        /// å†…åˆ‡åœ†åŠå¾„ ï¼šå¤–åˆ‡åœ†åŠå¾„
         /// </summary>
         public const float outerToInner = 0.866025404f;
         /// <summary>
-        /// ÍâÇĞÔ²°ë¾¶ £ºÄÚÇĞÔ²°ë¾¶
+        /// å¤–åˆ‡åœ†åŠå¾„ ï¼šå†…åˆ‡åœ†åŠå¾„
         /// </summary>
         public const float innerToOuter = 1f / outerToInner;
         /// <summary>
-        /// Áù±ßĞÎÍâÇĞÔ²°ë¾¶
+        /// å…­è¾¹å½¢å¤–åˆ‡åœ†åŠå¾„
         /// </summary>
         public const float outerRadius = 10f;
         /// <summary>
-        /// Áù±ßĞÎÄÚÇĞÔ²°ë¾¶
+        /// å…­è¾¹å½¢å†…åˆ‡åœ†åŠå¾„
         /// </summary>
         public const float innerRadius = outerRadius * outerToInner;
         /// <summary>
-        /// ¼â¶¥³¯ÉÏµÄÁù±ßĞÎÁù¸ö½Ç×ø±êÏà¶ÔÓÚÖĞĞÄÎ»ÖÃ
+        /// å°–é¡¶æœä¸Šçš„å…­è¾¹å½¢å…­ä¸ªè§’åæ ‡ç›¸å¯¹äºä¸­å¿ƒä½ç½®
         /// </summary>
         private readonly static Vector3[] corners = new Vector3[]
         {
@@ -38,7 +38,7 @@ namespace GameScene.Map
             new Vector3(0f          , 0f, outerRadius           )
         };
         /// <summary>
-        /// Æ½¶¥³¯ÉÏµÄÁù±ßĞÎÁù¸ö½Ç×ø±êÏà¶ÔÓÚÖĞĞÄÎ»ÖÃ
+        /// å¹³é¡¶æœä¸Šçš„å…­è¾¹å½¢å…­ä¸ªè§’åæ ‡ç›¸å¯¹äºä¸­å¿ƒä½ç½®
         /// </summary>
         //private readonly static Vector3[] corners_flattened = new Vector3[]
         //{
@@ -51,83 +51,83 @@ namespace GameScene.Map
         //    new Vector3(outerRadius * 0.5f  ,0,innerRadius      ),
         //};
         /// <summary>
-        /// µ¥¸öÇø¿éµÄË®Æ½µ¥ÔªÊı
+        /// å•ä¸ªåŒºå—çš„æ°´å¹³å•å…ƒæ•°
         /// </summary>
         public const int chunkSizeX = 5;
         /// <summary>
-        /// µ¥¸öÇø¿éµÄ´¹Ö±µ¥ÔªÊı
+        /// å•ä¸ªåŒºå—çš„å‚ç›´å•å…ƒæ•°
         /// </summary>
         public const int chunkSizeZ = 5;
         /// <summary>
-        /// Áù±ßĞÎ´¿É«ÇøÓò°ë¾¶Õ¼×Ü°ë¾¶µÄ±ÈÀı
+        /// å…­è¾¹å½¢çº¯è‰²åŒºåŸŸåŠå¾„å æ€»åŠå¾„çš„æ¯”ä¾‹
         /// </summary>
         public const float solidFactor = 0.8f;
         /// <summary>
-        /// Áù±ßĞÎ»ìºÏÉ«ÇøÓò£¨¹ı¶ÉÇø£©»·°ë¾¶Õ¼×Ü°ë¾¶µÄ±ÈÀı
+        /// å…­è¾¹å½¢æ··åˆè‰²åŒºåŸŸï¼ˆè¿‡æ¸¡åŒºï¼‰ç¯åŠå¾„å æ€»åŠå¾„çš„æ¯”ä¾‹
         /// </summary>
         public const float blendFactor = 1f - solidFactor;
         /// <summary>
-        /// Ã¿µ¥Î»½Úµã¸ß¶ÈµÄÊµ¼ÊyÖá´óĞ¡
+        /// æ¯å•ä½èŠ‚ç‚¹é«˜åº¦çš„å®é™…yè½´å¤§å°
         /// </summary>
         public const float elevationStep = 3f;
         /// <summary>
-        /// Ã¿¸öĞ±ÆÂµÄÆ½Ì¨¸öÊı
+        /// æ¯ä¸ªæ–œå¡çš„å¹³å°ä¸ªæ•°
         /// </summary>
         public const int terracesPerSlope = 2;
         /// <summary>
-        /// Ã¿¸öĞ±ÆÂµÄ×ÜÃæÊı(°üÀ¨Ë®Æ½ºÍÇãĞ±µÄ)
+        /// æ¯ä¸ªæ–œå¡çš„æ€»é¢æ•°(åŒ…æ‹¬æ°´å¹³å’Œå€¾æ–œçš„)
         /// </summary>
         public const int terraceSteps = terracesPerSlope * 2 + 1;
         /// <summary>
-        /// µ¥ÔªÁ¬½Ó±ßÔµĞ±ÆÂ½×ÌİµÄË®Æ½¾ù·ÖÁ¿
+        /// å•å…ƒè¿æ¥è¾¹ç¼˜æ–œå¡é˜¶æ¢¯çš„æ°´å¹³å‡åˆ†é‡
         /// </summary>
         public const float horizontalTerraceStepSize = 1f / terraceSteps;
         /// <summary>
-        /// µ¥ÔªÁ¬½Ó±ßÔµĞ±ÆÂ½×ÌİµÄ´¹Ö±¾ù·ÖÁ¿
+        /// å•å…ƒè¿æ¥è¾¹ç¼˜æ–œå¡é˜¶æ¢¯çš„å‚ç›´å‡åˆ†é‡
         /// </summary>
         public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
         /// <summary>
-        /// ÔëÉùÍ¼
+        /// å™ªå£°å›¾
         /// </summary>
         public static Texture2D noiseSource; //= Resources.Load<Texture2D>("GameScene/MapNodes/sprite/noise");
         /// <summary>
-        /// ÔëÉùÇ¿¶ÈËõ·Å
+        /// å™ªå£°å¼ºåº¦ç¼©æ”¾
         /// </summary>
         public const float noiseScale = 0.003f;
         /// <summary>
-        /// µ¥ÔªÔëÉùÈÅ¶¯Ç¿¶È
+        /// å•å…ƒå™ªå£°æ‰°åŠ¨å¼ºåº¦
         /// </summary>
         public const float cellPerturbStrength = 4f;
         /// <summary>
-        /// ´¹Ö±·½ÏòÔëÉùÈÅ¶¯Ç¿¶È
+        /// å‚ç›´æ–¹å‘å™ªå£°æ‰°åŠ¨å¼ºåº¦
         /// </summary>
         public const float elevationPerturbStrength = 1.5f;
         /// <summary>
-        /// ºÓ´²Éî¶ÈÆ«ÒÆÁ¿£¨Ïà¶ÔÓÚµ¥Ôª¸ß¶È£©
+        /// æ²³åºŠæ·±åº¦åç§»é‡ï¼ˆç›¸å¯¹äºå•å…ƒé«˜åº¦ï¼‰
         /// </summary>
         public const float streamBedElevationOffset = -1.75f;
         /// <summary>
-        /// ºÓÁ÷±íÃæ¸ß¶ÈÆ«ÒÆÁ¿£¨Ïà¶ÔÓÚµ¥Ôª¸ß¶È£©
+        /// æ²³æµè¡¨é¢é«˜åº¦åç§»é‡ï¼ˆç›¸å¯¹äºå•å…ƒé«˜åº¦ï¼‰
         /// </summary>
         public const float waterElevationOffset = -0.5f;
         /// <summary>
-        /// Ë®ÃæÁù±ßĞÎ´¿É«ÇøÓò°ë¾¶Õ¼×Ü°ë¾¶µÄ±ÈÀı
+        /// æ°´é¢å…­è¾¹å½¢çº¯è‰²åŒºåŸŸåŠå¾„å æ€»åŠå¾„çš„æ¯”ä¾‹
         /// </summary>
         public const float waterFactor = 0.6f;
         /// <summary>
-        /// Ë®ÃæÁù±ßĞÎ»ìºÏÉ«ÇøÓò£¨¹ı¶ÉÇø£©»·°ë¾¶Õ¼×Ü°ë¾¶µÄ±ÈÀı
+        /// æ°´é¢å…­è¾¹å½¢æ··åˆè‰²åŒºåŸŸï¼ˆè¿‡æ¸¡åŒºï¼‰ç¯åŠå¾„å æ€»åŠå¾„çš„æ¯”ä¾‹
         /// </summary>
         public const float waterBlendFactor = 1f - waterFactor;
         /// <summary>
-        /// Ëæ»ú¹şÏ£Íø¸ñ´óĞ¡
+        /// éšæœºå“ˆå¸Œç½‘æ ¼å¤§å°
         /// </summary>
         public const int hashGridSize = 256;
         /// <summary>
-        /// ¹şÏ£Íø¸ñ²ÉÑù·ÅËõ
+        /// å“ˆå¸Œç½‘æ ¼é‡‡æ ·æ”¾ç¼©
         /// </summary>
         public const float hashGridScale = 0.25f;
         /// <summary>
-        /// µØĞÎ¼¯ºÏ
+        /// åœ°å½¢é›†åˆ
         /// </summary>
         public static HexTerrainType[] HexTerrains = new HexTerrainType[]
         {
@@ -144,30 +144,30 @@ namespace GameScene.Map
         };
 
         /// <summary>
-        /// ¹şÏ£Íø¸ñ
+        /// å“ˆå¸Œç½‘æ ¼
         /// </summary>
         private static HexHash[] hashGrid;
 
         /// <summary>
-        /// ³õÊ¼»¯¹şÏ£Íø¸ñ
+        /// åˆå§‹åŒ–å“ˆå¸Œç½‘æ ¼
         /// </summary>
         public static void InitializeHashGrid(int seed)
         {
-            //±£´æµ±Ç°µÄËæ»úÊıÉú³ÉÆ÷×´Ì¬
+            //ä¿å­˜å½“å‰çš„éšæœºæ•°ç”Ÿæˆå™¨çŠ¶æ€
             Random.State currentState = Random.state;
-            //ÉèÖÃËæ»úÊıÖÖ×Ó
+            //è®¾ç½®éšæœºæ•°ç§å­
             Random.InitState(seed);
-            //³õÊ¼»¯¹şÏ£Íø¸ñ
+            //åˆå§‹åŒ–å“ˆå¸Œç½‘æ ¼
             hashGrid = new HexHash[hashGridSize * hashGridSize];
             for (int i = 0; i < hashGrid.Length; i++)
             {
                 hashGrid[i] = HexHash.Create();
             }
-            //ÉèÖÃ»Ø×´Ì¬
+            //è®¾ç½®å›çŠ¶æ€
             Random.state = currentState;
         }
         /// <summary>
-        /// Í¨¹ıVector3¶Ô¹şÏ£Íø¸ñ²ÉÑù
+        /// é€šè¿‡Vector3å¯¹å“ˆå¸Œç½‘æ ¼é‡‡æ ·
         /// </summary>
         public static HexHash SampleHashGrid(Vector3 position)
         {
@@ -184,146 +184,146 @@ namespace GameScene.Map
             return hashGrid[x + z * hashGridSize];
         }
         /// <summary>
-        /// ¸ø¶¨·½ÏòµÄ×ó²à¶¥µãµÄÏòÁ¿
+        /// ç»™å®šæ–¹å‘çš„å·¦ä¾§é¡¶ç‚¹çš„å‘é‡
         /// </summary>
-        /// <param name="direction">¸ø¶¨·½Ïò</param>
+        /// <param name="direction">ç»™å®šæ–¹å‘</param>
         public static Vector3 GetFirstCorner(HexDirection direction)
         {
             return corners[(int)direction];
         }
         /// <summary>
-        /// ¸ø¶¨·½ÏòµÄÓÒ²à¶¥µãµÄÏòÁ¿
+        /// ç»™å®šæ–¹å‘çš„å³ä¾§é¡¶ç‚¹çš„å‘é‡
         /// </summary>
-        /// <param name="direction">¸ø¶¨·½Ïò</param>
+        /// <param name="direction">ç»™å®šæ–¹å‘</param>
         public static Vector3 GetSecondCorner(HexDirection direction)
         {
             return corners[(int)direction + 1];
         }
         /// <summary>
-        /// ¸ø¶¨·½Ïò´ÓÖĞĞÄµ½´¿É«ÇøÓò±ßÔµµÄÏòÁ¿
+        /// ç»™å®šæ–¹å‘ä»ä¸­å¿ƒåˆ°çº¯è‰²åŒºåŸŸè¾¹ç¼˜çš„å‘é‡
         /// </summary>
-        /// <param name="direction">¸ø¶¨·½Ïò</param>
+        /// <param name="direction">ç»™å®šæ–¹å‘</param>
         public static Vector3 GetFirstSolidCorner(HexDirection direction)
         {
             return corners[(int)direction] * solidFactor;
         }
         /// <summary>
-        /// ¸ø¶¨·½ÏòµÄÏÂÒ»¸ö·½Ïò´ÓÖĞĞÄµ½´¿É«ÇøÓò±ßÔµÏòÁ¿
+        /// ç»™å®šæ–¹å‘çš„ä¸‹ä¸€ä¸ªæ–¹å‘ä»ä¸­å¿ƒåˆ°çº¯è‰²åŒºåŸŸè¾¹ç¼˜å‘é‡
         /// </summary>
-        /// <param name="direction">¸ø¶¨·½Ïò</param>
+        /// <param name="direction">ç»™å®šæ–¹å‘</param>
         public static Vector3 GetSecondSolidCorner(HexDirection direction)
         {
             return corners[(int)direction + 1] * solidFactor;
         }
         /// <summary>
-        /// »ñµÃÁù±ßĞÎ´¿É«Çø±ßÔµÖÁ»ìÉ«Çø±ßÔµµÄ´¹Ö±ÏòÁ¿
+        /// è·å¾—å…­è¾¹å½¢çº¯è‰²åŒºè¾¹ç¼˜è‡³æ··è‰²åŒºè¾¹ç¼˜çš„å‚ç›´å‘é‡
         /// </summary>
-        /// <param name="direction">¸ø¶¨·½Ïò</param>
+        /// <param name="direction">ç»™å®šæ–¹å‘</param>
         public static Vector3 GetBridge(HexDirection direction)
         {
             return (corners[(int)direction] + corners[(int)direction + 1]) *
                 blendFactor;
         }
         /// <summary>
-        /// µ¥ÔªĞ±ÆÂ±ßÔµ½×Ìİ²åÖµµãÎ»ÖÃ¼ÆËã
+        /// å•å…ƒæ–œå¡è¾¹ç¼˜é˜¶æ¢¯æ’å€¼ç‚¹ä½ç½®è®¡ç®—
         /// </summary>
-        /// <param name="a">ÆğÊ¼Î»ÖÃ</param>
-        /// <param name="b">ÖÕÖ¹Î»ÖÃ</param>
-        /// <param name="step">ÒªÇóµÄ²åÖµµãÎ»ÖÃ</param>
+        /// <param name="a">èµ·å§‹ä½ç½®</param>
+        /// <param name="b">ç»ˆæ­¢ä½ç½®</param>
+        /// <param name="step">è¦æ±‚çš„æ’å€¼ç‚¹ä½ç½®</param>
         public static Vector3 TerraceLerp(Vector3 a, Vector3 b, int step)
         {
-            //¼ÆËãË®Æ½²åÖµ
+            //è®¡ç®—æ°´å¹³æ’å€¼
             float h = step * HexMetrics.horizontalTerraceStepSize;
             a.x += (b.x - a.x) * h;
             a.z += (b.z - a.z) * h;
-            //¼ÆËã´¹Ö±²åÖµ
+            //è®¡ç®—å‚ç›´æ’å€¼
             float v = ((step + 1) / 2) * HexMetrics.verticalTerraceStepSize;
             a.y += (b.y - a.y) * v;
             return a;
         }
         /// <summary>
-        /// µ¥ÔªĞ±ÆÂ±ßÔµ½×Ìİ²åÖµµãÑÕÉ«¼ÆËã
+        /// å•å…ƒæ–œå¡è¾¹ç¼˜é˜¶æ¢¯æ’å€¼ç‚¹é¢œè‰²è®¡ç®—
         /// </summary>
-        /// <param name="a">ÆğÊ¼ÑÕÉ«</param>
-        /// <param name="b">ÖÕÖ¹ÑÕÉ«</param>
-        /// <param name="step">ÒªÇóµÄ²åÖµµãÎ»ÖÃ</param>
+        /// <param name="a">èµ·å§‹é¢œè‰²</param>
+        /// <param name="b">ç»ˆæ­¢é¢œè‰²</param>
+        /// <param name="step">è¦æ±‚çš„æ’å€¼ç‚¹ä½ç½®</param>
         public static Color TerraceLerp(Color a, Color b, int step)
         {
             float h = step * HexMetrics.horizontalTerraceStepSize;
             return Color.Lerp(a, b, h);
         }
         /// <summary>
-        /// ÅĞ¶ÏÁ½¸ö¸ß¶È¼äµÄÁ¬½ÓÀàĞÍ
+        /// åˆ¤æ–­ä¸¤ä¸ªé«˜åº¦é—´çš„è¿æ¥ç±»å‹
         /// </summary>
-        /// <param name="elevation1">¸ß¶È1</param>
-        /// <param name="elevation2">¸ß¶È2</param>
-        /// <returns>·µ»ØÁ¬½ÓÀàĞÍ</returns>
+        /// <param name="elevation1">é«˜åº¦1</param>
+        /// <param name="elevation2">é«˜åº¦2</param>
+        /// <returns>è¿”å›è¿æ¥ç±»å‹</returns>
         public static HexEdgeType GetEdgeType(int elevation1, int elevation2)
         {
             if (elevation1 == elevation2)
-            {//¸ß¶ÈÏàÍ¬ Æ½Ì¹
+            {//é«˜åº¦ç›¸åŒ å¹³å¦
                 return HexEdgeType.Flat;
             }
             int delta = Math.Abs(elevation1 - elevation2);
             if (delta == 1)
-            {//²î¾à½ÏĞ¡ Ğ±ÆÂ
+            {//å·®è·è¾ƒå° æ–œå¡
                 return HexEdgeType.Slope;
             }
             else
-            {//²î¾à¹ı´ó ĞüÑÂ
+            {//å·®è·è¿‡å¤§ æ‚¬å´–
                 return HexEdgeType.Cliff;
             }
         }
         /// <summary>
-        /// Ö¸¶¨·½Ïò´¿É«Çø±ßÔµµÄÖĞ¼äÎ»ÖÃ
+        /// æŒ‡å®šæ–¹å‘çº¯è‰²åŒºè¾¹ç¼˜çš„ä¸­é—´ä½ç½®
         /// </summary>
-        /// <param name="direction">Ö¸¶¨·½Ïò</param>
+        /// <param name="direction">æŒ‡å®šæ–¹å‘</param>
         public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
         {
-            //·µ»ØÁ½±ß½ÇµÄÏòÁ¿Ïà¼Ó³ıÒÔ2
+            //è¿”å›ä¸¤è¾¹è§’çš„å‘é‡ç›¸åŠ é™¤ä»¥2
             return (corners[(int)direction] + corners[(int)direction + 1]) * (0.5f * solidFactor);
         }
         /// <summary>
-        /// Ê¹ÓÃÈıÎ¬×ø±êÖĞµÄXÖáºÍZÖá¶ÔÔëÉùÍ¼½øĞĞ¶şÎ¬ÔëÉù²ÉÑù
+        /// ä½¿ç”¨ä¸‰ç»´åæ ‡ä¸­çš„Xè½´å’ŒZè½´å¯¹å™ªå£°å›¾è¿›è¡ŒäºŒç»´å™ªå£°é‡‡æ ·
         /// </summary>
-        /// <param name="position">ÈıÎ¬Î»ÖÃ</param>
-        /// <returns>·µ»ØÒ»¸öÑÕÉ«µÄËÄÔªÊı</returns>
+        /// <param name="position">ä¸‰ç»´ä½ç½®</param>
+        /// <returns>è¿”å›ä¸€ä¸ªé¢œè‰²çš„å››å…ƒæ•°</returns>
         public static Vector4 SampleNoise(Vector3 position)
         {
             return noiseSource.GetPixelBilinear(position.x * noiseScale, position.z * noiseScale);
         }
         /// <summary>
-        /// ¶ÔÈıÎ¬¶¥µãÎ»ÖÃ½øĞĞÔëÉùÈÅ¶¯
+        /// å¯¹ä¸‰ç»´é¡¶ç‚¹ä½ç½®è¿›è¡Œå™ªå£°æ‰°åŠ¨
         /// </summary>
-        /// <param name="position">Ô­¶¥µãÎ»ÖÃ</param>
-        /// <returns>·µ»ØÈÅ¶¯ºóµÄ¶¥µãÎ»ÖÃ</returns>
+        /// <param name="position">åŸé¡¶ç‚¹ä½ç½®</param>
+        /// <returns>è¿”å›æ‰°åŠ¨åçš„é¡¶ç‚¹ä½ç½®</returns>
         public static Vector3 Perturb(Vector3 position)
         {
-            //»ñµÃÔëÉù²ÉÑù
+            //è·å¾—å™ªå£°é‡‡æ ·
             Vector4 sample = SampleNoise(position);
-            //¶ÔxÖá½øĞĞÈÅ¶¯
+            //å¯¹xè½´è¿›è¡Œæ‰°åŠ¨
             position.x += (sample.x * 2f - 1f) * cellPerturbStrength;
-            //¶ÔzÖá½øĞĞÈÅ¶¯
+            //å¯¹zè½´è¿›è¡Œæ‰°åŠ¨
             position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
-            //·µ»ØÈÅ¶¯ºóµÄ×ø±ê
+            //è¿”å›æ‰°åŠ¨åçš„åæ ‡
             return position;
         }
         /// <summary>
-        /// ¸ø¶¨·½ÏòµÄË®ÃæÁù±ßĞÎ×ó²à¶¥µãÏòÁ¿
+        /// ç»™å®šæ–¹å‘çš„æ°´é¢å…­è¾¹å½¢å·¦ä¾§é¡¶ç‚¹å‘é‡
         /// </summary>
         public static Vector3 GetFirstWaterCorner(HexDirection direction)
         {
             return corners[(int)direction] * waterFactor;
         }
         /// <summary>
-        /// ¸ø¶¨·½ÏòµÄË®ÃæÁù±ßĞÎÓÒ²à¶¥µãÏòÁ¿
+        /// ç»™å®šæ–¹å‘çš„æ°´é¢å…­è¾¹å½¢å³ä¾§é¡¶ç‚¹å‘é‡
         /// </summary>
         public static Vector3 GetSecondWaterCorner(HexDirection direction)
         {
             return corners[(int)direction + 1] * waterFactor;
         }
         /// <summary>
-        /// »ñµÃË®ÃæÁù±ßĞÎ´¿É«Çø±ßÔµÖÁ»ìÉ«Çø±ßÔµµÄ´¹Ö±ÏòÁ¿
+        /// è·å¾—æ°´é¢å…­è¾¹å½¢çº¯è‰²åŒºè¾¹ç¼˜è‡³æ··è‰²åŒºè¾¹ç¼˜çš„å‚ç›´å‘é‡
         /// </summary>
         public static Vector3 GetWaterBridge(HexDirection direction)
         {

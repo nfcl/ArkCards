@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System;
 
@@ -8,66 +8,66 @@ namespace GameScene.Map
     public class HexMesh : MonoBehaviour
     {
         /// <summary>
-        /// Íø¸ñ
+        /// ç½‘æ ¼
         /// </summary>
         private Mesh hexMesh;
         /// <summary>
-        /// ½Úµã¼¯
+        /// èŠ‚ç‚¹é›†
         /// </summary>
         [NonSerialized]
         private List<Vector3> vertices;
         /// <summary>
-        /// ½ÚµãÑÕÉ«¼¯
+        /// èŠ‚ç‚¹é¢œè‰²é›†
         /// </summary>
         [NonSerialized]
         private List<Color> colors;
         /// <summary>
-        /// Èı½ÇÃæ¼¯
+        /// ä¸‰è§’é¢é›†
         /// </summary>
         [NonSerialized]
         private List<int> triangles;
         /// <summary>
-        /// UV×ø±ê¼¯
+        /// UVåæ ‡é›†
         /// </summary>
         [NonSerialized]
         private List<Vector2> uvs;
         /// <summary>
-        /// µÚ¶ş¸öUV×ø±ê¼¯
+        /// ç¬¬äºŒä¸ªUVåæ ‡é›†
         /// </summary>
         [NonSerialized]
         private List<Vector2> uv2s;
         /// <summary>
-        /// µØĞÎÀàĞÍÁĞ±í
+        /// åœ°å½¢ç±»å‹åˆ—è¡¨
         /// </summary>
         [NonSerialized] List<Vector3> terrainTypes;
         /// <summary>
-        /// Íø¸ñÅö×²Æ÷
+        /// ç½‘æ ¼ç¢°æ’å™¨
         /// </summary>
         private MeshCollider meshCollider;
 
         /// <summary>
-        /// ÊÇ·ñÆôÓÃÅö×²Ìå
+        /// æ˜¯å¦å¯ç”¨ç¢°æ’ä½“
         /// </summary>
         public bool useCollider;
         /// <summary>
-        /// ÊÇ·ñÆôÓÃÑÕÉ«
+        /// æ˜¯å¦å¯ç”¨é¢œè‰²
         /// </summary>
         public bool useColors;
         /// <summary>
-        /// ÊÇ·ñÆôÓÃUV×ø±ê
+        /// æ˜¯å¦å¯ç”¨UVåæ ‡
         /// </summary>
         public bool useUVCoordinates;
         /// <summary>
-        /// ÊÇ·ñÆôÓÃµÚ¶ş×éUV×ø±ê
+        /// æ˜¯å¦å¯ç”¨ç¬¬äºŒç»„UVåæ ‡
         /// </summary>
         public bool useUV2Coordinates;
         /// <summary>
-        /// ÊÇ·ñÆôÓÃµØĞÎÀàĞÍ
+        /// æ˜¯å¦å¯ç”¨åœ°å½¢ç±»å‹
         /// </summary>
         public bool useTerrainTypes;
 
         /// <summary>
-        /// Çå³ıÍø¸ñÊı¾İ
+        /// æ¸…é™¤ç½‘æ ¼æ•°æ®
         /// </summary>
         public void Clear()
         {
@@ -92,7 +92,7 @@ namespace GameScene.Map
             triangles = ListPool<int>.Get();
         }
         /// <summary>
-        /// ÉèÖÃĞÂµÄÍø¸ñÊı¾İ
+        /// è®¾ç½®æ–°çš„ç½‘æ ¼æ•°æ®
         /// </summary>
         public void Apply()
         {
@@ -127,7 +127,7 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸öÊÜÔëÉùÈÅ¶¯µÄÈı½ÇĞÎµ½Íø¸ñ
+        /// æ·»åŠ ä¸€ä¸ªå—å™ªå£°æ‰°åŠ¨çš„ä¸‰è§’å½¢åˆ°ç½‘æ ¼
         /// </summary>
         public void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -140,7 +140,7 @@ namespace GameScene.Map
             triangles.Add(vertexIndex + 2);
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸ö²»ÊÜÔëÉùÈÅ¶¯µÄÈı½ÇĞÎµ½Íø¸ñ
+        /// æ·»åŠ ä¸€ä¸ªä¸å—å™ªå£°æ‰°åŠ¨çš„ä¸‰è§’å½¢åˆ°ç½‘æ ¼
         /// </summary>
         public void AddTriangleUnperturbed(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -153,7 +153,7 @@ namespace GameScene.Map
             triangles.Add(vertexIndex + 2);
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸öÈı¸ö¶¥µãÑÕÉ«ÏàÍ¬µÄÈı½ÇĞÎ¶¥µãÑÕÉ«
+        /// æ·»åŠ ä¸€ä¸ªä¸‰ä¸ªé¡¶ç‚¹é¢œè‰²ç›¸åŒçš„ä¸‰è§’å½¢é¡¶ç‚¹é¢œè‰²
         /// </summary>
         public void AddTriangleColor(Color c)
         {
@@ -162,7 +162,7 @@ namespace GameScene.Map
             colors.Add(c);
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸öÈı¸ö¶¥µãÑÕÉ«²»Í¬µÄÈı½ÇĞÎµÄÈı¸ö¶¥µãÑÕÉ«
+        /// æ·»åŠ ä¸€ä¸ªä¸‰ä¸ªé¡¶ç‚¹é¢œè‰²ä¸åŒçš„ä¸‰è§’å½¢çš„ä¸‰ä¸ªé¡¶ç‚¹é¢œè‰²
         /// </summary>
         public void AddTriangleColor(Color c1, Color c2, Color c3)
         {
@@ -171,7 +171,7 @@ namespace GameScene.Map
             colors.Add(c3);
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸ö¶¥µãÊÜÈÅ¶¯µÄËÄ±ßĞÎµ½Íø¸ñ
+        /// æ·»åŠ ä¸€ä¸ªé¡¶ç‚¹å—æ‰°åŠ¨çš„å››è¾¹å½¢åˆ°ç½‘æ ¼
         /// </summary>
         public void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
         {
@@ -188,7 +188,7 @@ namespace GameScene.Map
             triangles.Add(vertexIndex + 3);
         }
         /// <summary>
-        /// Ìí¼ÓÒ»¸ö¶¥µã²»ÊÜÈÅ¶¯µÄËÄ±ßĞÎ
+        /// æ·»åŠ ä¸€ä¸ªé¡¶ç‚¹ä¸å—æ‰°åŠ¨çš„å››è¾¹å½¢
         /// </summary>
         public void AddQuadUnperturbed(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
         {
@@ -205,8 +205,8 @@ namespace GameScene.Map
             triangles.Add(vertexIndex + 3);
         }
         /// <summary>
-        /// <para/>Ìí¼ÓÒ»¸öËÄ±ßĞÎµÄËÄ¸ö¶¥µãÑÕÉ«
-        /// <para/>4¸ö¶¥µãÑÕÉ«ÍêÈ«ÏàÍ¬
+        /// <para/>æ·»åŠ ä¸€ä¸ªå››è¾¹å½¢çš„å››ä¸ªé¡¶ç‚¹é¢œè‰²
+        /// <para/>4ä¸ªé¡¶ç‚¹é¢œè‰²å®Œå…¨ç›¸åŒ
         /// </summary>
         public void AddQuadColor(Color color)
         {
@@ -216,8 +216,8 @@ namespace GameScene.Map
             colors.Add(color);
         }
         /// <summary>
-        /// <para/>Ìí¼ÓÒ»¸öËÄ±ßĞÎµÄËÄ¸ö¶¥µãÑÕÉ«
-        /// <para/>4¸ö¶¥µãÑÕÉ«Á½Á½³É¶Ô
+        /// <para/>æ·»åŠ ä¸€ä¸ªå››è¾¹å½¢çš„å››ä¸ªé¡¶ç‚¹é¢œè‰²
+        /// <para/>4ä¸ªé¡¶ç‚¹é¢œè‰²ä¸¤ä¸¤æˆå¯¹
         /// </summary>
         public void AddQuadColor(Color c1, Color c2)
         {
@@ -227,8 +227,8 @@ namespace GameScene.Map
             colors.Add(c2);
         }
         /// <summary>
-        /// <para/>Ìí¼ÓÒ»¸öËÄ±ßĞÎµÄËÄ¸ö¶¥µãÑÕÉ«
-        /// <para/>4¸ö¶¥µãÑÕÉ«¸÷²»ÏàÍ¬
+        /// <para/>æ·»åŠ ä¸€ä¸ªå››è¾¹å½¢çš„å››ä¸ªé¡¶ç‚¹é¢œè‰²
+        /// <para/>4ä¸ªé¡¶ç‚¹é¢œè‰²å„ä¸ç›¸åŒ
         /// </summary>
         public void AddQuadColor(Color c1, Color c2, Color c3, Color c4)
         {
@@ -238,7 +238,7 @@ namespace GameScene.Map
             colors.Add(c4);
         }
         /// <summary>
-        /// Ìí¼ÓÈı½ÇĞÎUV×ø±ê
+        /// æ·»åŠ ä¸‰è§’å½¢UVåæ ‡
         /// </summary>
         public void AddTriangleUV(Vector2 uv1, Vector2 uv2, Vector2 uv3)
         {
@@ -247,7 +247,7 @@ namespace GameScene.Map
             uvs.Add(uv3);
         }
         /// <summary>
-        /// Ìí¼ÓËÄ±ßĞÎUV×ø±ê
+        /// æ·»åŠ å››è¾¹å½¢UVåæ ‡
         /// </summary>
         public void AddQuadUV(Vector2 uv1, Vector2 uv2, Vector2 uv3, Vector2 uv4)
         {
@@ -257,7 +257,7 @@ namespace GameScene.Map
             uvs.Add(uv4);
         }
         /// <summary>
-        /// Ìí¼ÓËÄ±ßĞÎUV×ø±ê
+        /// æ·»åŠ å››è¾¹å½¢UVåæ ‡
         /// </summary>
         public void AddQuadUV(float uMin, float uMax, float vMin, float vMax)
         {
@@ -267,7 +267,7 @@ namespace GameScene.Map
             uvs.Add(new Vector2(uMax, vMax));
         }
         /// <summary>
-        /// Ìí¼ÓµÚ¶ş¶ÔÈı½ÇĞÎUV×ø±ê
+        /// æ·»åŠ ç¬¬äºŒå¯¹ä¸‰è§’å½¢UVåæ ‡
         /// </summary>
         public void AddTriangleUV2(Vector2 uv1, Vector2 uv2, Vector3 uv3)
         {
@@ -276,7 +276,7 @@ namespace GameScene.Map
             uv2s.Add(uv3);
         }
         /// <summary>
-        /// Ìí¼ÓµÚ¶ş¶ÔËÄ±ßĞÎUV×ø±ê
+        /// æ·»åŠ ç¬¬äºŒå¯¹å››è¾¹å½¢UVåæ ‡
         /// </summary>
         public void AddQuadUV2(Vector2 uv1, Vector2 uv2, Vector3 uv3, Vector3 uv4)
         {
@@ -286,7 +286,7 @@ namespace GameScene.Map
             uv2s.Add(uv4);
         }
         /// <summary>
-        /// Ìí¼ÓµÚ¶ş¶ÔËÄ±ßĞÎUV×ø±ê
+        /// æ·»åŠ ç¬¬äºŒå¯¹å››è¾¹å½¢UVåæ ‡
         /// </summary>
         public void AddQuadUV2(float uMin, float uMax, float vMin, float vMax)
         {
@@ -296,7 +296,7 @@ namespace GameScene.Map
             uv2s.Add(new Vector2(uMax, vMax));
         }
         /// <summary>
-        /// Ìí¼ÓµØĞÎÀàĞÍÈı½ÇĞÎ
+        /// æ·»åŠ åœ°å½¢ç±»å‹ä¸‰è§’å½¢
         /// </summary>
         public void AddTriangleTerrainTypes(Vector3 types)
         {
@@ -305,7 +305,7 @@ namespace GameScene.Map
             terrainTypes.Add(types);
         }
         /// <summary>
-        /// Ìí¼ÓµØĞÎÀàĞÍËÄ±ßĞÎ
+        /// æ·»åŠ åœ°å½¢ç±»å‹å››è¾¹å½¢
         /// </summary>
         public void AddQuadTerrainTypes(Vector3 types)
         {
@@ -316,18 +316,18 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// ¼ÓÔØ½Å±¾ÊµÀıÊ±µ÷ÓÃAwake
+        /// åŠ è½½è„šæœ¬å®ä¾‹æ—¶è°ƒç”¨Awake
         /// </summary>
         private void Awake()
         {
-            //»ñµÃÍø¸ñ¹ÜÀíÆ÷
+            //è·å¾—ç½‘æ ¼ç®¡ç†å™¨
             hexMesh = GetComponent<MeshFilter>().mesh = new Mesh();
-            //»ñµÃÍø¸ñÅö×²Ìå
+            //è·å¾—ç½‘æ ¼ç¢°æ’ä½“
             if (useCollider)
             {
                 meshCollider = gameObject.AddComponent<MeshCollider>();
             }
-            //ÃüÃûĞÂÍø¸ñ
+            //å‘½åæ–°ç½‘æ ¼
             hexMesh.name = "Hex Mesh";
         }
     }

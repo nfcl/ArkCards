@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace GameScene.Map
 {
@@ -7,13 +7,13 @@ namespace GameScene.Map
         static HexMapCamera instance;
 
         /// <summary>
-        /// µØÍ¼Íø¸ñ
+        /// åœ°å›¾ç½‘æ ¼
         /// </summary>
         public HexGrid grid;
 
         /// <summary>
-        /// Ïà»úËø¶¨ÊôĞÔ
-        /// Ğ´ : ½«±¾×é¼şµÄactiveÉèÖÃÎªÏà·´µÄ×´Ì¬
+        /// ç›¸æœºé”å®šå±æ€§
+        /// å†™ : å°†æœ¬ç»„ä»¶çš„activeè®¾ç½®ä¸ºç›¸åçš„çŠ¶æ€
         /// </summary>
         public static bool Locked
         {
@@ -23,99 +23,99 @@ namespace GameScene.Map
             }
         }
 
-        private Transform swivel;       //Ğı×ªÒ£¸Ğ
-        private Transform stick;        //ÒÆ¶¯Ò£¸Ğ
-        //Ïà»úËõ·Å
-        private float zoom = 1f;        //Ïà»úËõ·ÅËÙÂÊ
-        public float stickMinZoom;      //×îĞ¡Ïà»úËõ·Å
-        public float stickMaxZoom;      //×î´óÏà»úËõ·Å
-        public float swivelMinZoom;     //×îĞ¡Ïà»úÉÏÏÂĞı×ª½Ç¶È
-        public float swivelMaxZoom;     //×î´óÏà»úÉÏÏÂĞı×ª½Ç¶È
-        //Ïà»úÒÆ¶¯
-        public float moveSpeedMinZoom;  //×îĞ¡Ïà»úÒÆ¶¯ËÙ¶È
-        public float moveSpeedMaxZoom;  //×î´óÏà»úÒÆ¶¯ËÙ¶È
-        //Ïà»úĞı×ª
-        private float zoomDelta;        //¹öÂÖÖµ
-        private float xDelta;           //Ë®Æ½°´¼üÖµ
-        private float zDelta;           //´¹Ö±°´¼üÖµ
-        private float rotationAngle;    //Ïà»úĞı×ª½Ç¶È
-        public float rotationSpeed;     //Ïà»ú×óÓÒĞı×ªËÙ¶È
+        private Transform swivel;       //æ—‹è½¬é¥æ„Ÿ
+        private Transform stick;        //ç§»åŠ¨é¥æ„Ÿ
+        //ç›¸æœºç¼©æ”¾
+        private float zoom = 1f;        //ç›¸æœºç¼©æ”¾é€Ÿç‡
+        public float stickMinZoom;      //æœ€å°ç›¸æœºç¼©æ”¾
+        public float stickMaxZoom;      //æœ€å¤§ç›¸æœºç¼©æ”¾
+        public float swivelMinZoom;     //æœ€å°ç›¸æœºä¸Šä¸‹æ—‹è½¬è§’åº¦
+        public float swivelMaxZoom;     //æœ€å¤§ç›¸æœºä¸Šä¸‹æ—‹è½¬è§’åº¦
+        //ç›¸æœºç§»åŠ¨
+        public float moveSpeedMinZoom;  //æœ€å°ç›¸æœºç§»åŠ¨é€Ÿåº¦
+        public float moveSpeedMaxZoom;  //æœ€å¤§ç›¸æœºç§»åŠ¨é€Ÿåº¦
+        //ç›¸æœºæ—‹è½¬
+        private float zoomDelta;        //æ»šè½®å€¼
+        private float xDelta;           //æ°´å¹³æŒ‰é”®å€¼
+        private float zDelta;           //å‚ç›´æŒ‰é”®å€¼
+        private float rotationAngle;    //ç›¸æœºæ—‹è½¬è§’åº¦
+        public float rotationSpeed;     //ç›¸æœºå·¦å³æ—‹è½¬é€Ÿåº¦
 
         /// <summary>
-        /// Ïà»úËõ·Å
+        /// ç›¸æœºç¼©æ”¾
         /// </summary>
-        /// <param name="delta">Ëõ·Å¸ü¸ÄÖµ</param>
+        /// <param name="delta">ç¼©æ”¾æ›´æ”¹å€¼</param>
         private void AdjustZoom(float delta)
         {
-            //¸üĞÂËõ·ÅËÙÂÊ(Í¬Ê±ÏŞÖÆËõ·ÅËÙ¶È)
+            //æ›´æ–°ç¼©æ”¾é€Ÿç‡(åŒæ—¶é™åˆ¶ç¼©æ”¾é€Ÿåº¦)
             zoom = Mathf.Clamp01(zoom + delta);
-            //¼ÆËãËõ·ÅºóµÄÏà»úÎ»ÖÃ
+            //è®¡ç®—ç¼©æ”¾åçš„ç›¸æœºä½ç½®
             float distance = Mathf.Lerp(stickMinZoom, stickMaxZoom, zoom);
             stick.localPosition = new Vector3(0f, 0f, distance);
-            //¼ÆËãËõ·ÅºóµÄÏà»úĞı×ª
+            //è®¡ç®—ç¼©æ”¾åçš„ç›¸æœºæ—‹è½¬
             float angle = Mathf.Lerp(swivelMinZoom, swivelMaxZoom, zoom);
             swivel.localRotation = Quaternion.Euler(angle, 0f, 0f);
         }
         /// <summary>
-        /// Ïà»úÒÆ¶¯
+        /// ç›¸æœºç§»åŠ¨
         /// </summary>
-        /// <param name="xDelta">Ë®Æ½ÒÆ¶¯Ôö¼ÓÖµ</param>
-        /// <param name="zDelta">´¹Ö±ÒÆ¶¯Ôö¼ÓÖµ</param>
+        /// <param name="xDelta">æ°´å¹³ç§»åŠ¨å¢åŠ å€¼</param>
+        /// <param name="zDelta">å‚ç›´ç§»åŠ¨å¢åŠ å€¼</param>
         private void AdjustPosition(float xDelta, float zDelta)
         {
-            //±ê×¼»¯ÒÆ¶¯·½Ïò
+            //æ ‡å‡†åŒ–ç§»åŠ¨æ–¹å‘
             Vector3 direction = transform.localRotation * new Vector3(xDelta, 0f, zDelta).normalized;
-            //ÒÆ¶¯ËÙ¶È¼ÆËã
+            //ç§»åŠ¨é€Ÿåº¦è®¡ç®—
             float damping = Mathf.Max(Mathf.Abs(xDelta), Mathf.Abs(zDelta));
-            //¼ÆËãÒÆ¶¯¾àÀë
+            //è®¡ç®—ç§»åŠ¨è·ç¦»
             float distance = Mathf.Lerp(moveSpeedMinZoom, moveSpeedMaxZoom, zoom) * damping * Time.deltaTime;
-            //µ±Ç°Î»ÖÃ
+            //å½“å‰ä½ç½®
             Vector3 position = transform.localPosition;
-            //ÒÆ¶¯
+            //ç§»åŠ¨
             position += direction * distance;
-            //¸üĞÂÎ»ÖÃ
+            //æ›´æ–°ä½ç½®
             transform.localPosition = ClampPosition(position);
         }
         /// <summary>
-        /// ÏŞÖÆÒÆ¶¯Î»ÖÃ²»»áÒÆ¶¯µ½µØÍ¼Íâ
+        /// é™åˆ¶ç§»åŠ¨ä½ç½®ä¸ä¼šç§»åŠ¨åˆ°åœ°å›¾å¤–
         /// </summary>
-        /// <param name="position">ĞÂµÄÒÆ¶¯Î»ÖÃ</param>
-        /// <returns>ÏŞÖÆºóµÄÒÆ¶¯Î»ÖÃ</returns>
+        /// <param name="position">æ–°çš„ç§»åŠ¨ä½ç½®</param>
+        /// <returns>é™åˆ¶åçš„ç§»åŠ¨ä½ç½®</returns>
         private Vector3 ClampPosition(Vector3 position)
         {
-            //¼ÆËãxÖá×î´óÒÆ¶¯¾àÀë
+            //è®¡ç®—xè½´æœ€å¤§ç§»åŠ¨è·ç¦»
             float xMax = (grid.cellCountX - 0.5f) * (2f * HexMetrics.innerRadius);
             position.x = Mathf.Clamp(position.x, 0f, xMax);
-            //¼ÆËãzÖá×î´óÒÆ¶¯¾àÀë
+            //è®¡ç®—zè½´æœ€å¤§ç§»åŠ¨è·ç¦»
             float zMax = (grid.cellCountZ - 1) * (1.5f * HexMetrics.outerRadius);
             position.z = Mathf.Clamp(position.z, 0f, zMax);
-            //·µ»ØÕıÈ·µÄÎ»ÖÃ
+            //è¿”å›æ­£ç¡®çš„ä½ç½®
             return position;
         }
         /// <summary>
-        /// Ïà»ú×óÓÒĞı×ª
+        /// ç›¸æœºå·¦å³æ—‹è½¬
         /// </summary>
-        /// <param name="delta">Ğı×ªÔöÁ¿</param>
+        /// <param name="delta">æ—‹è½¬å¢é‡</param>
         private void AdjustRotation(float delta)
         {
-            //Ôö¼ÓĞı×ª½Ç¶È
+            //å¢åŠ æ—‹è½¬è§’åº¦
             rotationAngle += delta * rotationSpeed * Time.deltaTime;
-            //½Ç¶ÈĞ¡ÓÚ0¡ãÊ±±äÎª360¡ã
+            //è§’åº¦å°äº0Â°æ—¶å˜ä¸º360Â°
             if (rotationAngle < 0f)
             {
                 rotationAngle += 360f;
             }
-            //½Ç¶È´óÓÚ360¡ãÊ±±äÎª0¡ã
+            //è§’åº¦å¤§äº360Â°æ—¶å˜ä¸º0Â°
             else if (rotationAngle >= 360f)
             {
                 rotationAngle -= 360f;
             }
-            //¸üĞÂĞı×ª½Ç¶È
+            //æ›´æ–°æ—‹è½¬è§’åº¦
             transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
         }
 
         /// <summary>
-        /// ¼ì²éÏà»úÎ»ÖÃºÏ·¨ĞÔ
+        /// æ£€æŸ¥ç›¸æœºä½ç½®åˆæ³•æ€§
         /// </summary>
         public static void ValidatePosition()
         {
@@ -127,19 +127,19 @@ namespace GameScene.Map
         /// </summary>
         public void Update()
         {
-            //¼àÌıÊó±ê¹öÂÖ
+            //ç›‘å¬é¼ æ ‡æ»šè½®
             zoomDelta = Input.GetAxis("Mouse ScrollWheel");
             if (zoomDelta != 0f)
             {
                 AdjustZoom(zoomDelta);
             }
-            //¼àÌıĞı×ª
+            //ç›‘å¬æ—‹è½¬
             float rotationDelta = Input.GetAxis("Rotation");
             if (rotationDelta != 0f)
             {
                 AdjustRotation(rotationDelta);
             }
-            //¼àÌı·½Ïò¼ü
+            //ç›‘å¬æ–¹å‘é”®
             xDelta = Input.GetAxis("Horizontal");
             zDelta = Input.GetAxis("Vertical");
             if (xDelta != 0f || zDelta != 0f)

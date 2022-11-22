@@ -1,4 +1,4 @@
-using GameScene.Operator;
+ï»¿using GameScene.Operator;
 using System.Collections.Generic;
 
 namespace GameScene
@@ -6,17 +6,17 @@ namespace GameScene
     namespace Team
     {
         /// <summary>
-        /// µ¥¸ö¶ÓÎéÀà
-        /// ´æ´¢ÁËÒ»Ö§Ğ¡¶ÓµÄĞÅÏ¢
+        /// å•ä¸ªé˜Ÿä¼ç±»
+        /// å­˜å‚¨äº†ä¸€æ”¯å°é˜Ÿçš„ä¿¡æ¯
         /// </summary>
         public class SingleTeam
         {
             /// <summary>
-            /// Ğ¡¶ÓÃû³Æ
+            /// å°é˜Ÿåç§°
             /// </summary>
             private string _teamName;
             /// <summary>
-            /// <para/>Ğ¡¶Ó³ÉÔ±
+            /// <para/>å°é˜Ÿæˆå‘˜
             /// </summary>
             private List<SingleOperator> _members;
 

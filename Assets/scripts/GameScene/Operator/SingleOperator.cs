@@ -1,19 +1,19 @@
-namespace GameScene
+ï»¿namespace GameScene
 {
     namespace Operator
     {
         /// <summary>
-        /// µ¥¸ö¸ÉÔ±Àà
-        /// ´æ´¢ÁËÒ»¸ö¸ÉÔ±µÄĞÅÏ¢
+        /// å•ä¸ªå¹²å‘˜ç±»
+        /// å­˜å‚¨äº†ä¸€ä¸ªå¹²å‘˜çš„ä¿¡æ¯
         /// </summary>
         public class SingleOperator
         {
             /// <summary>
-            /// ¸ÉÔ±Ãû³Æ
+            /// å¹²å‘˜åç§°
             /// </summary>
             private string _name;
             /// <summary>
-            /// ¸ÉÔ±×´Ì¬
+            /// å¹²å‘˜çŠ¶æ€
             /// </summary>
             private OperatorState _state;
 
