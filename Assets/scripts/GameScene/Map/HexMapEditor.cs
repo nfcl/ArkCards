@@ -169,6 +169,15 @@ namespace GameScene.Map.Editor
                 terrainMaterial.DisableKeyword("GRID_ON");
             }
         }
+        /// <summary>
+        /// 生成新地图时初始化防止使用已destory的物体
+        /// </summary>
+        public void Init()
+        {
+            previousCell = null;
+            searchFromCell = null;
+            searchToCell = null;
+        }
 
         /// <summary>
         /// 鼠标监听协程
@@ -212,7 +221,7 @@ namespace GameScene.Map.Editor
                         //上一个单元变为当前点击的单元
                         previousCell = currentCell;
                     }
-                    else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell)
+                    else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell && searchFromCell != currentCell)
                     {
                         if ((searchFromCell is null) == false) 
                         {
@@ -222,13 +231,13 @@ namespace GameScene.Map.Editor
                         searchFromCell.EnableHighlight(Color.blue);
                         if ((searchToCell is null) == false)
                         {
-                            hexGrid.FindPath(searchFromCell, searchToCell);
+                            hexGrid.FindPath(searchFromCell, searchToCell, 2000);
                         }
                     }
-                    else if ((searchFromCell is null) == false && searchFromCell != currentCell)
+                    else if ((searchFromCell is null) == false && searchToCell != currentCell && searchFromCell != currentCell)
                     {
                         searchToCell = currentCell;
-                        hexGrid.FindPath(searchFromCell, searchToCell);
+                        hexGrid.FindPath(searchFromCell, searchToCell, 2000);
                     }
                 }
                 else

@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GameScene.Map
 {
@@ -28,6 +28,18 @@ namespace GameScene.Map
         /// 寻路使用的优先队列
         /// </summary>
         private HexCellPriorityQueue searchFrontier;
+        /// <summary>
+        /// 当前寻路序号
+        /// </summary>
+        private int searchFrontierPhase;
+        /// <summary>
+        /// 当前寻路的起点和终点
+        /// </summary>
+        private HexCell currentPathFrom, currentPathTo;
+        /// <summary>
+        /// 当前寻路起点和终点之间是否存在路径
+        /// </summary>
+        private bool currentPathExists;
 
         /// <summary>
         /// 随机数种子
@@ -180,86 +192,16 @@ namespace GameScene.Map
             chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
         }
         /// <summary>
-        /// 路径搜索可视化
-        /// </summary>
-        private IEnumerator SearchVisible(HexCell fromCell, HexCell toCell)
-        {
-            for (int i = 0; i < cells.Length; i++)
-            {
-                cells[i].Distance = int.MaxValue;
-                cells[i].DisableHighlight();
-            }
-            fromCell.EnableHighlight(Color.blue);
-            toCell.EnableHighlight(Color.red);
-
-            WaitForSeconds delay = new WaitForSeconds(0);
-
-            List<HexCell> frontier = new List<HexCell>();
-            fromCell.Distance = 0;
-            frontier.Add(fromCell);
-            int distance;
-            while (frontier.Count > 0)
-            {
-                yield return delay;
-                HexCell current = frontier[0];
-                frontier.RemoveAt(0);
-
-                if (current == toCell)
-                {
-                    current = current.PathFrom;
-                    while (current != fromCell)
-                    {
-                        current.EnableHighlight(Color.white);
-                        current = current.PathFrom;
-                    }
-                    break;
-                }
-
-                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-                {
-                    HexCell neighbor = current.GetNeighbor(d);
-                    if (
-                        neighbor is null
-                        || neighbor.IsUnderwater == true
-                        )
-                    {
-                        continue;
-                    }
-
-                    HexEdgeType edgeType = current.GetEdgeType(d);
-                    if (edgeType == HexEdgeType.Cliff)
-                    {
-                        continue;
-                    }
-
-                    distance = current.Distance;
-                    if (current.HasRoadThroughEdge(d))
-                    {
-                        distance += 1;
-                    }
-                    else
-                    {
-                        distance += edgeType == HexEdgeType.Flat ? 5 : 10;
-                    }
-                    if (distance < neighbor.Distance)
-                    {
-                        if (neighbor.Distance == int.MaxValue)
-                        {
-                            neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
-                        }
-                        neighbor.Distance = distance;
-                        neighbor.PathFrom = current;
-                        frontier.Add(neighbor);
-                    }
-                }
-                frontier.Sort((x, y) => x.SearchPriority.CompareTo(y.SearchPriority));
-            }
-        }
-        /// <summary>
         /// 路径搜索
         /// </summary>
-        private void Search(HexCell fromCell, HexCell toCell)
+        /// <param name="fromCell">搜索起点</param>
+        /// <param name="toCell">搜索终点</param>
+        /// <param name="speed">可使用的代价</param>
+        private bool Search(HexCell fromCell, HexCell toCell, int speed)
         {
+            //更新寻路阶段
+            searchFrontierPhase += 2;
+            //初始化优先队列
             if (searchFrontier is null)
             {
                 searchFrontier = new HexCellPriorityQueue();
@@ -268,75 +210,139 @@ namespace GameScene.Map
             {
                 searchFrontier.Clear();
             }
-            for (int i = 0; i < cells.Length; i++)
-            {
-                cells[i].Distance = int.MaxValue;
-                cells[i].DisableHighlight();
-            }
-            fromCell.EnableHighlight(Color.blue);
-            toCell.EnableHighlight(Color.red);
-
+            //更新起点
+            fromCell.SearchPhase = searchFrontierPhase;
             fromCell.Distance = 0;
+            //将起点放入队列
             searchFrontier.Enqueue(fromCell);
+            //当前单元至邻居的距离
             int distance;
+            //旧的单元优先级，用于更改优先队列元素
+            int oldPriority;
+            //当前单元和邻居的连接类型
+            HexEdgeType edgeType;
+            //当前单元
+            HexCell current;
+            //当前单元的邻居
+            HexCell neighbor;
+            //开始搜索
             while (searchFrontier.Count > 0)
             {
-                HexCell current = searchFrontier.Dequeue();
-
+                //获得距离最近的单元
+                current = searchFrontier.Dequeue();
+                //更新搜索阶段
+                current.SearchPhase += 1;
+                //如果已超出可移动范围则跳出
+                if (current.Distance > speed) return false;
+                //判断是否到达终点
                 if (current == toCell)
                 {
-                    current = current.PathFrom;
-                    while (current != fromCell)
-                    {
-                        current.EnableHighlight(Color.white);
-                        current = current.PathFrom;
-                    }
-                    break;
+                    return true; ;
                 }
-
+                //遍历邻居
                 for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
                 {
-                    HexCell neighbor = current.GetNeighbor(d);
+
+                    neighbor = current.GetNeighbor(d);
+
                     if (
                         neighbor is null
                         || neighbor.IsUnderwater == true
+                        || neighbor.SearchPhase > searchFrontierPhase
                         )
                     {
                         continue;
                     }
-
-                    HexEdgeType edgeType = current.GetEdgeType(d);
+                    //获得当前单元和邻居的连接类型
+                    edgeType = current.GetEdgeType(d);
+                    //悬崖无法通行
                     if (edgeType == HexEdgeType.Cliff)
                     {
                         continue;
                     }
-
+                    //初始距离为当前单元格的距离
                     distance = current.Distance;
+                    //计算当前单元到邻居的距离
                     if (current.HasRoadThroughEdge(d))
-                    {
+                    {//道路距离缩短
                         distance += 1;
                     }
-                    else
-                    {
-                        distance += edgeType == HexEdgeType.Flat ? 5 : 10;
+                    else if(edgeType == HexEdgeType.Flat)
+                    {//平坦
+                        distance += 5;
                     }
-                    if (neighbor.Distance == int.MaxValue)
-                    {
+                    else if(edgeType == HexEdgeType.Slope)
+                    {//斜坡
+                        distance += 10;
+                    }
+                    //
+                    if (neighbor.SearchPhase < searchFrontierPhase)
+                    {//邻居的搜索阶段小于当前的搜索阶段则为未搜索过的节点
+                        //更新搜索阶段
+                        neighbor.SearchPhase = searchFrontierPhase;
                         neighbor.Distance = distance;
                         neighbor.PathFrom = current;
-                        neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
+                        //更新理想代价
+                        neighbor.SearchHeuristic = 5 * neighbor.coordinates.DistanceTo(toCell.coordinates);
+                        //加入队列
                         searchFrontier.Enqueue(neighbor);
                     }
                     else if (distance < neighbor.Distance)
-                    {
-                        int oldPriority = neighbor.SearchPriority;
+                    {//已搜索过的节点但存在距离更小的路径
+                        //保存旧的优先级
+                        oldPriority = neighbor.SearchPriority;
                         neighbor.Distance = distance;
                         neighbor.PathFrom = current;
+                        //更改邻居的优先级
                         searchFrontier.Change(neighbor, oldPriority);
                     }
                 }
             }
+            return false;
         }
+        /// <summary>
+        /// 显示路径
+        /// </summary>
+        private void ShowPath()
+        {
+            if (currentPathExists == true)
+            {
+                HexCell current = currentPathTo;
+                while (current != currentPathFrom)
+                {
+                    current.SetLabel(current.Distance.ToString());
+                    current.EnableHighlight(Color.white);
+                    current = current.PathFrom;
+                }
+            }
+            currentPathFrom.EnableHighlight(Color.blue);
+            currentPathTo.EnableHighlight(Color.red);
+        }
+        /// <summary>
+        /// 清除显示的路径
+        /// </summary>
+        private void ClearPath()
+        {
+            if (currentPathExists == true)
+            {
+                HexCell current = currentPathTo;
+                while (current != currentPathFrom)
+                {
+                    current.SetLabel("");
+                    current.DisableHighlight();
+                    current = current.PathFrom;
+                }
+                current.DisableHighlight();
+                currentPathExists = false;
+            }
+            else if ((currentPathFrom is null) == false && (currentPathTo is null) == false)
+            {
+                currentPathFrom.DisableHighlight();
+                currentPathTo.DisableHighlight();
+            }
+            currentPathFrom = currentPathTo = null;
+        }
+
         /// <summary>
         /// 根据世界坐标计算获得对应的地图单元
         /// </summary>
@@ -408,7 +414,7 @@ namespace GameScene.Map
         /// </summary>
         public void Load(BinaryReader reader)
         {
-            StopAllCoroutines();
+            ClearPath();
 
             int x = reader.ReadInt32(), z = reader.ReadInt32();
             //判断和当前地图大小是否相同
@@ -446,6 +452,7 @@ namespace GameScene.Map
                 //创建地图失败
                 return false;
             }
+            ClearPath();
             //清除旧的数据
             if (chunks != null)
             {
@@ -469,13 +476,19 @@ namespace GameScene.Map
         /// <summary>
         /// 寻找两个单元间的最短路径
         /// </summary>
-        public void FindPath(HexCell fromCell, HexCell toCell)
+        /// <param name="fromCell">搜索起点</param>
+        /// <param name="toCell">搜索终点</param>
+        /// <param name="speed">可使用的代价</param>
+        public void FindPath(HexCell fromCell, HexCell toCell,int speed)
         {
-            ////停止旧的协程
-            //StopAllCoroutines();
-            ////开始新的协程
-            //StartCoroutine(SearchVisible(fromCell, toCell));
-            Search(fromCell, toCell);
+            ClearPath();
+
+            currentPathFrom = fromCell;
+            currentPathTo = toCell;
+
+            currentPathExists = Search(currentPathFrom, currentPathTo, speed);
+
+            ShowPath();
         }
 
         /// <summary>

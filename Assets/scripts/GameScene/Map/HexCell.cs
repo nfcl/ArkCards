@@ -70,6 +70,11 @@ namespace GameScene.Map
         /// </summary>
         public HexCell PathFrom { get; set; }
         /// <summary>
+        /// <para/>寻路的阶段
+        /// <para/>用于简化初始化
+        /// </summary>
+        public int SearchPhase { get; set; }
+        /// <summary>
         /// 启发式寻路使用的理想代价
         /// </summary>
         public int SearchHeuristic { get; set; }
@@ -327,7 +332,6 @@ namespace GameScene.Map
             set
             {
                 distance = value;
-                UpdateDistanceLabel();
             }
         }
 
@@ -441,14 +445,6 @@ namespace GameScene.Map
             Vector3 uiPosition = uiRect.localPosition;
             uiPosition.z = -position.y;
             uiRect.localPosition = uiPosition;
-        }
-        /// <summary>
-        /// 更新UI显示的距离
-        /// </summary>
-        private void UpdateDistanceLabel()
-        {
-            Text label = uiRect.GetComponent<Text>();
-            label.text = distance == int.MaxValue ? "" : distance.ToString();
         }
 
         /// <summary>
@@ -617,7 +613,10 @@ namespace GameScene.Map
         public void DisableHighlight()
         {
             Image highlight = uiRect.GetChild(0).GetComponent<Image>();
-            highlight.enabled = false;
+            if (highlight.enabled == true)
+            {
+                highlight.enabled = false;
+            }
         }
         /// <summary>
         /// 启用突出显示
@@ -705,6 +704,17 @@ namespace GameScene.Map
             {
                 roads[i] = (roadFlags & 1) == 1 ? true : false;
                 roadFlags >>= 1;
+            }
+        }
+        /// <summary>
+        /// 设置UI标签显示的内容
+        /// <param name="text"></param>
+        public void SetLabel(string text)
+        {
+            Text label = uiRect.GetComponent<Text>();
+            if(label.text != text)
+            {
+                label.text = text;
             }
         }
 

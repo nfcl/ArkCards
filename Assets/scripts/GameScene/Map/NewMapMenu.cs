@@ -1,4 +1,5 @@
 ﻿using GameScene.Map;
+using GameScene.Map.Editor;
 using UnityEngine;
 
 namespace GameScene.Map
@@ -12,12 +13,17 @@ namespace GameScene.Map
         /// 地图网格
         /// </summary>
         public HexGrid hexGrid;
+        /// <summary>
+        /// 地图编辑器
+        /// </summary>
+        public HexMapEditor hexMapEditor;
 
         /// <summary>
         /// 创建指定大小的地图
         /// </summary>
         private void CreateMap(int x, int z)
         {
+            hexMapEditor.Init();
             hexGrid.CreateMap(x, z);
             HexMapCamera.ValidatePosition();
             Close();
