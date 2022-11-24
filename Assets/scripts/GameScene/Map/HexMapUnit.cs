@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using Spine.Unity;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using GameScene.Team;
 
 namespace GameScene.Map
 {
-    using System.IO;
-    using Team;
-    using static UnityEditor.FilePathAttribute;
 
     /// <summary>
     /// 地图上的小队单位
@@ -16,6 +17,10 @@ namespace GameScene.Map
         /// 地图单位预制件
         /// </summary>
         public static HexMapUnit unitPrefab;
+        /// <summary>
+        /// 单位移动动画速度
+        /// </summary>
+        public static float travelSpeed = 0.8f;
 
         /// <summary>
         /// 
@@ -26,13 +31,9 @@ namespace GameScene.Map
         /// </summary>
         private HexCell currentCell;
         /// <summary>
-        /// 移动速度
+        /// 路径单元集
         /// </summary>
-        private float speed;
-        /// <summary>
-        /// 新的移动位置
-        /// </summary>
-        private Vector3 newPosition;
+        private List<HexCell> pathToTravel;
 
         /// <summary>
         /// spine小人的动画控制器
@@ -85,26 +86,82 @@ namespace GameScene.Map
                 transform.localPosition = value.Position;
             }
         }
-
         /// <summary>
-        /// <para/>直线移动至目标单元格
+        /// 单元以屏幕为坐标系是否朝向左边
         /// </summary>
-        public void Move(HexCell cell, float duration)
+        public bool TowardsLeft
         {
-            currentCell = cell;
-            speed = Vector3.Distance(currentCell.transform.position, transform.position) / duration;
-            ChangeSpineAnimation("Move");
-            enabled = true;
+            get
+            {
+                return transform.localEulerAngles.y > 180;
+            }
         }
+
         /// <summary>
         /// 更改spine动画
         /// </summary>
-        public void ChangeSpineAnimation(string animeName)
+        private void ChangeSpineAnimation(string animeName)
         {
             if (spineAnime.AnimationName != animeName)
             {
                 spineAnime.AnimationName = animeName;
             }
+        }
+        /// <summary>
+        /// 使单位朝向指定位置的协程
+        /// </summary>
+        IEnumerator LookAt(bool isLeft)
+        {
+            Quaternion fromRotation = transform.localRotation;
+            Quaternion toRotation = Quaternion.LookRotation(isLeft ? Vector3.forward : Vector3.back);
+
+            if(fromRotation == toRotation)
+            {
+                yield break;
+            }
+
+            for (float t = Time.deltaTime; t < 1f; t += Time.deltaTime)
+            {
+                transform.localRotation = Quaternion.Slerp(fromRotation, toRotation, t);
+                yield return null;
+            }
+            transform.localRotation = toRotation;
+        }
+        /// <summary>
+        /// 单位移动动画协程
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator TravelPath()
+        {
+            ChangeSpineAnimation("Move");
+
+            Vector3 a, b;
+
+            for (int i = 1; i < pathToTravel.Count; i++)
+            {
+                a = pathToTravel[i - 1].Position;
+                b = pathToTravel[i].Position;
+
+                yield return LookAt(b.x > a.x);
+
+                for (float t = 0f; t < 1f; t += Time.deltaTime * travelSpeed)
+                {
+                    transform.localPosition = Vector3.Lerp(a, b, t);
+                    yield return null;
+                }
+            }
+            ChangeSpineAnimation("Relax");
+        }
+
+        /// <summary>
+        /// 根据路径移动
+        /// </summary>
+        public void Travel(List<HexCell> path)
+        {
+            currentCell = path[path.Count - 1];
+            pathToTravel = path;
+            StopAllCoroutines();
+            StartCoroutine(TravelPath());
         }
         /// <summary>
         /// 调整位置
@@ -148,25 +205,10 @@ namespace GameScene.Map
         /// <summary>
         /// 
         /// </summary>
-        public void Update()
-        {
-            //transform.LookAt(Camera.main.transform);
-
-            newPosition = Vector3.MoveTowards(transform.position, currentCell.transform.position, speed * Time.deltaTime);
-            transform.position = newPosition;
-            if(transform.position == currentCell.transform.position)
-            {
-                ChangeSpineAnimation("Relax");
-                enabled = false;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
         public void Awake()
         {
             ChangeSpineAnimation("Relax");
             enabled = false;
         }
-    }
+    } 
 }

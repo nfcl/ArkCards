@@ -32,7 +32,7 @@ namespace GameScene.Map
         private bool UpdateCurrentCell()
         {
             HexCell cell = grid.GetCell(mainCamera.ScreenPointToRay(Input.mousePosition));
-            if ((cell is null) == false && cell != currentCell)
+            if ((cell is null) == false)
             {
                 currentCell = cell;
                 return true;
@@ -78,7 +78,7 @@ namespace GameScene.Map
         {
             if (grid.HasPath == true)
             {
-                selectedUnit.CurrentCell= currentCell;
+                selectedUnit.Travel(grid.GetPath());
                 grid.ClearPath();
             }
         }
@@ -94,7 +94,7 @@ namespace GameScene.Map
         }
 
         /// <summary>
-        /// 
+        /// 如果MonoBehaviour已启用，则在每一帧都调用Update
         /// </summary>
         public void Update()
         {
@@ -104,7 +104,7 @@ namespace GameScene.Map
                 {
                     DoSelection();
                 }
-                else if (selectedUnit)
+                else if ((selectedUnit is null) == false)
                 {
                     if (Input.GetMouseButtonDown(1))
                     {
@@ -118,7 +118,7 @@ namespace GameScene.Map
             }
         }
         /// <summary>
-        /// 
+        /// 加载脚本实例时调用Awake
         /// </summary>
         public void Awake()
         {

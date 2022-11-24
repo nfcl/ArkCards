@@ -565,6 +565,26 @@ namespace GameScene.Map
             }
             return null;
         }
+        /// <summary>
+        /// 获得路径
+        /// </summary>
+        /// <returns></returns>
+        public List<HexCell> GetPath()
+        {
+            if (!currentPathExists)
+            {
+                return null;
+            }
+            List<HexCell> path = ListPool<HexCell>.Get();
+            for (HexCell c = currentPathTo; c != currentPathFrom; c = c.PathFrom)
+            {
+                path.Add(c);
+            }
+            path.Add(currentPathFrom);
+            //倒序 因为是从目的地回溯到起点
+            path.Reverse();
+            return path;
+        }
 
         /// <summary>
         /// 

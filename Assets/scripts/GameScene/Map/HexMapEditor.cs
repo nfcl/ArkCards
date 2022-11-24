@@ -320,6 +320,9 @@ namespace GameScene.Map.Editor
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Update()
         {
             if (!EventSystem.current.IsPointerOverGameObject())
