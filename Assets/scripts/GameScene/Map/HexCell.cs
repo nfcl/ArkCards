@@ -33,7 +33,6 @@ namespace GameScene.Map
         /// <summary>
         /// 六个方向是否存在道路
         /// </summary>
-        [SerializeField]
         private bool[] roads;
         /// <summary>
         /// 水面高度
@@ -42,7 +41,7 @@ namespace GameScene.Map
         /// <summary>
         /// 当前单元的地形类型
         /// </summary>
-        private HexTerrainType terrainType = new HexTerrainType { type = -1 };
+        private HexTerrainType terrainType;
         /// <summary>
         /// 当前单元格和选中单元格的距离
         /// </summary>
@@ -78,6 +77,11 @@ namespace GameScene.Map
         /// 启发式寻路使用的理想代价
         /// </summary>
         public int SearchHeuristic { get; set; }
+        /// <summary>
+        /// 当前单元格上的单位
+        /// </summary>
+        public HexMapUnit Unit { get; set; }
+
         /// <summary>
         /// 启发式寻路使用的综合代价
         /// 读 : 返回理想代价和实际代价的和
@@ -353,6 +357,10 @@ namespace GameScene.Map
 
                 neighbor.chunk.Refresh();
             }
+            if ((Unit is null) == false)
+            {
+                Unit.ValidateLocation();
+            }
         }
         /// <summary>
         /// 只刷新本区块
@@ -360,6 +368,10 @@ namespace GameScene.Map
         private void RefreshSelfOnly()
         {
             chunk.Refresh();
+            if ((Unit is null) == false)
+            {
+                Unit.ValidateLocation();
+            }
         }
         /// <summary>
         /// 设置对应方向的道路
@@ -447,6 +459,85 @@ namespace GameScene.Map
             uiRect.localPosition = uiPosition;
         }
 
+        /// <summary>
+        /// 单元格数据写入
+        /// </summary>
+        public void Save(BinaryWriter writer)
+        {
+            //地形
+            writer.Write((byte)terrainType.type);
+            //高度
+            writer.Write((byte)elevation);
+            //水面高度
+            writer.Write((byte)waterLevel);
+            //河流
+            if (hasIncomingRiver == true)
+            {
+                writer.Write((byte)(incomingRiver + 0b10000000));
+            }
+            else
+            {
+                writer.Write((byte)0);
+            }
+            if (hasOutgoingRiver)
+            {
+                writer.Write((byte)(outgoingRiver + 0b10000000));
+            }
+            else
+            {
+                writer.Write((byte)0);
+            }
+            //道路
+            int roadFlags = 0;
+            for (int i = 0; i < roads.Length; i++)
+            {
+                roadFlags <<= 1;
+                roadFlags |= (roads[i] == true ? 1 : 0);
+            }
+            writer.Write((byte)roadFlags);
+        }
+        /// <summary>
+        /// 单元格数据读取
+        /// </summary>
+        public void Load(BinaryReader reader)
+        {
+            //地形
+            terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
+            //高度
+            elevation = reader.ReadByte();
+            //刷新位置
+            RefreshPosition();
+            //水面高度
+            waterLevel = reader.ReadByte();
+            //河流		
+            byte riverData = reader.ReadByte();
+            if (riverData >= 128)
+            {
+                hasIncomingRiver = true;
+                incomingRiver = (HexDirection)(riverData - 0b10000000);
+            }
+            else
+            {
+                hasIncomingRiver = false;
+            }
+            riverData = reader.ReadByte();
+            if (riverData >= 128)
+            {
+                hasOutgoingRiver = true;
+                outgoingRiver = (HexDirection)(riverData - 0b10000000);
+            }
+            else
+            {
+                hasOutgoingRiver = false;
+            }
+            //道路
+            int roadFlags = reader.ReadByte();
+            for (int i = roads.Length - 1; i >= 0; i--)
+            {
+                roads[i] = (roadFlags & 1) == 1 ? true : false;
+                roadFlags >>= 1;
+            }
+        }
         /// <summary>
         /// 获得对应方向的邻居
         /// </summary>
@@ -628,91 +719,12 @@ namespace GameScene.Map
             highlight.enabled = true;
         }
         /// <summary>
-        /// 单元格数据写入
-        /// </summary>
-        public void Save(BinaryWriter writer)
-        {
-            //地形
-            writer.Write((byte)terrainType.type);
-            //高度
-            writer.Write((byte)elevation);
-            //水面高度
-            writer.Write((byte)waterLevel);
-            //河流
-            if (hasIncomingRiver == true)
-            {
-                writer.Write((byte)(incomingRiver + 0b10000000));
-            }
-            else
-            {
-                writer.Write((byte)0);
-            }
-            if (hasOutgoingRiver)
-            {
-                writer.Write((byte)(outgoingRiver + 0b10000000));
-            }
-            else
-            {
-                writer.Write((byte)0);
-            }
-            //道路
-            int roadFlags = 0;
-            for (int i = 0; i < roads.Length; i++)
-            {
-                roadFlags <<= 1;
-                roadFlags |= (roads[i] == true ? 1 : 0);
-            }
-            writer.Write((byte)roadFlags);
-        }
-        /// <summary>
-        /// 单元格数据读取
-        /// </summary>
-        public void Load(BinaryReader reader)
-        {
-            //地形
-            terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
-            //高度
-            elevation = reader.ReadByte();
-            //刷新位置
-            RefreshPosition();
-            //水面高度
-            waterLevel = reader.ReadByte();
-            //河流		
-            byte riverData = reader.ReadByte();
-            if (riverData >= 128)
-            {
-                hasIncomingRiver = true;
-                incomingRiver = (HexDirection)(riverData - 0b10000000);
-            }
-            else
-            {
-                hasIncomingRiver = false;
-            }
-            riverData = reader.ReadByte();
-            if (riverData >= 128)
-            {
-                hasOutgoingRiver = true;
-                outgoingRiver = (HexDirection)(riverData - 0b10000000);
-            }
-            else
-            {
-                hasOutgoingRiver = false;
-            }
-            //道路
-            int roadFlags = reader.ReadByte();
-            for (int i = roads.Length - 1; i >= 0; i--)
-            {
-                roads[i] = (roadFlags & 1) == 1 ? true : false;
-                roadFlags >>= 1;
-            }
-        }
-        /// <summary>
         /// 设置UI标签显示的内容
         /// <param name="text"></param>
         public void SetLabel(string text)
         {
             Text label = uiRect.GetComponent<Text>();
-            if(label.text != text)
+            if (label.text != text)
             {
                 label.text = text;
             }
@@ -762,7 +774,9 @@ namespace GameScene.Map
         /// </summary>
         public void Awake()
         {
-            neighbors = new HexCell[6];
+            roads = new bool[6];
+            neighbors = new HexCell[6]; 
+            terrainType = new HexTerrainType { type = -1 };
         }
     }
 }

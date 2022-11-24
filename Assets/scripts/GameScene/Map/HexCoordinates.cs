@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 
 namespace GameScene.Map
 {
@@ -98,6 +99,21 @@ namespace GameScene.Map
         public string ToStringOnSeparateLines()
         {
             return $"{X}\n{Y}\n{Z}";
+        }
+        /// <summary>
+        /// 保存
+        /// </summary>
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(X);
+            writer.Write(Z);
+        }
+        /// <summary>
+        /// 读取
+        /// </summary>
+        public static HexCoordinates Load(BinaryReader reader)
+        {
+            return new HexCoordinates(reader.ReadInt32(), reader.ReadInt32());
         }
 
         /// <summary>

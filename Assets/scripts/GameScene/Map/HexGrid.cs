@@ -40,6 +40,10 @@ namespace GameScene.Map
         /// 当前寻路起点和终点之间是否存在路径
         /// </summary>
         private bool currentPathExists;
+        /// <summary>
+        /// 地图上存在的单位集合
+        /// </summary>
+        private List<HexMapUnit> units;
 
         /// <summary>
         /// 随机数种子
@@ -48,7 +52,11 @@ namespace GameScene.Map
         /// <summary>
         /// 噪声纹理
         /// </summary>
-        public Texture2D noiseSource;
+        public Texture2D noiseSource; 
+        /// <summary>
+        /// 地图单位预制件
+        /// </summary>
+        public HexMapUnit unitPrefab;
         /// <summary>
         /// 地形细节集合
         /// </summary>
@@ -73,6 +81,18 @@ namespace GameScene.Map
         /// 地图高的单元数
         /// </summary>
         public int cellCountZ;
+
+        /// <summary>
+        /// 存在路径属性
+        /// 读 : 返回选择的起点和目的地之间是否存在路径
+        /// </summary>
+        public bool HasPath
+        {
+            get
+            {
+                return currentPathExists;
+            }
+        }
 
         /// <summary>
         /// 创建地图区块集合
@@ -319,28 +339,15 @@ namespace GameScene.Map
             currentPathTo.EnableHighlight(Color.red);
         }
         /// <summary>
-        /// 清除显示的路径
+        /// 清除所有存在的单位
         /// </summary>
-        private void ClearPath()
+        private void ClearUnits()
         {
-            if (currentPathExists == true)
+            for (int i = 0; i < units.Count; i++)
             {
-                HexCell current = currentPathTo;
-                while (current != currentPathFrom)
-                {
-                    current.SetLabel("");
-                    current.DisableHighlight();
-                    current = current.PathFrom;
-                }
-                current.DisableHighlight();
-                currentPathExists = false;
+                units[i].Die();
             }
-            else if ((currentPathFrom is null) == false && (currentPathTo is null) == false)
-            {
-                currentPathFrom.DisableHighlight();
-                currentPathTo.DisableHighlight();
-            }
-            currentPathFrom = currentPathTo = null;
+            units.Clear();
         }
 
         /// <summary>
@@ -401,12 +408,19 @@ namespace GameScene.Map
         /// </summary>
         public void Save(BinaryWriter writer)
         {
+            //保存地图大小
             writer.Write(cellCountX);
             writer.Write(cellCountZ);
-
+            //保存单元
             for (int i = 0; i < cells.Length; i++)
             {
                 cells[i].Save(writer);
+            }
+            //保存单位
+            writer.Write(units.Count);
+            for (int i = 0; i < units.Count; i++)
+            {
+                units[i].Save(writer);
             }
         }
         /// <summary>
@@ -415,6 +429,7 @@ namespace GameScene.Map
         public void Load(BinaryReader reader)
         {
             ClearPath();
+            ClearUnits();
 
             int x = reader.ReadInt32(), z = reader.ReadInt32();
             //判断和当前地图大小是否相同
@@ -432,6 +447,12 @@ namespace GameScene.Map
             for (int i = 0; i < chunks.Length; i++)
             {
                 chunks[i].Refresh();
+            }
+
+            int unitCount = reader.ReadInt32();
+            for (int i = 0; i < unitCount; i++)
+            {
+                HexMapUnit.Load(reader, this);
             }
         }
         /// <summary>
@@ -453,6 +474,7 @@ namespace GameScene.Map
                 return false;
             }
             ClearPath();
+            ClearUnits();
             //清除旧的数据
             if (chunks != null)
             {
@@ -474,6 +496,30 @@ namespace GameScene.Map
             return true;
         }
         /// <summary>
+        /// 清除显示的路径
+        /// </summary>
+        public void ClearPath()
+        {
+            if (currentPathExists == true)
+            {
+                HexCell current = currentPathTo;
+                while (current != currentPathFrom)
+                {
+                    current.SetLabel("");
+                    current.DisableHighlight();
+                    current = current.PathFrom;
+                }
+                current.DisableHighlight();
+                currentPathExists = false;
+            }
+            else if ((currentPathFrom is null) == false && (currentPathTo is null) == false)
+            {
+                currentPathFrom.DisableHighlight();
+                currentPathTo.DisableHighlight();
+            }
+            currentPathFrom = currentPathTo = null;
+        }
+        /// <summary>
         /// 寻找两个单元间的最短路径
         /// </summary>
         /// <param name="fromCell">搜索起点</param>
@@ -490,6 +536,35 @@ namespace GameScene.Map
 
             ShowPath();
         }
+        /// <summary>
+        /// 添加新的单位到单位集合
+        /// </summary>
+        public void AddUnit(HexMapUnit unit, HexCell location)
+        {
+            units.Add(unit);
+            unit.transform.SetParent(transform, false);
+            unit.CurrentCell = location;
+        }
+        /// <summary>
+        /// 从集合中移除单位
+        /// </summary>
+        public void RemoveUnit(HexMapUnit unit)
+        {
+            units.Remove(unit);
+            unit.Die();
+        }
+        /// <summary>
+        /// 射线检测获得第一个单元
+        /// </summary>
+        public HexCell GetCell(Ray ray)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                return GetCell(hit.point);
+            }
+            return null;
+        }
 
         /// <summary>
         /// 
@@ -498,10 +573,18 @@ namespace GameScene.Map
         {
             if (HexMetrics.noiseSource is null)
             {
+
                 HexMetrics.noiseSource = noiseSource;
+
                 HexMetrics.InitializeHashGrid(seed);
+
                 HexFeatureManager.InitfeatureCollection(featureCollections);
+
                 HexMetrics.InitializeHashGrid(seed);
+
+                HexMapUnit.unitPrefab = unitPrefab;
+
+                units = ListPool<HexMapUnit>.Get();
             }
             CreateMap(cellCountX, cellCountZ);
         }

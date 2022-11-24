@@ -22,10 +22,6 @@ namespace GameScene.Map.Editor
         public Material terrainMaterial;
 
         /// <summary>
-        /// 是否启用地图编辑
-        /// </summary>
-        private bool editMode = true;
-        /// <summary>
         /// 是否更改单元格地形
         /// </summary>
         private bool applyTerrain = false;
@@ -70,25 +66,16 @@ namespace GameScene.Map.Editor
         /// </summary>
         private HexDirection dragDirection;
         /// <summary>
-        /// 上一个拖拽的单元格
+        /// 上一个单元格
         /// </summary>
-        private HexCell previousCell;
-        /// <summary>
-        /// 寻路的起点
-        /// </summary>
-        private HexCell searchFromCell;
-        /// <summary>
-        /// 寻路的终点
-        /// </summary>
-        private HexCell searchToCell;
+        HexCell previousCell;
 
         /// <summary>
         /// 设置编辑模式启用
         /// </summary>
         public void SetEditMode(bool toggle)
         {
-            editMode = toggle;
-            hexGrid.ShowUI(!toggle);
+            enabled = toggle;
         }
         /// <summary>
         /// 设置是否启用更改高度
@@ -175,81 +162,40 @@ namespace GameScene.Map.Editor
         public void Init()
         {
             previousCell = null;
-            searchFromCell = null;
-            searchToCell = null;
         }
 
         /// <summary>
-        /// 鼠标监听协程
+        /// 输入处理
         /// </summary>
-        private IEnumerator MouseLeftClickListener()
+        private void HandleInput()
         {
-            //编辑单元的条件
-            WaitUntil flag = new WaitUntil(() => Input.GetMouseButton(0) == true);
-
-            while (true)
+            HexCell currentCell = GetCellUnderCursor();
+            if (currentCell)
             {
-                //直到鼠标左键按下
-                yield return flag;
-                //判断点击是否在UI上
-                if (true == EventSystem.current.IsPointerOverGameObject())
+                if (previousCell && previousCell != currentCell)
                 {
-                    goto ELSE;
-                }
-                //射线检测
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit raycastHit;
-                //判断是否检测到了物体
-                if (Physics.Raycast(ray, out raycastHit))
-                {
-                    //获得点击到的单元
-                    HexCell currentCell = hexGrid.GetCell(raycastHit.point);
-                    //判断是否是编辑模式
-                    if (editMode == true)
-                    {
-                        //判断上一个单元和当前点击的单元是否不同
-                        if (false == (previousCell is null) && previousCell != currentCell)
-                        {//上一个单元和当前点击的单元不同
-                            ValidateDrag(currentCell);
-                        }
-                        else
-                        {
-                            isDrag = false;
-                        }
-                        //编辑单元
-                        EditCells(currentCell);
-                        //上一个单元变为当前点击的单元
-                        previousCell = currentCell;
-                    }
-                    else if (Input.GetKey(KeyCode.LeftShift) && searchToCell != currentCell && searchFromCell != currentCell)
-                    {
-                        if ((searchFromCell is null) == false) 
-                        {
-                            searchFromCell.DisableHighlight();
-                        }
-                        searchFromCell = currentCell;
-                        searchFromCell.EnableHighlight(Color.blue);
-                        if ((searchToCell is null) == false)
-                        {
-                            hexGrid.FindPath(searchFromCell, searchToCell, 2000);
-                        }
-                    }
-                    else if ((searchFromCell is null) == false && searchToCell != currentCell && searchFromCell != currentCell)
-                    {
-                        searchToCell = currentCell;
-                        hexGrid.FindPath(searchFromCell, searchToCell, 2000);
-                    }
+                    ValidateDrag(currentCell);
                 }
                 else
                 {
-                    goto ELSE;
+                    isDrag = false;
                 }
 
-                continue;
+                EditCells(currentCell);
 
-            ELSE:
+                previousCell = currentCell;
+            }
+            else
+            {
                 previousCell = null;
             }
+        }
+        /// <summary>
+        /// 获得鼠标碰到的第一个单元格
+        /// </summary>
+        private HexCell GetCellUnderCursor()
+        {
+            return hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         }
         /// <summary>
         /// 查找上一个单元是否是当前单元的邻居
@@ -351,7 +297,53 @@ namespace GameScene.Map.Editor
                 }
             }
         }
+        /// <summary>
+        /// 创建单位
+        /// </summary>
+        private void CreateUnit()
+        {
+            HexCell cell = GetCellUnderCursor();
+            if ((cell is null) == false && cell.Unit is null)
+            {
+                hexGrid.AddUnit(Instantiate(HexMapUnit.unitPrefab), cell);
+            }
+        }
+        /// <summary>
+        /// 移除单位
+        /// </summary>
+        private void DestroyUnit()
+        {
+            HexCell cell = GetCellUnderCursor();
+            if ((cell is null) == false && (cell.Unit is null) == false)
+            {
+                hexGrid.RemoveUnit(cell.Unit);
+            }
+        }
 
+        public void Update()
+        {
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                if (Input.GetMouseButton(0))
+                {
+                    HandleInput();
+                    return;
+                }
+                if (Input.GetKeyDown(KeyCode.U))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        DestroyUnit();
+                    }
+                    else
+                    {
+                        CreateUnit();
+                    }
+                    return;
+                }
+            }
+            previousCell = null;
+        }
         /// <summary>
         /// 加载脚本实例时调用Awake
         /// </summary>
@@ -362,8 +354,8 @@ namespace GameScene.Map.Editor
             terrainPannel.SelectToggle(0);
             SelectTerrain(0);
             terrainPannel.SetToggleDelegate(SelectTerrain);
-            //启用鼠标左键监听协程
-            StartCoroutine(MouseLeftClickListener());
+            //关闭编辑模式
+            SetEditMode(false);
             //关闭网格线显示
             terrainMaterial.DisableKeyword("GRID_ON");
         }
