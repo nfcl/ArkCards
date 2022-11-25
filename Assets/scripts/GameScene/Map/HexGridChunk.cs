@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Reflection;
+using UnityEngine;
 
 namespace GameScene.Map
 {
@@ -13,9 +14,9 @@ namespace GameScene.Map
         /// </summary>
         private Canvas gridCanvas;
 
-        private static Color color1 = new Color(1f, 0f, 0f);
-        private static Color color2 = new Color(0f, 1f, 0f);
-        private static Color color3 = new Color(0f, 0f, 1f);
+        private static Color weights1 = new Color(1f, 0f, 0f);
+        private static Color weights2 = new Color(0f, 1f, 0f);
+        private static Color weights3 = new Color(0f, 0f, 1f);
 
         /// <summary>
         /// 地形细节要素管理器
@@ -179,7 +180,7 @@ namespace GameScene.Map
         /// </summary>
         private void TriangulateWithoutRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e)
         {
-            TriangulateEdgeFan(center, e, color1, cell.TerrainType.type);
+            TriangulateEdgeFan(center, e, weights1, cell.Index);
 
             if (cell.HasRoads)
             {
@@ -188,8 +189,7 @@ namespace GameScene.Map
                     center,
                     Vector3.Lerp(center, e.v1, interpolators.x),
                     Vector3.Lerp(center, e.v5, interpolators.y),
-                    e,
-                    cell.HasRoadThroughEdge(direction)
+                    e, cell.HasRoadThroughEdge(direction), cell.Index
                 );
             }
         }
@@ -199,24 +199,19 @@ namespace GameScene.Map
         /// <param name="center">中心点</param>
         /// <param name="edge">边缘</param>
         /// <param name="color">颜色</param>
-        private void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, Color color,float type)
+        private void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, Color color,float index)
         {
             terrain.AddTriangle(center, edge.v1, edge.v2);
             terrain.AddTriangle(center, edge.v2, edge.v3);
             terrain.AddTriangle(center, edge.v3, edge.v4);
             terrain.AddTriangle(center, edge.v4, edge.v5);
 
-            terrain.AddTriangleColor(color1);
-            terrain.AddTriangleColor(color1);
-            terrain.AddTriangleColor(color1);
-            terrain.AddTriangleColor(color1); 
-            
-            Vector3 types;
-            types.x = types.y = types.z = type;
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
+            Vector3 indices;
+            indices.x = indices.y = indices.z = index;
+            terrain.AddTriangleCellData(indices, weights1);
+            terrain.AddTriangleCellData(indices, weights1);
+            terrain.AddTriangleCellData(indices, weights1);
+            terrain.AddTriangleCellData(indices, weights1);
         }
         /// <summary>
         /// 有河流的纯色区三角化
@@ -268,8 +263,8 @@ namespace GameScene.Map
             m.v3.y = center.y = e.v3.y;
             //中间线到底边的梯形做三角化
             TriangulateEdgeStrip(
-                m, color1, cell.TerrainType.type,
-                e, color1, cell.TerrainType.type
+                m, weights1, cell.Index,
+                e, weights1, cell.Index
             );
             //顶边到中间线的梯形做三角化
             terrain.AddTriangle(centerL, m.v1, m.v2);
@@ -277,24 +272,19 @@ namespace GameScene.Map
             terrain.AddQuad(center, centerR, m.v3, m.v4);
             terrain.AddTriangle(centerR, m.v4, m.v5);
 
-            terrain.AddTriangleColor(color1);
-            terrain.AddQuadColor(color1);
-            terrain.AddQuadColor(color1);
-            terrain.AddTriangleColor(color1);
-
-            Vector3 types;
-            types.x = types.y = types.z = cell.TerrainType.type;
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
+            Vector3 indices;
+            indices.x = indices.y = indices.z = cell.Index;
+            terrain.AddTriangleCellData(indices, weights1);
+            terrain.AddQuadCellData(indices, weights1);
+            terrain.AddQuadCellData(indices, weights1);
+            terrain.AddTriangleCellData(indices, weights1);
             //仅在水面上时三角化河流水面
             if (!cell.IsUnderwater)
             {
                 //根据出入河口判断是否需要倒转UV方向使水流同向
                 bool reversed = cell.IncomingRiver == direction;
-                TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed);
-                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
+                TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed, indices);
+                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed, indices);
             }
         }
         /// <summary>
@@ -315,11 +305,11 @@ namespace GameScene.Map
             m.v3.y = e.v3.y;
             //三角化中间线到纯色区底边的梯形
             TriangulateEdgeStrip(
-                m, color1, cell.TerrainType.type,
-                e, color1, cell.TerrainType.type
+                m, weights1, cell.Index,
+                e, weights1, cell.Index
             );
             //三角化中心点到中间线的扇形
-            TriangulateEdgeFan(center, m, color1, cell.TerrainType.type);
+            TriangulateEdgeFan(center, m, weights1, cell.Index);
             //仅在水面上时三角化河流水面
             if (cell.IsUnderwater == false)
             {
@@ -327,8 +317,10 @@ namespace GameScene.Map
                 bool reversed = cell.HasIncomingRiver;
                 //重定向中心和底边的Y轴为河流表面
                 center.y = m.v2.y = m.v4.y = cell.RiverSurfaceY;
+                Vector3 indices;
+                indices.x = indices.y = indices.z = cell.Index;
                 //添加中点至底边的四边形
-                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
+                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed, indices);
                 //添加中心至终点的三角形
                 rivers.AddTriangle(center, m.v2, m.v4);
                 //添加UV坐标
@@ -344,6 +336,7 @@ namespace GameScene.Map
                         new Vector2(0.5f, 0.4f), new Vector2(0f, 0.6f), new Vector2(1f, 0.6f)
                     );
                 }
+                rivers.AddTriangleCellData(indices, weights1);
             }
         }
         /// <summary>
@@ -386,10 +379,10 @@ namespace GameScene.Map
             );
 
             TriangulateEdgeStrip(
-                m, color1, cell.TerrainType.type,
-                e, color1, cell.TerrainType.type
+                m, weights1, cell.Index,
+                e, weights1, cell.Index
             );
-            TriangulateEdgeFan(center, m, color1,cell.TerrainType.type);
+            TriangulateEdgeFan(center, m, weights1, cell.Index);
             //判断当前方向是否可以添加地形细节
             if (
                 cell.IsUnderwater == false                                  //不在水下
@@ -502,15 +495,15 @@ namespace GameScene.Map
             //计算中点，中心偏移的同时中点也会向外偏移
             Vector3 mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
             Vector3 mR = Vector3.Lerp(roadCenter, e.v5, interpolators.y);
-            TriangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge);
+            TriangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge,cell.Index);
             //如果此方向存在河流则需要补全中心（对面方向的道路中心发生了偏移）
             if (previousHasRiver)
             {
-                TriangulateRoadEdge(roadCenter, center, mL);
+                TriangulateRoadEdge(roadCenter, center, mL, cell.Index);
             }
             if (nextHasRiver)
             {
-                TriangulateRoadEdge(roadCenter, mR, center);
+                TriangulateRoadEdge(roadCenter, mR, center, cell.Index);
             }
         }
         /// <summary>
@@ -541,6 +534,9 @@ namespace GameScene.Map
             {//如果此方向有河流经过
                 //中间点的Y轴坐标应为河床底坐标
                 e2.v3.y = neighbor.StreamBedY;
+                Vector3 indices;
+                indices.x = indices.z = cell.Index;
+                indices.y = neighbor.Index;
                 //仅在自己不在水下时需要三角化河面
                 if (cell.IsUnderwater == false)
                 {
@@ -551,7 +547,8 @@ namespace GameScene.Map
                         TriangulateRiverQuad(
                             e1.v2, e1.v4, e2.v2, e2.v4,
                             cell.RiverSurfaceY, neighbor.RiverSurfaceY, 0.8f,
-                            cell.HasIncomingRiver && cell.IncomingRiver == direction
+                            cell.HasIncomingRiver && cell.IncomingRiver == direction,
+                            indices
                         );
                     }
                     //如果邻居在水下且连接段是瀑布则调用瀑布与水面的处理方法
@@ -560,7 +557,7 @@ namespace GameScene.Map
                         TriangulateWaterfallInWater(
                             e1.v2, e1.v4, e2.v2, e2.v4,
                             cell.RiverSurfaceY, neighbor.RiverSurfaceY,
-                            neighbor.WaterSurfaceY
+                            neighbor.WaterSurfaceY, indices
                         );
                     }
                 }
@@ -573,7 +570,7 @@ namespace GameScene.Map
                     TriangulateWaterfallInWater(
                         e2.v4, e2.v2, e1.v4, e1.v2,
                         neighbor.RiverSurfaceY, cell.RiverSurfaceY,
-                        cell.WaterSurfaceY
+                        cell.WaterSurfaceY, indices
                     );
                 }
             }
@@ -585,8 +582,8 @@ namespace GameScene.Map
             else
             {//平坦和悬崖正常连接即可
                 TriangulateEdgeStrip(
-                    e1, color1, cell.TerrainType.type,
-                    e2, color2, neighbor.TerrainType.type,
+                    e1, weights1, cell.Index,
+                    e2, weights2, neighbor.Index,
                     cell.HasRoadThroughEdge(direction)
                 );
             }
@@ -626,29 +623,24 @@ namespace GameScene.Map
         /// <summary>
         /// 根据两个细分点组进行矩形网格的添加
         /// </summary>
-        private void TriangulateEdgeStrip(EdgeVertices e1, Color c1, float type1, EdgeVertices e2, Color c2, float type2, bool hasRoad = false)
+        private void TriangulateEdgeStrip(EdgeVertices e1, Color w1, float index1, EdgeVertices e2, Color w2, float index2, bool hasRoad = false)
         {
             terrain.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
             terrain.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
             terrain.AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
             terrain.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
 
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
-            
-            Vector3 types;
-            types.x = types.z = type1;
-            types.y = type2;
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
+            Vector3 indices;
+            indices.x = indices.z = index1;
+            indices.y = index2;
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
             //如果这条边存在道路则需要使用道路三角化
             if (hasRoad)
             {
-                TriangulateRoadSegment(e1.v2, e1.v3, e1.v4, e2.v2, e2.v3, e2.v4);
+                TriangulateRoadSegment(e1.v2, e1.v3, e1.v4, e2.v2, e2.v3, e2.v4, w1, w2, indices);
             }
         }
         /// <summary>
@@ -662,22 +654,22 @@ namespace GameScene.Map
         private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell, bool hasRoad = false)
         {
             EdgeVertices e2 = EdgeVertices.TerraceLerp(begin, end, 1);
-            Color c2 = HexMetrics.TerraceLerp(color1, color2, 1);
-            float t1 = beginCell.TerrainType.type;
-            float t2 = endCell.TerrainType.type;
+            Color w2 = HexMetrics.TerraceLerp(weights1, weights2, 1);
+            float i1 = beginCell.Index;
+            float i2 = endCell.Index;
 
-            TriangulateEdgeStrip(begin, color1, t1, e2, c2, t2, hasRoad);
+            TriangulateEdgeStrip(begin, weights1, i1, e2, w2, i2, hasRoad);
 
             for (int i = 2; i < HexMetrics.terraceSteps; i++)
             {
                 EdgeVertices e1 = e2;
-                Color c1 = c2;
+                Color w1 = w2;
                 e2 = EdgeVertices.TerraceLerp(begin, end, i);
-                c2 = HexMetrics.TerraceLerp(color1, color2, i);
-                TriangulateEdgeStrip(e1, c1, t1, e2, c2, t2, hasRoad);
+                w2 = HexMetrics.TerraceLerp(weights1, weights2, i);
+                TriangulateEdgeStrip(e1, w1, i1, e2, w2, i2, hasRoad);
             }
 
-            TriangulateEdgeStrip(e2, c2, t1, end, color2, t2, hasRoad);
+            TriangulateEdgeStrip(e2, w2, i1, end, weights2, i2, hasRoad);
         }
         /// <summary>
         /// 三个单元间的中心三角形边缘处理
@@ -735,13 +727,12 @@ namespace GameScene.Map
             else
             {
                 terrain.AddTriangle(bottom, left, right);
-                terrain.AddTriangleColor(color1, color2, color3);
 
-                Vector3 types;
-                types.x = bottomCell.TerrainType.type;
-                types.y = leftCell.TerrainType.type;
-                types.z = rightCell.TerrainType.type;
-                terrain.AddTriangleTerrainTypes(types);
+                Vector3 indices;
+                indices.x = bottomCell.Index;
+                indices.y = leftCell.Index;
+                indices.z = rightCell.Index;
+                terrain.AddTriangleCellData(indices, weights1, weights2, weights3);
             }
         }
         /// <summary>
@@ -758,35 +749,32 @@ namespace GameScene.Map
             //计算第一个位置的插值点
             Vector3 v3 = HexMetrics.TerraceLerp(begin, left, 1);
             Vector3 v4 = HexMetrics.TerraceLerp(begin, right, 1);
-            Color c3 = HexMetrics.TerraceLerp(color1, color2, 1);
-            Color c4 = HexMetrics.TerraceLerp(color1, color3, 1); 
-            Vector3 types;
-            types.x = beginCell.TerrainType.type;
-            types.y = leftCell.TerrainType.type;
-            types.z = rightCell.TerrainType.type;
+            Color w3 = HexMetrics.TerraceLerp(weights1, weights2, 1);
+            Color w4 = HexMetrics.TerraceLerp(weights1, weights3, 1); 
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
             //加入起始点和第一对插值点的三角形
             terrain.AddTriangle(begin, v3, v4);
-            terrain.AddTriangleColor(color1, c3, c4);
-            terrain.AddTriangleTerrainTypes(types);
+            terrain.AddTriangleCellData(indices, weights1, w3, w4);
             //遍历进行循环插值计算
             for (int i = 2; i < HexMetrics.terraceSteps; i++)
             {
                 Vector3 v1 = v3;
                 Vector3 v2 = v4;
-                Color c1 = c3;
-                Color c2 = c4;
+                Color w1 = w3;
+                Color w2 = w4;
                 v3 = HexMetrics.TerraceLerp(begin, left, i);
                 v4 = HexMetrics.TerraceLerp(begin, right, i);
-                c3 = HexMetrics.TerraceLerp(color1, color2, i);
-                c4 = HexMetrics.TerraceLerp(color1, color3, i);
+                w3 = HexMetrics.TerraceLerp(weights1, weights2, i);
+                w4 = HexMetrics.TerraceLerp(weights1, weights3, i);
                 terrain.AddQuad(v1, v2, v3, v4);
-                terrain.AddQuadColor(c1, c2, c3, c4);
-                terrain.AddQuadTerrainTypes(types);
+                terrain.AddQuadCellData(indices, w1, w2, w3, w4);
             }
             //加入终止点和最后一对插值点的矩形
             terrain.AddQuad(v3, v4, left, right);
-            terrain.AddQuadColor(c3, c4, color1, color3);
-            terrain.AddQuadTerrainTypes(types);
+            terrain.AddQuadCellData(indices, w3, w4, weights2, weights3);
         }
         /// <summary>
         /// 三个单元中心混合三角形区域的斜面加悬崖处理
@@ -805,25 +793,24 @@ namespace GameScene.Map
                 b = -b;
             }
             Vector3 boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(right), b);
-            Color boundaryColor = Color.Lerp(color1, color3, b);
-            Vector3 types;
-            types.x = beginCell.TerrainType.type;
-            types.y = leftCell.TerrainType.type;
-            types.z = rightCell.TerrainType.type;
+            Color boundaryWeights = Color.Lerp(weights1, weights3, b);
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
             //进行斜坡和悬崖底部连接
-            TriangulateBoundaryTriangle(begin, color1, left, color2, boundary, boundaryColor, types);
+            TriangulateBoundaryTriangle(begin, weights1, left, weights2, boundary, boundaryWeights, indices);
             //判断左右单元间的边缘判断
             if (HexMetrics.GetEdgeType(leftCell.Elevation, rightCell.Elevation) == HexEdgeType.Slope)
             {//斜坡
              //进行左右单元的斜坡阶梯边缘连接
-                TriangulateBoundaryTriangle(left, color2, right, color3, boundary, boundaryColor, types);
+                TriangulateBoundaryTriangle(left, weights2, right, weights3, boundary, boundaryWeights, indices);
             }
             else
             {//悬崖
              //直接用三角面连接
                 terrain.AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
-                terrain.AddTriangleColor(color2, color3, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, weights2, weights3, boundaryWeights);
             }
         }
         /// <summary>
@@ -843,67 +830,63 @@ namespace GameScene.Map
                 b = -b;
             }
             Vector3 boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(left), b);
-            Color boundaryColor = Color.Lerp(color1, color2, b);
-            Vector3 types;
-            types.x = beginCell.TerrainType.type;
-            types.y = leftCell.TerrainType.type;
-            types.z = rightCell.TerrainType.type;
+            Color boundaryWeights = Color.Lerp(weights1, weights2, b);
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
 
             TriangulateBoundaryTriangle(
-                right, color3, begin, color1, boundary, boundaryColor, types
+                right, weights3, begin, weights1, boundary, boundaryWeights, indices
             );
 
             if (HexMetrics.GetEdgeType(leftCell.Elevation, rightCell.Elevation) == HexEdgeType.Slope)
             {
                 TriangulateBoundaryTriangle(
-                    left, color2, right, color3, boundary, boundaryColor, types
+                    left, weights2, right, weights3, boundary, boundaryWeights, indices
                 );
             }
             else
             {
                 terrain.AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
-                terrain.AddTriangleColor(color2, color3, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, weights2, weights3, boundaryWeights);
             }
         }
         /// <summary>
         /// 悬崖和斜坡间的中心三角插值补面
         /// </summary>
-        private void TriangulateBoundaryTriangle(Vector3 begin, Color beginColor, Vector3 left, Color leftColor, Vector3 boundary, Color boundaryColor, Vector3 types)
+        private void TriangulateBoundaryTriangle(Vector3 begin, Color beginWeights, Vector3 left, Color leftWeights, Vector3 boundary, Color boundaryWeights, Vector3 indices)
         {
             Vector3 v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, 1));
-            Color c2 = HexMetrics.TerraceLerp(beginColor, leftColor, 1);
+            Color w2 = HexMetrics.TerraceLerp(beginWeights, leftWeights, 1);
 
             terrain.AddTriangleUnperturbed(HexMetrics.Perturb(begin), v2, boundary);
-            terrain.AddTriangleColor(beginColor, c2, boundaryColor);
-            terrain.AddTriangleTerrainTypes(types);
+            terrain.AddTriangleCellData(indices, beginWeights, w2, boundaryWeights);
 
             for (int i = 2; i < HexMetrics.terraceSteps; i++)
             {
                 Vector3 v1 = v2;
-                Color c1 = c2;
+                Color w1 = w2;
                 v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, i));
-                c2 = HexMetrics.TerraceLerp(beginColor, leftColor, i);
+                w2 = HexMetrics.TerraceLerp(beginWeights, leftWeights, i);
                 terrain.AddTriangleUnperturbed(v1, v2, boundary);
-                terrain.AddTriangleColor(c1, c2, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, w1, w2, boundaryWeights);
             }
 
             terrain.AddTriangleUnperturbed(v2, HexMetrics.Perturb(left), boundary);
-            terrain.AddTriangleColor(c2, leftColor, boundaryColor);
-            terrain.AddTriangleTerrainTypes(types);
+            terrain.AddTriangleCellData(indices, w2, leftWeights, boundaryWeights);
         }
         /// <summary>
         /// 同高度的河流表面四边形
         /// </summary>
-        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y, float v, bool reversed)
+        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y, float v, bool reversed, Vector3 indices)
         {
-            TriangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed);
+            TriangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed, indices);
         }
         /// <summary>
         /// 前后两端高度不同的河流四边形三角化
         /// </summary>
-        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float v, bool reversed)
+        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float v, bool reversed,Vector3 indices)
         {
             v1.y = v2.y = y1;
             v3.y = v4.y = y2;
@@ -916,6 +899,7 @@ namespace GameScene.Map
             {
                 rivers.AddQuadUV(0f, 1f, v, v + 0.2f);
             }
+            rivers.AddQuadCellData(indices, weights1, weights2);
         }
         /// <summary>
         /// 三角化路面(纯色区中心扇形)
@@ -924,35 +908,45 @@ namespace GameScene.Map
         /// <param name="mL">中心点到边缘左端点的中点</param>
         /// <param name="mR">中心点到边缘右端点的中点</param>
         /// <param name="e">边缘</param>
-        private void TriangulateRoad(Vector3 center, Vector3 mL, Vector3 mR, EdgeVertices e, bool hasRoadThroughCellEdge)
+        private void TriangulateRoad(Vector3 center, Vector3 mL, Vector3 mR, EdgeVertices e, bool hasRoadThroughCellEdge, float index)
         {
             //
             if (hasRoadThroughCellEdge)
             {
+                Vector3 indices;
+                indices.x = indices.y = indices.z = index;
                 //计算两个左右中点的中点
                 Vector3 mC = Vector3.Lerp(mL, mR, 0.5f);
                 //三角化左右中点和边缘左右两个分割点组成的四边形
-                TriangulateRoadSegment(mL, mC, mR, e.v2, e.v3, e.v4);
+                TriangulateRoadSegment(
+                    mL, mC, mR, e.v2, e.v3, e.v4,
+                    weights1, weights1, indices
+                );
                 //三角化中点和左右两个中点组成的三角形
                 roads.AddTriangle(center, mL, mC);
                 roads.AddTriangle(center, mC, mR);
                 roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(1f, 0f));
                 roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f));
+
+                roads.AddTriangleCellData(indices, weights1);
+                roads.AddTriangleCellData(indices, weights1);
             }
             else
             {
-                TriangulateRoadEdge(center, mL, mR);
+                TriangulateRoadEdge(center, mL, mR, index);
             }
         }
         /// <summary>
         /// 三角化路面(边缘)
         /// </summary>
-        private void TriangulateRoadSegment(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6)
+        private void TriangulateRoadSegment(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6, Color w1, Color w2, Vector3 indices)
         {
             roads.AddQuad(v1, v2, v4, v5);
             roads.AddQuad(v2, v3, v5, v6);
             roads.AddQuadUV(0f, 1f, 0f, 0f);
             roads.AddQuadUV(1f, 0f, 0f, 0f);
+            roads.AddQuadCellData(indices, w1, w2);
+            roads.AddQuadCellData(indices, w1, w2);
         }
         /// <summary>
         /// 三角化道路连接点的两侧缺失三角形
@@ -960,11 +954,14 @@ namespace GameScene.Map
         /// <param name="center">中心点位置</param>
         /// <param name="mL">中心点至纯色区边缘的左中点</param>
         /// <param name="mR">中心点至纯色区边缘的右中点</param>
-        private void TriangulateRoadEdge(Vector3 center, Vector3 mL, Vector3 mR)
+        private void TriangulateRoadEdge(Vector3 center, Vector3 mL, Vector3 mR, float index)
         {
             roads.AddTriangle(center, mL, mR);
             roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
 
+            Vector3 indices;
+            indices.x = indices.y = indices.z = index;
+            roads.AddTriangleCellData(indices, weights1);
         }
         /// <summary>
         /// 区分纯色区道路连接中枢的每个扇区的两个顶点的插值
@@ -1015,6 +1012,10 @@ namespace GameScene.Map
             Vector3 c2 = center + HexMetrics.GetSecondWaterCorner(direction);
             //添加纯色区三角形
             water.AddTriangle(center, c1, c2);
+
+            Vector3 indices;
+            indices.x = indices.y = indices.z = cell.Index;
+            water.AddTriangleCellData(indices, weights1);
             //判断相邻水面的连接
             if (direction <= HexDirection.SE && (neighbor is null) == false)
             {
@@ -1025,6 +1026,8 @@ namespace GameScene.Map
                 Vector3 e2 = c2 + bridge;
                 //添加四边形
                 water.AddQuad(c1, c2, e1, e2);
+                indices.y = neighbor.Index;
+                water.AddQuadCellData(indices, weights1, weights2);
                 //判断中心角的连接
                 if (direction <= HexDirection.E)
                 {
@@ -1037,6 +1040,10 @@ namespace GameScene.Map
                     }
                     //添加中心三角形
                     water.AddTriangle(c2, e2, c2 + HexMetrics.GetWaterBridge(direction.Next()));
+                    indices.z = nextNeighbor.Index;
+                    water.AddTriangleCellData(
+                        indices, weights1, weights2, weights3
+                    );
                 }
             }
         }
@@ -1055,6 +1062,14 @@ namespace GameScene.Map
             water.AddTriangle(center, e1.v2, e1.v3);
             water.AddTriangle(center, e1.v3, e1.v4);
             water.AddTriangle(center, e1.v4, e1.v5);
+
+            Vector3 indices;
+            indices.x = indices.z = cell.Index;
+            indices.y = neighbor.Index;
+            water.AddTriangleCellData(indices, weights1);
+            water.AddTriangleCellData(indices, weights1);
+            water.AddTriangleCellData(indices, weights1);
+            water.AddTriangleCellData(indices, weights1);
             //邻居的中心点
             Vector3 center2 = neighbor.Position;
             center2.y = center.y;
@@ -1067,7 +1082,7 @@ namespace GameScene.Map
             if (cell.HasRiverThroughEdge(direction))
             {//有河流经过
                 //使用河口处理方法
-                TriangulateEstuary(e1, e2, cell.IncomingRiver == direction);
+                TriangulateEstuary(e1, e2, cell.IncomingRiver == direction, indices);
             }
             else
             {
@@ -1081,6 +1096,10 @@ namespace GameScene.Map
                 waterShore.AddQuadUV(0f, 0f, 0f, 1f);
                 waterShore.AddQuadUV(0f, 0f, 0f, 1f);
                 waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+                waterShore.AddQuadCellData(indices, weights1, weights2);
+                waterShore.AddQuadCellData(indices, weights1, weights2);
+                waterShore.AddQuadCellData(indices, weights1, weights2);
+                waterShore.AddQuadCellData(indices, weights1, weights2);
             }
             //获得下一个方向的邻居
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
@@ -1100,12 +1119,16 @@ namespace GameScene.Map
                     new Vector2(0f, 1f),
                     new Vector2(0f, nextNeighbor.IsUnderwater ? 0f : 1f)
                 );
+                indices.z = nextNeighbor.Index;
+                waterShore.AddTriangleCellData(
+                    indices, weights1, weights2, weights3
+                );
             }
         }
         /// <summary>
         /// 水面和瀑布段河流的交接处三角化
         /// </summary>
-        private void TriangulateWaterfallInWater(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float waterY)
+        private void TriangulateWaterfallInWater(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float waterY, Vector3 indices)
         {
             v1.y = v2.y = y1;
             v3.y = v4.y = y2;
@@ -1118,16 +1141,20 @@ namespace GameScene.Map
             v4 = Vector3.Lerp(v4, v2, t);
             rivers.AddQuadUnperturbed(v1, v2, v3, v4);
             rivers.AddQuadUV(0f, 1f, 0.8f, 1f);
+            rivers.AddQuadCellData(indices, weights1, weights2);
         }
         /// <summary>
         /// 三角化河口（河流与水面交接处）
         /// </summary>
-        private void TriangulateEstuary(EdgeVertices e1, EdgeVertices e2, bool incomingRiver)
+        private void TriangulateEstuary(EdgeVertices e1, EdgeVertices e2, bool incomingRiver, Vector3 indices)
         {
             waterShore.AddTriangle(e2.v1, e1.v2, e1.v1);
             waterShore.AddTriangle(e2.v5, e1.v5, e1.v4);
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+
+            waterShore.AddTriangleCellData(indices, weights2, weights1, weights1);
+            waterShore.AddTriangleCellData(indices, weights2, weights1, weights1);
             //左侧四边形		
             estuaries.AddQuad(e2.v1, e1.v2, e2.v2, e1.v3);
             estuaries.AddQuadUV(
@@ -1147,6 +1174,13 @@ namespace GameScene.Map
                 new Vector2(0f, 0f), new Vector2(0f, 0f),
                 new Vector2(1f, 1f), new Vector2(0f, 1f)
             );
+
+            estuaries.AddQuadCellData(
+                indices, weights2, weights1, weights2, weights1
+            );
+            estuaries.AddTriangleCellData(indices, weights1, weights2, weights2);
+            estuaries.AddQuadCellData(indices, weights1, weights2);
+
             if (incomingRiver)
             {
                 estuaries.AddQuadUV2(

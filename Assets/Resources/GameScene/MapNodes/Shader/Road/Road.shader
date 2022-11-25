@@ -18,16 +18,19 @@ Shader "Custom/Road"
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows decal:blend
+        #pragma surface surf Standard fullforwardshadows decal:blend vertex:vert
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
+
+        #include "../HexMesh/HexCellData.cginc"
 
         sampler2D _MainTex;
 
         struct Input
         {
             float2 uv_MainTex;
+            float visibility;
         };
 
         half _Glossiness;
@@ -41,10 +44,20 @@ Shader "Custom/Road"
             // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
 
+        void vert(inout appdata_full v, out Input data) {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+
+            float4 cell0 = GetCellData(v, 0);
+            float4 cell1 = GetCellData(v, 1);
+
+            data.visibility = cell0.x * v.color.x + cell1.x * v.color.y;
+            data.visibility = lerp(0.25, 1, data.visibility);
+        }
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
-            fixed4 c = _Color;
+			fixed4 c = _Color * IN.visibility;
             float blend = IN.uv_MainTex.x;
             blend = smoothstep(0.4, 0.7, blend);
             o.Albedo = c.rgb;

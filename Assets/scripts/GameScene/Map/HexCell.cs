@@ -46,6 +46,10 @@ namespace GameScene.Map
         /// 当前单元格和选中单元格的距离
         /// </summary>
         private int distance;
+        /// <summary>
+        /// 当前单元是否可见
+        /// </summary>
+        private int visibility;
 
         /// <summary>
         /// 坐标
@@ -60,6 +64,10 @@ namespace GameScene.Map
         /// </summary>
         public RectTransform uiRect;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Index { get; set; }
         /// <summary>
         /// 优先队列使用的链表指针
         /// </summary>
@@ -81,6 +89,10 @@ namespace GameScene.Map
         /// 当前单元格上的单位
         /// </summary>
         public HexMapUnit Unit { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public HexCellShaderData ShaderData { get; set; }
 
         /// <summary>
         /// 启发式寻路使用的综合代价
@@ -319,7 +331,7 @@ namespace GameScene.Map
                     return;
                 }
                 terrainType = value;
-                Refresh();
+                ShaderData.RefreshTerrain(this);
             }
         }
         /// <summary>
@@ -336,6 +348,17 @@ namespace GameScene.Map
             set
             {
                 distance = value;
+            }
+        }
+        /// <summary>
+        /// 当前单元是否可见属性
+        /// 读 : 返回当前单元可见度是否大于0
+        /// </summary>
+        public bool IsVisible
+        {
+            get
+            {
+                return visibility > 0;
             }
         }
 
@@ -503,6 +526,7 @@ namespace GameScene.Map
         {
             //地形
             terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
+            ShaderData.RefreshTerrain(this);
             //高度
             elevation = reader.ReadByte();
             //刷新位置
@@ -727,6 +751,28 @@ namespace GameScene.Map
             if (label.text != text)
             {
                 label.text = text;
+            }
+        }
+        /// <summary>
+        /// 增加当前单元可见度
+        /// </summary>
+        public void IncreaseVisibility()
+        {
+            visibility += 1;
+            if (visibility > 0)
+            {
+                ShaderData.RefreshVisibility(this);
+            }
+        }
+        /// <summary>
+        /// 降低当前单元可见度
+        /// </summary>
+        public void DecreaseVisibility()
+        {
+            visibility -= 1;
+            if (visibility <= 0)
+            {
+                ShaderData.RefreshVisibility(this);
             }
         }
 

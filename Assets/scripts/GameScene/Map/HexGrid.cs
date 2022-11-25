@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -44,11 +42,15 @@ namespace GameScene.Map
         /// 地图上存在的单位集合
         /// </summary>
         private List<HexMapUnit> units;
+        /// <summary>
+        /// 
+        /// </summary>
+        private HexCellShaderData cellShaderData;
 
         /// <summary>
         /// 随机数种子
         /// </summary>
-        public int seed;
+        public int seed; 
         /// <summary>
         /// 噪声纹理
         /// </summary>
@@ -154,6 +156,8 @@ namespace GameScene.Map
             HexCell cell = cells[i] = Instantiate(cellPrefab);
             cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+            cell.Index = i;
+            cell.ShaderData = cellShaderData;
             cell.TerrainType = HexMetrics.HexTerrains[0];
             //设置相邻关系 
             if (x > 0)
@@ -287,11 +291,11 @@ namespace GameScene.Map
                     {//道路距离缩短
                         distance += 1;
                     }
-                    else if(edgeType == HexEdgeType.Flat)
+                    else if (edgeType == HexEdgeType.Flat)
                     {//平坦
                         distance += 5;
                     }
-                    else if(edgeType == HexEdgeType.Slope)
+                    else if (edgeType == HexEdgeType.Slope)
                     {//斜坡
                         distance += 10;
                     }
@@ -319,6 +323,90 @@ namespace GameScene.Map
                 }
             }
             return false;
+        }
+        /// <summary>
+        /// 获得指定位置视野内的单元集合
+        /// </summary>
+        private List<HexCell> GetVisibleCells(HexCell fromCell, int range)
+        {
+            List<HexCell> visibleCells = ListPool<HexCell>.Get();
+
+            //更新寻路阶段
+            searchFrontierPhase += 2;
+            //初始化优先队列
+            if (searchFrontier is null)
+            {
+                searchFrontier = new HexCellPriorityQueue();
+            }
+            else
+            {
+                searchFrontier.Clear();
+            }
+            //更新起点
+            fromCell.SearchPhase = searchFrontierPhase;
+            fromCell.Distance = 0;
+            //将起点放入队列
+            searchFrontier.Enqueue(fromCell);
+            //当前单元至邻居的距离
+            int distance;
+            //旧的单元优先级，用于更改优先队列元素
+            int oldPriority;
+            //当前单元和邻居的连接类型
+            HexEdgeType edgeType;
+            //当前单元
+            HexCell current;
+            //当前单元的邻居
+            HexCell neighbor;
+            //开始搜索
+            while (searchFrontier.Count > 0)
+            {
+                //获得距离最近的单元
+                current = searchFrontier.Dequeue();
+                //更新搜索阶段
+                current.SearchPhase += 1;
+
+                visibleCells.Add(current);
+                //遍历邻居
+                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+                {
+
+                    neighbor = current.GetNeighbor(d);
+
+                    if (
+                            neighbor is null ||
+                            neighbor.SearchPhase > searchFrontierPhase
+                        )
+                    {
+                        continue;
+                    }
+                    //初始距离为当前单元格的距离
+                    distance = current.Distance + 1;
+                    if (distance > range)
+                    {
+                        continue;
+                    }
+                    //
+                    if (neighbor.SearchPhase < searchFrontierPhase)
+                    {//邻居的搜索阶段小于当前的搜索阶段则为未搜索过的节点
+                        //更新搜索阶段
+                        neighbor.SearchPhase = searchFrontierPhase;
+                        neighbor.Distance = distance;
+                        //更新理想代价
+                        neighbor.SearchHeuristic = 0;
+                        //加入队列
+                        searchFrontier.Enqueue(neighbor);
+                    }
+                    else if (distance < neighbor.Distance)
+                    {//已搜索过的节点但存在距离更小的路径
+                        //保存旧的优先级
+                        oldPriority = neighbor.SearchPriority;
+                        neighbor.Distance = distance;
+                        //更改邻居的优先级
+                        searchFrontier.Change(neighbor, oldPriority);
+                    }
+                }
+            }
+            return visibleCells;
         }
         /// <summary>
         /// 显示路径
@@ -488,6 +576,8 @@ namespace GameScene.Map
             cellCountZ = z;
             chunkCountX = cellCountX / HexMetrics.chunkSizeX;
             chunkCountZ = cellCountZ / HexMetrics.chunkSizeZ;
+            //更新贴图
+            cellShaderData.Initialize(cellCountX, cellCountZ);
             //创建地图区块
             CreateChunks();
             //创建地图单元
@@ -542,6 +632,7 @@ namespace GameScene.Map
         public void AddUnit(HexMapUnit unit, HexCell location)
         {
             units.Add(unit);
+            unit.Grid = this;
             unit.transform.SetParent(transform, false);
             unit.CurrentCell = location;
         }
@@ -585,27 +676,50 @@ namespace GameScene.Map
             path.Reverse();
             return path;
         }
+        /// <summary>
+        /// 增加视野内的单元可见度
+        /// </summary>
+        public void IncreaseVisibility(HexCell fromCell, int range)
+        {
+            List<HexCell> cells = GetVisibleCells(fromCell, range);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                cells[i].IncreaseVisibility();
+            }
+            ListPool<HexCell>.Add(cells);
+        }
+        /// <summary>
+        /// 降低视野内的单元可见度
+        /// </summary>
+        public void DecreaseVisibility(HexCell fromCell, int range)
+        {
+            List<HexCell> cells = GetVisibleCells(fromCell, range);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                cells[i].DecreaseVisibility();
+            }
+            ListPool<HexCell>.Add(cells);
+        }
 
         /// <summary>
         /// 
         /// </summary>
         private void Awake()
         {
-            if (HexMetrics.noiseSource is null)
-            {
+            HexMetrics.noiseSource = noiseSource;
 
-                HexMetrics.noiseSource = noiseSource;
+            HexMetrics.InitializeHashGrid(seed);
 
-                HexMetrics.InitializeHashGrid(seed);
+            HexFeatureManager.InitfeatureCollection(featureCollections);
 
-                HexFeatureManager.InitfeatureCollection(featureCollections);
+            HexMetrics.InitializeHashGrid(seed);
 
-                HexMetrics.InitializeHashGrid(seed);
+            HexMapUnit.unitPrefab = unitPrefab;
 
-                HexMapUnit.unitPrefab = unitPrefab;
+            units = ListPool<HexMapUnit>.Get();
 
-                units = ListPool<HexMapUnit>.Get();
-            }
+            cellShaderData = gameObject.AddComponent<HexCellShaderData>();
+
             CreateMap(cellCountX, cellCountZ);
         }
     }

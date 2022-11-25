@@ -20,7 +20,7 @@ namespace GameScene.Map
         /// 节点颜色集
         /// </summary>
         [NonSerialized]
-        private List<Color> colors;
+        private List<Color> cellWeights;
         /// <summary>
         /// 三角面集
         /// </summary>
@@ -39,7 +39,8 @@ namespace GameScene.Map
         /// <summary>
         /// 地形类型列表
         /// </summary>
-        [NonSerialized] List<Vector3> terrainTypes;
+        [NonSerialized]
+        List<Vector3> cellIndices;
         /// <summary>
         /// 网格碰撞器
         /// </summary>
@@ -50,9 +51,9 @@ namespace GameScene.Map
         /// </summary>
         public bool useCollider;
         /// <summary>
-        /// 是否启用颜色
+        /// 使用单元格数据
         /// </summary>
-        public bool useColors;
+        public bool useCellData;
         /// <summary>
         /// 是否启用UV坐标
         /// </summary>
@@ -61,10 +62,6 @@ namespace GameScene.Map
         /// 是否启用第二组UV坐标
         /// </summary>
         public bool useUV2Coordinates;
-        /// <summary>
-        /// 是否启用地形类型
-        /// </summary>
-        public bool useTerrainTypes;
 
         /// <summary>
         /// 清除网格数据
@@ -73,21 +70,18 @@ namespace GameScene.Map
         {
             hexMesh.Clear();
             vertices = ListPool<Vector3>.Get();
-            if (useColors)
+            if (useCellData == true)
             {
-                colors = ListPool<Color>.Get();
+                cellWeights = ListPool<Color>.Get();
+                cellIndices = ListPool<Vector3>.Get();
             }
-            if (useUVCoordinates)
+            if (useUVCoordinates == true)
             {
                 uvs = ListPool<Vector2>.Get();
             }
-            if (useUV2Coordinates)
+            if (useUV2Coordinates == true)
             {
                 uv2s = ListPool<Vector2>.Get();
-            }
-            if (useTerrainTypes)
-            {
-                terrainTypes = ListPool<Vector3>.Get();
             }
             triangles = ListPool<int>.Get();
         }
@@ -98,30 +92,27 @@ namespace GameScene.Map
         {
             hexMesh.SetVertices(vertices);
             ListPool<Vector3>.Add(vertices);
-            if (useColors)
+            if (useCellData == true)
             {
-                hexMesh.SetColors(colors);
-                ListPool<Color>.Add(colors);
+                hexMesh.SetColors(cellWeights);
+                ListPool<Color>.Add(cellWeights);
+                hexMesh.SetUVs(2, cellIndices);
+                ListPool<Vector3>.Add(cellIndices);
             }
-            if (useUVCoordinates)
+            if (useUVCoordinates == true)
             {
                 hexMesh.SetUVs(0, uvs);
                 ListPool<Vector2>.Add(uvs);
             }
-            if (useUV2Coordinates)
+            if (useUV2Coordinates == true)
             {
                 hexMesh.SetUVs(1, uv2s);
                 ListPool<Vector2>.Add(uv2s);
             }
-            if (useTerrainTypes)
-            {
-                hexMesh.SetUVs(2, terrainTypes);
-                ListPool<Vector3>.Add(terrainTypes);
-            }
             hexMesh.SetTriangles(triangles, 0);
             ListPool<int>.Add(triangles);
             hexMesh.RecalculateNormals();
-            if (useCollider)
+            if (useCollider == true)
             {
                 meshCollider.sharedMesh = hexMesh;
             }
@@ -151,24 +142,6 @@ namespace GameScene.Map
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
-        }
-        /// <summary>
-        /// 添加一个三个顶点颜色相同的三角形顶点颜色
-        /// </summary>
-        public void AddTriangleColor(Color c)
-        {
-            colors.Add(c);
-            colors.Add(c);
-            colors.Add(c);
-        }
-        /// <summary>
-        /// 添加一个三个顶点颜色不同的三角形的三个顶点颜色
-        /// </summary>
-        public void AddTriangleColor(Color c1, Color c2, Color c3)
-        {
-            colors.Add(c1);
-            colors.Add(c2);
-            colors.Add(c3);
         }
         /// <summary>
         /// 添加一个顶点受扰动的四边形到网格
@@ -203,39 +176,6 @@ namespace GameScene.Map
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
             triangles.Add(vertexIndex + 3);
-        }
-        /// <summary>
-        /// <para/>添加一个四边形的四个顶点颜色
-        /// <para/>4个顶点颜色完全相同
-        /// </summary>
-        public void AddQuadColor(Color color)
-        {
-            colors.Add(color);
-            colors.Add(color);
-            colors.Add(color);
-            colors.Add(color);
-        }
-        /// <summary>
-        /// <para/>添加一个四边形的四个顶点颜色
-        /// <para/>4个顶点颜色两两成对
-        /// </summary>
-        public void AddQuadColor(Color c1, Color c2)
-        {
-            colors.Add(c1);
-            colors.Add(c1);
-            colors.Add(c2);
-            colors.Add(c2);
-        }
-        /// <summary>
-        /// <para/>添加一个四边形的四个顶点颜色
-        /// <para/>4个顶点颜色各不相同
-        /// </summary>
-        public void AddQuadColor(Color c1, Color c2, Color c3, Color c4)
-        {
-            colors.Add(c1);
-            colors.Add(c2);
-            colors.Add(c3);
-            colors.Add(c4);
         }
         /// <summary>
         /// 添加三角形UV坐标
@@ -296,23 +236,67 @@ namespace GameScene.Map
             uv2s.Add(new Vector2(uMax, vMax));
         }
         /// <summary>
-        /// 添加地形类型三角形
+        /// 
         /// </summary>
-        public void AddTriangleTerrainTypes(Vector3 types)
+        /// <param name="indices"></param>
+        /// <param name="weights1"></param>
+        /// <param name="weights2"></param>
+        /// <param name="weights3"></param>
+        public void AddTriangleCellData(Vector3 indices, Color weights1, Color weights2, Color weights3)
         {
-            terrainTypes.Add(types);
-            terrainTypes.Add(types);
-            terrainTypes.Add(types);
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellWeights.Add(weights1);
+            cellWeights.Add(weights2);
+            cellWeights.Add(weights3);
         }
         /// <summary>
-        /// 添加地形类型四边形
+        /// 
         /// </summary>
-        public void AddQuadTerrainTypes(Vector3 types)
+        /// <param name="indices"></param>
+        /// <param name="weights"></param>
+        public void AddTriangleCellData(Vector3 indices, Color weights)
         {
-            terrainTypes.Add(types);
-            terrainTypes.Add(types);
-            terrainTypes.Add(types);
-            terrainTypes.Add(types);
+            AddTriangleCellData(indices, weights, weights, weights);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <param name="weights1"></param>
+        /// <param name="weights2"></param>
+        /// <param name="weights3"></param>
+        /// <param name="weights4"></param>
+        public void AddQuadCellData(Vector3 indices,Color weights1, Color weights2, Color weights3, Color weights4)
+        {
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellIndices.Add(indices);
+            cellWeights.Add(weights1);
+            cellWeights.Add(weights2);
+            cellWeights.Add(weights3);
+            cellWeights.Add(weights4);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <param name="weights1"></param>
+        /// <param name="weights2"></param>
+        public void AddQuadCellData(Vector3 indices, Color weights1, Color weights2)
+        {
+            AddQuadCellData(indices, weights1, weights1, weights2, weights2);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <param name="weights"></param>
+        public void AddQuadCellData(Vector3 indices, Color weights)
+        {
+            AddQuadCellData(indices, weights, weights, weights, weights);
         }
 
         /// <summary>

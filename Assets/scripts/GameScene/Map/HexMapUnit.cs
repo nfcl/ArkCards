@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using GameScene.Team;
+using static UnityEditor.FilePathAttribute;
 
 namespace GameScene.Map
 {
@@ -34,11 +35,20 @@ namespace GameScene.Map
         /// 路径单元集
         /// </summary>
         private List<HexCell> pathToTravel;
+        /// <summary>
+        /// 可见视野半径
+        /// </summary>
+        public const int visionRange = 3;
 
         /// <summary>
         /// spine小人的动画控制器
         /// </summary>
         public SkeletonAnimation spineAnime;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public HexGrid Grid { get; set; }
 
         /// <summary>
         /// 小队名称属性
@@ -77,11 +87,14 @@ namespace GameScene.Map
             {
                 if ((currentCell is null) == false)
                 {
+                    Grid.DecreaseVisibility(currentCell, visionRange);
                     currentCell.Unit = null;
                 }
                 currentCell = value;
 
                 value.Unit = this;
+
+                Grid.IncreaseVisibility(value, visionRange);
 
                 transform.localPosition = value.Position;
             }
@@ -144,11 +157,14 @@ namespace GameScene.Map
 
                 yield return LookAt(b.x > a.x);
 
+                Grid.IncreaseVisibility(pathToTravel[i], visionRange);
+
                 for (float t = 0f; t < 1f; t += Time.deltaTime * travelSpeed)
                 {
                     transform.localPosition = Vector3.Lerp(a, b, t);
                     yield return null;
                 }
+                Grid.DecreaseVisibility(pathToTravel[i - 1], visionRange);
             }
             ChangeSpineAnimation("Relax");
         }
@@ -158,7 +174,9 @@ namespace GameScene.Map
         /// </summary>
         public void Travel(List<HexCell> path)
         {
+            currentCell.Unit = null;
             currentCell = path[path.Count - 1];
+            currentCell.Unit = this;
             pathToTravel = path;
             StopAllCoroutines();
             StartCoroutine(TravelPath());
@@ -169,12 +187,16 @@ namespace GameScene.Map
         public void ValidateLocation()
         {
             transform.localPosition = currentCell.Position;
-        }
+        } 
         /// <summary>
         /// 单位死亡（移除）
         /// </summary>
         public void Die()
         {
+            if (currentCell)
+            {
+                Grid.DecreaseVisibility(currentCell, visionRange);
+            }
             currentCell.Unit = null;
             Destroy(gameObject);
         }
