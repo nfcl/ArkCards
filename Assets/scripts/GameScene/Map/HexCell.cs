@@ -93,6 +93,10 @@ namespace GameScene.Map
         /// 
         /// </summary>
         public HexCellShaderData ShaderData { get; set; }
+        /// <summary>
+        /// 该单元是否被探索
+        /// </summary>
+        public bool IsExplored { get; private set; }
 
         /// <summary>
         /// 启发式寻路使用的综合代价
@@ -518,11 +522,12 @@ namespace GameScene.Map
                 roadFlags |= (roads[i] == true ? 1 : 0);
             }
             writer.Write((byte)roadFlags);
+            writer.Write(IsExplored);
         }
         /// <summary>
         /// 单元格数据读取
         /// </summary>
-        public void Load(BinaryReader reader)
+        public void Load(BinaryReader reader, int header)
         {
             //地形
             terrainType = HexMetrics.HexTerrains[reader.ReadByte()];
@@ -561,6 +566,8 @@ namespace GameScene.Map
                 roads[i] = (roadFlags & 1) == 1 ? true : false;
                 roadFlags >>= 1;
             }
+            IsExplored = header >= 3 ? reader.ReadBoolean() : false;
+            ShaderData.RefreshVisibility(this);
         }
         /// <summary>
         /// 获得对应方向的邻居
@@ -591,6 +598,13 @@ namespace GameScene.Map
         public HexEdgeType GetEdgeType(HexDirection direction)
         {
             return HexMetrics.GetEdgeType(elevation, neighbors[(int)direction].elevation);
+        }
+        /// <summary>
+        /// 获得和指定单元的边缘连接类型
+        /// </summary>
+        public HexEdgeType GetEdgeType(HexCell cell)
+        {
+            return HexMetrics.GetEdgeType(elevation, cell.elevation);
         }
         /// <summary>
         /// 检测某方向的边缘是否有河流经过
@@ -761,6 +775,7 @@ namespace GameScene.Map
             visibility += 1;
             if (visibility > 0)
             {
+                IsExplored = true;
                 ShaderData.RefreshVisibility(this);
             }
         }

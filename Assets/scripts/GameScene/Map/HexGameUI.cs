@@ -63,7 +63,7 @@ namespace GameScene.Map
                     && selectedUnit.IsValidDestination(currentCell) == true
                 )
                 {
-                    grid.FindPath(selectedUnit.CurrentCell, currentCell, 24);
+                    grid.FindPath(selectedUnit.CurrentCell, currentCell, selectedUnit);
                 }
                 else
                 {
@@ -91,6 +91,14 @@ namespace GameScene.Map
             enabled = !toggle;
             grid.ShowUI(!toggle);
             grid.ClearPath();
+            if (toggle == true)
+            {
+                Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
+            }
+            else
+            {
+                Shader.DisableKeyword("HEX_MAP_EDIT_MODE");
+            }
         }
 
         /// <summary>

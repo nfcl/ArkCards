@@ -221,8 +221,9 @@ namespace GameScene.Map
         /// <param name="fromCell">搜索起点</param>
         /// <param name="toCell">搜索终点</param>
         /// <param name="speed">可使用的代价</param>
-        private bool Search(HexCell fromCell, HexCell toCell, int speed)
+        private bool Search(HexCell fromCell, HexCell toCell, HexMapUnit unit)
         {
+            int speed = unit.speedPerTurn;
             //更新寻路阶段
             searchFrontierPhase += 2;
             //初始化优先队列
@@ -243,8 +244,6 @@ namespace GameScene.Map
             int distance;
             //旧的单元优先级，用于更改优先队列元素
             int oldPriority;
-            //当前单元和邻居的连接类型
-            HexEdgeType edgeType;
             //当前单元
             HexCell current;
             //当前单元的邻居
@@ -277,27 +276,15 @@ namespace GameScene.Map
                     {
                         continue;
                     }
-                    //获得当前单元和邻居的连接类型
-                    edgeType = current.GetEdgeType(d);
-                    //悬崖无法通行
-                    if (edgeType == HexEdgeType.Cliff)
+                    if (!unit.IsValidDestination(neighbor))
                     {
                         continue;
                     }
-                    //初始距离为当前单元格的距离
                     distance = current.Distance;
-                    //计算当前单元到邻居的距离
-                    if (current.HasRoadThroughEdge(d))
-                    {//道路距离缩短
-                        distance += 1;
-                    }
-                    else if (edgeType == HexEdgeType.Flat)
-                    {//平坦
-                        distance += 5;
-                    }
-                    else if (edgeType == HexEdgeType.Slope)
-                    {//斜坡
-                        distance += 10;
+                    distance += unit.GetMoveCost(current, neighbor, d);
+                    if (distance < 0)
+                    {
+                        continue;
                     }
                     //
                     if (neighbor.SearchPhase < searchFrontierPhase)
@@ -351,8 +338,6 @@ namespace GameScene.Map
             int distance;
             //旧的单元优先级，用于更改优先队列元素
             int oldPriority;
-            //当前单元和邻居的连接类型
-            HexEdgeType edgeType;
             //当前单元
             HexCell current;
             //当前单元的邻居
@@ -514,7 +499,7 @@ namespace GameScene.Map
         /// <summary>
         /// 地图网格数据读取
         /// </summary>
-        public void Load(BinaryReader reader)
+        public void Load(BinaryReader reader, int header)
         {
             ClearPath();
             ClearUnits();
@@ -530,7 +515,7 @@ namespace GameScene.Map
             }
             for (int i = 0; i < cells.Length; i++)
             {
-                cells[i].Load(reader);
+                cells[i].Load(reader, header);
             }
             for (int i = 0; i < chunks.Length; i++)
             {
@@ -615,15 +600,12 @@ namespace GameScene.Map
         /// <param name="fromCell">搜索起点</param>
         /// <param name="toCell">搜索终点</param>
         /// <param name="speed">可使用的代价</param>
-        public void FindPath(HexCell fromCell, HexCell toCell,int speed)
+        public void FindPath(HexCell fromCell, HexCell toCell, HexMapUnit unit)
         {
             ClearPath();
-
             currentPathFrom = fromCell;
             currentPathTo = toCell;
-
-            currentPathExists = Search(currentPathFrom, currentPathTo, speed);
-
+            currentPathExists = Search(fromCell, toCell, unit);
             ShowPath();
         }
         /// <summary>

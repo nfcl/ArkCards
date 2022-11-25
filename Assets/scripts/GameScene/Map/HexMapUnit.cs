@@ -69,7 +69,8 @@ namespace GameScene.Map
         {
             get
             {
-                return team.speedPerTurn;
+                //return team.speedPerTurn;
+                return 200;
             }
         }
         /// <summary>
@@ -205,7 +206,7 @@ namespace GameScene.Map
         /// </summary>
         public bool IsValidDestination(HexCell cell)
         {
-            return !cell.IsUnderwater && !cell.Unit;
+            return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
         }
         /// <summary>
         /// 保存
@@ -222,6 +223,27 @@ namespace GameScene.Map
             HexCoordinates coordinates = HexCoordinates.Load(reader);
 
             grid.AddUnit(Instantiate(unitPrefab), grid.GetCell(coordinates));
+        }
+        /// <summary>
+        /// 获得两个相邻单元间的移动距离
+        /// </summary>
+        public int GetMoveCost(HexCell fromCell, HexCell toCell, HexDirection direction)
+        {
+            HexEdgeType edgeType = fromCell.GetEdgeType(toCell);
+            if (edgeType == HexEdgeType.Cliff)
+            {
+                return -1;
+            }
+            int moveCost;
+            if (fromCell.HasRoadThroughEdge(direction))
+            {
+                moveCost = 1;
+            }
+            else
+            {
+                moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
+            }
+            return moveCost;
         }
 
         /// <summary>

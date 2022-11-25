@@ -14,6 +14,10 @@ namespace GameScene.Map
         /// 加载和保存模式
         /// </summary>
         private bool saveMode;
+        /// <summary>
+        /// 地图文件版本
+        /// </summary>
+        private const int mapFileVersion = 3;
 
         /// <summary>
         /// 地图网格
@@ -62,7 +66,7 @@ namespace GameScene.Map
                     new BinaryWriter(File.Open(path, FileMode.Create))
             )
             {
-                writer.Write(2);
+                writer.Write(mapFileVersion);
                 hexGrid.Save(writer);
             }
         }
@@ -82,9 +86,9 @@ namespace GameScene.Map
             )
             {
                 int header = reader.ReadInt32();
-                if (header == 2)
+                if (header >= 2)
                 {
-                    hexGrid.Load(reader);
+                    hexGrid.Load(reader, header);
                 }
                 else
                 {
