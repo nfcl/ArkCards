@@ -104,6 +104,7 @@
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.shader" />
     <None Include="Assets\Resources\spine\003_kalts\back\char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Road\Road.shader" />
+    <None Include="Assets\Resources\GameScene\MapNodes\Shader\Features\Feature.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HighLight.shader" />
   </ItemGroup>
   <ItemGroup>
