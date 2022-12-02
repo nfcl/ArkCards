@@ -1,0 +1,29 @@
+﻿{
+  "OperatorSource": [
+    {
+      "Name": "12F",
+      "Pic_Name": "char_009_12fce_1",
+      "Agile": 3
+    },
+    {
+      "Name": "杜林",
+      "Pic_Name": "char_501_durin_1",
+      "Agile": 3
+    },
+    {
+      "Name": "巡林者",
+      "Pic_Name": "char_503_rang_1",
+      "Agile": 3
+    },
+    {
+      "Name": "黑角",
+      "Pic_Name": "char_500_noirc_1",
+      "Agile": 2
+    },
+    {
+      "Name": "夜刀",
+      "Pic_Name": "char_502_nblade_1",
+      "Agile": 4
+    }
+  ]
+}
