@@ -376,3 +376,4 @@ FodyWeavers.xsd
 /spine-unity-examples-editor.csproj
 /spine-unity-editor.csproj
 *.asset
+/Assets/UnityPackages
