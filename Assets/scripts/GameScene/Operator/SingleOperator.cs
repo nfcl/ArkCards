@@ -1,4 +1,4 @@
-﻿namespace GameScene
+namespace GameScene
 {
     namespace Operator
     {
@@ -16,8 +16,63 @@
             /// 干员状态
             /// </summary>
             private OperatorState _state;
+            /// <summary>
+            /// 干员敏捷值
+            /// </summary>
+            private int _agile;
 
-            public string Name { get => _name; }
+            /// <summary>
+            /// <para/>干员名称属性
+            /// <para/>读 : 返回干员名称
+            /// </summary>
+            public string Name
+            {
+                get
+                {
+                    return _name;
+                }
+            }
+            /// <summary>
+            /// <para/>干员状态属性
+            /// <para/>读 : 返回干员状态
+            /// <para/>写 : 设置干员状态
+            /// </summary>
+            public OperatorState State
+            {
+                get 
+                {
+                    return _state; 
+                }
+                set
+                {
+                    _state = value;
+                }
+            }
+            /// <summary>
+            /// <para/>干员敏捷值属性
+            /// <para/>读 : 返回干员敏捷值
+            /// </summary>
+            public int Agile 
+            {
+                get 
+                { 
+                    return _agile;
+                }
+            }
+
+            /// <summary>
+            /// 从json数据构造干员数据
+            /// </summary>
+            /// <returns>返回干员数据</returns>
+            public static SingleOperator CreateFromJsonData(Json.CurrentOperators.CurrentOperatorsItem data)
+            {
+                return new SingleOperator 
+                {
+                    _name = data.Name, 
+                    State = OperatorState.Other, 
+                    _agile = OperatorMetrices.OperatorInfo[data.Name].Agile 
+                };
+            }
         }
     }
 }
