@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameScene.Map.Editor
@@ -19,7 +19,7 @@ namespace GameScene.Map.Editor
         /// <summary>
         /// 颜色选项集合
         /// </summary>
-        public ColorToggle[] ColorToggles;
+        public TerrainToggle[] ColorToggles;
 
         /// <summary>
         /// 设置颜色选项
@@ -28,7 +28,7 @@ namespace GameScene.Map.Editor
         public void SetColors()
         {
             int size = HexMetrics.HexTerrains.Length;
-            ColorToggles = new ColorToggle[size];
+            ColorToggles = new TerrainToggle[size];
             RectTransform rt = GetComponent<RectTransform>();
             rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + (10 + 30) * size);
             Vector3 bufpos = new Vector3(0, -25, 0);
@@ -37,7 +37,7 @@ namespace GameScene.Map.Editor
             {
                 clone = Instantiate(ColorTogglePrefab, transform);
                 clone.name = i.ToString();
-                ColorToggles[i] = clone.GetComponent<ColorToggle>();
+                ColorToggles[i] = clone.GetComponent<TerrainToggle>();
                 ColorToggles[i].SetPos(bufpos);
                 ColorToggles[i].SetTerrainName(HexMetrics.HexTerrains[i].typeName);
                 ColorToggles[i].SetToggleGroup(ToggleGroup);
@@ -55,7 +55,7 @@ namespace GameScene.Map.Editor
         /// <summary>
         /// 设置开关的回调函数
         /// </summary>
-        public void SetToggleDelegate(ColorToggle.ColorToggleDelegate dele)
+        public void SetToggleDelegate(TerrainToggle.ColorToggleDelegate dele)
         {
             int size = ColorToggles.Length;
             for (int i = 0; i < size; ++i)

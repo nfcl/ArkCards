@@ -3,7 +3,10 @@ using UnityEngine.UI;
 
 namespace GameScene.Map.Editor
 {
-    public class ColorToggle : MonoBehaviour
+    /// <summary>
+    /// 地图编辑器中的单个地形编辑选项
+    /// </summary>
+    public class TerrainToggle : MonoBehaviour
     {
         public delegate void ColorToggleDelegate(int index);
 
