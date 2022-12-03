@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace GameScene.Map
@@ -25,6 +25,10 @@ namespace GameScene.Map
         /// 地图网格
         /// </summary>
         public HexGrid grid;
+        /// <summary>
+        /// 小队信息界面
+        /// </summary>
+        public TeamInfoMenu teamMenu;
 
         /// <summary>
         /// 更新当前选择的单元格
@@ -48,7 +52,14 @@ namespace GameScene.Map
             UpdateCurrentCell();
             if ((currentCell is null) == false)
             {
-                selectedUnit = currentCell.Unit;
+                if(selectedUnit == currentCell.Unit)
+                {
+                    teamMenu.Open(currentCell.Unit.Team);
+                }
+                else
+                {
+                    selectedUnit = currentCell.Unit;
+                }
             }
         }
         /// <summary>

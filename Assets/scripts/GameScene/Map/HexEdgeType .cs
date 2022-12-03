@@ -1,4 +1,4 @@
-﻿namespace GameScene.Map
+namespace GameScene.Map
 {
     /// <summary>
     /// 节点边缘连接类型

@@ -1,4 +1,4 @@
-﻿using GameScene.Map;
+using GameScene.Map;
 using GameScene.Map.Editor;
 using UnityEngine;
 

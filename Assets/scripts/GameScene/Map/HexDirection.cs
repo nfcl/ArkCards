@@ -1,4 +1,4 @@
-﻿namespace GameScene.Map
+namespace GameScene.Map
 {
 
     //   / \ / \

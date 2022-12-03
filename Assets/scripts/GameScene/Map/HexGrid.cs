@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -686,7 +686,7 @@ namespace GameScene.Map
         /// <summary>
         /// 
         /// </summary>
-        private void Awake()
+        public void Init()
         {
             HexMetrics.noiseSource = noiseSource;
 

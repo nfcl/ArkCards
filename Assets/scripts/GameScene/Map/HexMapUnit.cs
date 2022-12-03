@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace GameScene.Map
         public static float travelSpeed = 0.8f;
 
         /// <summary>
-        /// 
+        /// 单位代表小队
         /// </summary>
         private SingleTeam team;
         /// <summary>
@@ -58,7 +58,7 @@ namespace GameScene.Map
         {
             get
             {
-                return team.TeamName;
+                return Team.TeamName;
             }
         }
         /// <summary>
@@ -108,6 +108,32 @@ namespace GameScene.Map
             get
             {
                 return transform.localEulerAngles.y > 180;
+            }
+        }
+        /// <summary>
+        /// 小队属性
+        /// 读 : 返回所在小队的实例
+        /// 写 : 设置代表的小队并使用队长作为spine动画
+        /// </summary>
+        public SingleTeam Team 
+        {
+            get 
+            { 
+                return team; 
+            }
+            set
+            {
+                team = value;
+
+                string path = $"CharPack/spine/{team.captain.Resource_Name}/build/build_char_{team.captain.Resource_Name}_SkeletonData";
+
+                spineAnime.ClearState();
+
+                spineAnime.skeletonDataAsset = Resources.Load<SkeletonDataAsset>(path);//build_char_009_12fce_SkeletonData
+
+                spineAnime.Initialize(true);
+
+                ChangeSpineAnimation("Relax");
             }
         }
 

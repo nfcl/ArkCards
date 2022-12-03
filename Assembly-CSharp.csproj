@@ -58,6 +58,9 @@
   <ItemGroup>
     <Compile Include="Assets\scripts\GameScene\Map\HexFeatureCollection.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexCellShaderData.cs" />
+    <Compile Include="Assets\scripts\GameScene\Operator\JCurrentOperators.cs" />
+    <Compile Include="Assets\scripts\GameScene\Operator\JOperatorSource.cs" />
+    <Compile Include="Assets\scripts\GameScene\Operator\OperatorMetrices.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexFeatureManager.cs" />
     <Compile Include="Assets\scripts\Tool\PannelChange.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexMetrics.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="Assets\scripts\Tool\Math.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexCell.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\SaveLoadItem.cs" />
+    <Compile Include="Assets\scripts\Tool\DataRead.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexMapUnit.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexGridChunk.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\EdgeVertices .cs" />
@@ -73,12 +77,15 @@
     <Compile Include="Assets\scripts\GameScene\Operator\OperatorState.cs" />
     <Compile Include="Assets\scripts\GameScene\GameSceneManager.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexCoordinates.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\OperatorListItem.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexMapCamera.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\TeamInfoMenu.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexDirection.cs" />
     <Compile Include="Assets\scripts\GameScene\Operator\OperatorCollection.cs" />
     <Compile Include="Assets\scripts\GameScene\Team\TeamCollection.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexTerrainType.cs" />
-    <Compile Include="Assets\scripts\GameScene\Map\ColorToggle.cs" />
+    <Compile Include="Assets\scripts\GameScene\Team\JCurrentTeams.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\TerrainToggle.cs" />
     <Compile Include="Assets\scripts\StartScene\StartCanvas\StartSceneStartCanvasManager.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\HexMesh.cs" />
     <Compile Include="Assets\scripts\GameScene\Team\SingleTeam.cs" />
@@ -90,22 +97,39 @@
     <Compile Include="Assets\scripts\GameScene\Map\HexGameUI.cs" />
     <Compile Include="Assets\scripts\Tool\ListPool.cs" />
     <Compile Include="Assets\scripts\GameScene\Map\SaveLoadMenu.cs" />
+    <Compile Include="Assets\scripts\GameScene\Map\NewTeamMenu.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Resources\CharPack\spine\503_rang\face\char_503_rang.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\502_nblade\back\char_502_nblade.atlas.txt" />
     <None Include="Assets\Spine\version.txt" />
+    <None Include="Assets\Resources\CharPack\spine\009_12fce\build\build_char_009_12fce.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\503_rang\build\build_char_503_rang.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\009_12fce\face\char_009_12fce.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\WaterShore.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HexCellData.cginc" />
-    <None Include="Assets\Resources\spine\003_kalts\face\char_003_kalts.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\502_nblade\build\build_char_502_nblade.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\003_kalts\face\char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\River.shader" />
+    <None Include="Assets\Resources\CharPack\spine\503_rang\back\char_503_rang.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\502_nblade\face\char_502_nblade.atlas.txt" />
+    <None Include="Assets\UnityPackages\JsonNet\Newtonsoft.Json.dll" />
+    <None Include="Assets\Resources\CharPack\spine\500_noirc\back\char_500_noirc.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\501_durin\build\build_char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\Terrain.shader" />
+    <None Include="Assets\Resources\CharPack\spine\500_noirc\build\build_char_500_noirc.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\501_durin\back\char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.cginc" />
-    <None Include="Assets\Resources\spine\003_kalts\build\build_char_003_kalts.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\003_kalts\build\build_char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Estuary.shader" />
+    <None Include="Assets\Resources\CharPack\spine\500_noirc\face\char_500_noirc.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.shader" />
-    <None Include="Assets\Resources\spine\003_kalts\back\char_003_kalts.atlas.txt" />
+    <None Include="Assets\Resources\CharPack\spine\003_kalts\back\char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Road\Road.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Features\Feature.shader" />
+    <None Include="Assets\Resources\CharPack\spine\501_durin\face\char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HighLight.shader" />
+    <None Include="Assets\Resources\CharPack\spine\009_12fce\back\char_009_12fce.atlas.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -341,6 +365,9 @@
     </Reference>
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>E:\Program Files\Unity\2020.3.41f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\UnityPackages\JsonNet\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>E:\Program Files\Unity\2020.3.41f1c1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
