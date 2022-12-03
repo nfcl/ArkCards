@@ -1,5 +1,6 @@
 using GameScene.Operator;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace GameScene
@@ -47,9 +48,21 @@ namespace GameScene
                     return speedPerTurn;
                 }
             }
-
-            public SingleTeam()
+            /// <summary>
+            /// <para/>队长属性
+            /// <para/>读 : 返回队伍列表中的第一个干员
+            /// </summary>
+            public SingleOperator captain
             {
+                get
+                {
+                    return _members[0];
+                }
+            }
+
+            public SingleTeam(string teamName = "")
+            {
+                _teamName = teamName;
                 _members = new List<SingleOperator>();
             }
 
@@ -70,16 +83,35 @@ namespace GameScene
             /// <summary>
             /// 添加干员到小队
             /// </summary>
-            public bool AddOperator(SingleOperator other)
+            public bool AddOperator(SingleOperator src)
             {
-                if (_members.IndexOf(other) != -1)
+                if (_members.IndexOf(src) != -1)
                 {
                     return false;
                 }
 
-                _members.Add(other);
+                _members.Add(src);
 
-                other.State = OperatorState.Team;
+                src.State = OperatorState.Team;
+
+                RefreshSpeed();
+
+                return true;
+            }
+            /// <summary>
+            /// 添加干员到小队
+            /// </summary>
+            public bool AddOperator(string operatorName)
+            {
+                SingleOperator singleOperator = GameSceneManager.operators.GetOperator(operatorName);
+                if (_members.IndexOf(singleOperator) != -1)
+                {
+                    return false;
+                }
+
+                _members.Add(singleOperator);
+
+                singleOperator.State = OperatorState.Team;
 
                 RefreshSpeed();
 
@@ -102,6 +134,21 @@ namespace GameScene
                 RefreshSpeed();
 
                 return true;
+            }
+            /// <summary>
+            /// 清空干员列表
+            /// </summary>
+            public void ClearOperators()
+            {
+                _members.Clear();
+                RefreshSpeed();
+            }
+            /// <summary>
+            /// 小队成员是否为空
+            /// </summary>
+            public bool EmptyMembers()
+            {
+                return _members.Count == 0;
             }
             /// <summary>
             /// 刷新小队每回合速度

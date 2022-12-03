@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.IO;
 using UnityEditorInternal;
 using UnityEngine;
@@ -20,6 +20,10 @@ namespace GameScene.Map.Editor
         /// 地形材质
         /// </summary>
         public Material terrainMaterial;
+        /// <summary>
+        /// 创建新队伍的界面
+        /// </summary>
+        public NewTeamMenu newTeamMenu;
 
         /// <summary>
         /// 是否更改单元格地形
@@ -172,7 +176,10 @@ namespace GameScene.Map.Editor
             HexCell currentCell = GetCellUnderCursor();
             if (currentCell)
             {
-                if (previousCell && previousCell != currentCell)
+                if (
+                    (previousCell is null) == false
+                    && previousCell != currentCell
+                )
                 {
                     ValidateDrag(currentCell);
                 }
@@ -305,7 +312,7 @@ namespace GameScene.Map.Editor
             HexCell cell = GetCellUnderCursor();
             if ((cell is null) == false && cell.Unit is null)
             {
-                hexGrid.AddUnit(Instantiate(HexMapUnit.unitPrefab), cell);
+                newTeamMenu.Open(cell);
             }
         }
         /// <summary>

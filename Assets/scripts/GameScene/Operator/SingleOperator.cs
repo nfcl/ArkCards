@@ -33,6 +33,17 @@ namespace GameScene
                 }
             }
             /// <summary>
+            /// <para/>资源名称属性
+            /// <para/>读 : 返回干员相关的资源名称
+            /// </summary>
+            public string Resource_Name
+            {
+                get
+                {
+                    return OperatorMetrices.OperatorInfo[_name].Pic_Name;
+                }
+            }
+            /// <summary>
             /// <para/>干员状态属性
             /// <para/>读 : 返回干员状态
             /// <para/>写 : 设置干员状态

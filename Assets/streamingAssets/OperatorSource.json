@@ -1,28 +1,28 @@
-﻿{
+{
   "OperatorSource": [
     {
       "Name": "12F",
-      "Pic_Name": "char_009_12fce_1",
+      "Pic_Name": "009_12fce",
       "Agile": 3
     },
     {
       "Name": "杜林",
-      "Pic_Name": "char_501_durin_1",
+      "Pic_Name": "501_durin",
       "Agile": 3
     },
     {
       "Name": "巡林者",
-      "Pic_Name": "char_503_rang_1",
+      "Pic_Name": "503_rang",
       "Agile": 3
     },
     {
       "Name": "黑角",
-      "Pic_Name": "char_500_noirc_1",
+      "Pic_Name": "500_noirc",
       "Agile": 2
     },
     {
       "Name": "夜刀",
-      "Pic_Name": "char_502_nblade_1",
+      "Pic_Name": "502_nblade",
       "Agile": 4
     }
   ]

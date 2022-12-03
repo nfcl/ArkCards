@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GameScene.Operator
@@ -87,6 +88,14 @@ namespace GameScene.Operator
             currentOperators.Remove(name);
             //返回移除成功
             return true;
+        }
+        /// <summary>
+        /// 获得已有的干员名称列表
+        /// </summary>
+        /// <returns></returns>
+        public SingleOperator[] GetCurrentOperators()
+        {
+            return currentOperators.Values.ToArray();
         }
     }
 }
