@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{17CC8E3C-C675-1EB5-8C1B-0A4B95FDF2D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -100,36 +101,19 @@
     <Compile Include="Assets\scripts\GameScene\Map\NewTeamMenu.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Resources\CharPack\spine\503_rang\face\char_503_rang.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\502_nblade\back\char_502_nblade.atlas.txt" />
-    <None Include="Assets\Spine\version.txt" />
-    <None Include="Assets\Resources\CharPack\spine\009_12fce\build\build_char_009_12fce.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\503_rang\build\build_char_503_rang.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\009_12fce\face\char_009_12fce.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\WaterShore.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HexCellData.cginc" />
-    <None Include="Assets\Resources\CharPack\spine\502_nblade\build\build_char_502_nblade.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\003_kalts\face\char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\River.shader" />
-    <None Include="Assets\Resources\CharPack\spine\503_rang\back\char_503_rang.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\502_nblade\face\char_502_nblade.atlas.txt" />
-    <None Include="Assets\UnityPackages\JsonNet\Newtonsoft.Json.dll" />
-    <None Include="Assets\Resources\CharPack\spine\500_noirc\back\char_500_noirc.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\501_durin\build\build_char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\Terrain.shader" />
-    <None Include="Assets\Resources\CharPack\spine\500_noirc\build\build_char_500_noirc.atlas.txt" />
-    <None Include="Assets\Resources\CharPack\spine\501_durin\back\char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.cginc" />
-    <None Include="Assets\Resources\CharPack\spine\003_kalts\build\build_char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Estuary.shader" />
-    <None Include="Assets\Resources\CharPack\spine\500_noirc\face\char_500_noirc.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Water\Water.shader" />
-    <None Include="Assets\Resources\CharPack\spine\003_kalts\back\char_003_kalts.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Road\Road.shader" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\Features\Feature.shader" />
-    <None Include="Assets\Resources\CharPack\spine\501_durin\face\char_501_durin.atlas.txt" />
     <None Include="Assets\Resources\GameScene\MapNodes\Shader\HexMesh\HighLight.shader" />
-    <None Include="Assets\Resources\CharPack\spine\009_12fce\back\char_009_12fce.atlas.txt" />
+    <None Include="Assets\streamingAssets\CurrentOperators.json" />
+    <None Include="Assets\streamingAssets\CurrentTeams.json" />
+    <None Include="Assets\streamingAssets\OperatorSource.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -814,6 +798,9 @@
       <Project>{C9521454-9D49-25BE-B73B-E5829F4AD0DA}</Project>
       <Name>spine-unity-editor</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Resources\CharPack\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
